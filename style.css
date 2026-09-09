@@ -355,3 +355,10 @@ a.pn-item:hover .pn-title { color: var(--accent); }
 .fc-go { color: var(--accent); font-size: 11px; margin-left: 4px; white-space: nowrap; }
 .h5-block { border-bottom: 1px solid var(--border); }
 .h5-detail { background: var(--code-bg); padding: 6px 10px; margin: 4px 0; border-radius: 6px; font-size: .82rem; }
+
+/* 测试数据生成器 */
+.gen-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; flex-wrap: wrap; }
+.gen-row code { font-family: Consolas, Menlo, monospace; font-size: .85rem; }
+select.input, input.input { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .5rem; font-size: .88rem; font-family: inherit; }
+select.input:focus, input.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
+.result { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; overflow-x: auto; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }

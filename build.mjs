@@ -1538,6 +1538,109 @@ return line + '</div>';
 })();
 </script>`;
   fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-102 数据解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深表面 .h5 文件，查看结构树、属性与水深统计，基于 h5wasm（WebAssembly HDF5），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
+/* ---------------- S-100 测试数据生成器 ---------------- */
+const GEN_PAGE = `<section class="post tool-page">
+<h1 class="post-title">S-100 测试数据生成器</h1>
+<div class="post-meta">基于 IHO S-101 Feature Catalogue 2.0.0 · 纯浏览器本地生成 · v1：要素实例骨架（JSON / GeoJSON）</div>
+<p>选一个要素类型，生成属性齐全的合成实例——渲染调试、解析器测试、Mock 数据的起点。枚举属性自动带合法值下拉，必填属性默认勾选。S-101 的运营编码（ISO 8211）请走专业转换工具，这里产出的是给开发用的实例骨架。</p>
+<div class="panel">
+<h2>1. 选要素类型</h2>
+<p class="toolbar"><span class="search"><input id="gen-q" class="search-input" type="search" placeholder="过滤：如 DEPARE / Wreck / 沉船…" aria-label="过滤要素类型"></span></p>
+<select id="gen-type" class="input" size="8" style="width:100%"></select>
+<p class="toolbar" style="margin-top:8px">
+<span class="panel-desc" style="margin:0">几何类型：</span>
+<label class="check"><input type="radio" name="gen-geom" value="Point" checked> 点</label>
+<label class="check"><input type="radio" name="gen-geom" value="LineString"> 线</label>
+<label class="check"><input type="radio" name="gen-geom" value="Polygon"> 面</label>
+<span class="panel-desc" style="margin:0">中心经纬度：</span>
+<input id="gen-lon" class="input" style="width:90px" value="122.5">
+<input id="gen-lat" class="input" style="width:90px" value="31.0">
+</p>
+</div>
+<div class="panel">
+<h2>2. 属性</h2>
+<p class="panel-desc" id="gen-attr-desc">选择要素类型后列出属性绑定。</p>
+<div id="gen-attrs"></div>
+</div>
+<p class="toolbar"><button id="gen-go" class="btn" type="button">生 成</button><span id="gen-status" class="panel-desc">正在加载目录数据…</span></p>
+<div class="panel hidden" id="gen-out">
+<h2>3. 生成结果</h2>
+<p class="panel-desc"><strong>JSON</strong>（解析器测试用）<button class="btn" data-copy="gen-json" type="button">复制</button></p>
+<pre class="result" id="gen-json"></pre>
+<p class="panel-desc"><strong>GeoJSON Feature</strong>（渲染测试用）<button class="btn" data-copy="gen-geo" type="button">复制</button></p>
+<pre class="result" id="gen-geo"></pre>
+</div>
+<p class="panel-desc">枚举值取自 S-101 目录的合法值清单；复杂属性 v1 暂不生成，仅在属性表中标注。目录数据：IHO S-101 FC 2.0.0，版权归 IHO。</p>
+</section>
+<script src="assets/s100-fc/fc-data.js"></script>
+<script>
+(function(){
+  var FC = window.FC_DATA || null;
+  var cur = null;
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function status(t){ document.getElementById('gen-status').textContent = t; }
+  function attrByCode(code){ return FC.simple.filter(function(a){return a.code===code})[0] || FC.complex.filter(function(a){return a.code===code})[0] || null; }
+  function loadTypes(){
+    var q = document.getElementById('gen-q').value.toLowerCase();
+    var sel = document.getElementById('gen-type');
+    var opts = FC.featureTypes.filter(function(o){ return !q || (o.code+' '+o.alias+' '+o.name).toLowerCase().indexOf(q)>=0; })
+      .map(function(o){ return '<option value="'+esc(o.code)+'">'+esc(o.code)+(o.alias?' ('+esc(o.alias)+')':'')+' — '+esc(o.name)+'</option>'; });
+    sel.innerHTML = opts.join('') || '<option disabled>(无匹配)</option>';
+    if (!cur && FC.featureTypes.length) { sel.selectedIndex = 0; showAttrs(); }
+  }
+  function showAttrs(){
+    var code = document.getElementById('gen-type').value;
+    cur = FC.featureTypes.filter(function(o){return o.code===code})[0] || null;
+    if (!cur) { document.getElementById('gen-attr-desc').textContent = '未选择'; return; }
+    document.getElementById('gen-attr-desc').innerHTML = '<strong>'+esc(cur.code)+'</strong> '+esc(cur.name)+' — 共 '+cur.attrs.length+' 个属性绑定';
+    document.getElementById('gen-attrs').innerHTML = cur.attrs.map(function(a, i){
+      var def = attrByCode(a.ref);
+      var isComplex = def && def.attrs ? true : false;
+      var required = a.mult.indexOf('0') !== 0;
+      var pvs = a.pvs.length ? a.pvs : (def && def.values ? def.values.map(function(v){return v.code}) : []);
+      var field;
+      if (isComplex) field = '<span class="fc-opt">复杂属性，v1 不生成</span>';
+      else if (pvs.length) field = '<select class="input" data-i="'+i+'" data-code="'+esc(a.ref)+'">'+pvs.map(function(v){return '<option>'+esc(v)+'</option>'}).join('')+'</select>';
+      else field = '<input class="input" data-i="'+i+'" data-code="'+esc(a.ref)+'" data-vt="'+esc((def&&def.vt)||'H5')+'" style="width:180px" placeholder="'+esc(a.mult)+'">';
+      return '<div class="gen-row"><label class="check"><input type="checkbox" class="gen-inc" data-i="'+i+'" '+((required||!isComplex)?'checked':'')+(isComplex?' disabled':'')+'> <code>'+esc(a.ref)+'</code></label> <span class="'+(required?'fc-req':'fc-opt')+'">'+esc(a.mult)+'</span> '+(def?esc(def.name||''):'')+' '+field+'</div>';
+    }).join('');
+  }
+  document.getElementById('gen-q').addEventListener('input', loadTypes);
+  document.getElementById('gen-type').addEventListener('change', showAttrs);
+  document.getElementById('gen-go').addEventListener('click', function(){
+    if (!cur) { status('请先选择要素类型'); return; }
+    var lon = parseFloat(document.getElementById('gen-lon').value) || 0;
+    var lat = parseFloat(document.getElementById('gen-lat').value) || 0;
+    var geom = (document.querySelector('input[name="gen-geom"]:checked')||{value:'Point'}).value;
+    var attrs = {}, missing = [];
+    [].slice.call(document.querySelectorAll('.gen-inc')).forEach(function(cb){
+      if (!cb.checked) return;
+      var i = cb.dataset.i; var b = cur.attrs[i];
+      var def = attrByCode(b.ref);
+      if (def && def.attrs) { missing.push(b.ref + '（复杂属性）'); return; }
+      var el = document.querySelector('.gen-row [data-i="'+i+'"][data-code]');
+      var val = el ? (el.value || '') : '';
+      if (!val && b.mult.indexOf('0') !== 0) missing.push(b.ref + '（必填未填）');
+      if (val !== '') attrs[b.ref] = (def && def.vt === 'real') ? (parseFloat(val)||val) : val;
+    });
+    var coords = { Point: [lon, lat], LineString: [[lon-0.05, lat-0.03],[lon, lat],[lon+0.05, lat+0.03]], Polygon: [[[lon-0.05,lat-0.03],[lon+0.05,lat-0.03],[lon,lat+0.04],[lon-0.05,lat-0.03]]] };
+    var json = { featureType: cur.code, s57Alias: cur.alias || undefined, productName: 'S-101', geometryType: geom, attributes: attrs, note: '合成测试数据，非真实海图要素' };
+    var geo = { type: 'Feature', geometry: { type: geom, coordinates: coords[geom] }, properties: Object.assign({featureType: cur.code}, attrs) };
+    document.getElementById('gen-json').textContent = JSON.stringify(json, null, 2);
+    document.getElementById('gen-geo').textContent = JSON.stringify(geo, null, 2);
+    document.getElementById('gen-out').classList.remove('hidden');
+    status(missing.length ? '生成完成，但缺：' + missing.join('、') : '生成完成。');
+  });
+  document.body.addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-copy]'); if (!b) return;
+    var src = document.getElementById(b.dataset.copy);
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(src.textContent);
+    var old = b.innerText; b.innerText = '已复制'; setTimeout(function(){ b.innerText = old }, 900);
+  });
+  if (FC) { loadTypes(); status('目录就绪：S-101 FC 2.0.0'); } else { status('目录数据加载失败'); }
+})();
+</script>`;
+  fs.writeFileSync(path.join(OUT_DIR, 'gen.html'), layout('S-100 测试数据生成器', 'S-100 测试数据生成器：基于 S-101 要素目录生成属性齐全的合成要素实例（JSON / GeoJSON），枚举属性自动带合法值，用于渲染与解析测试。', GEN_PAGE, 'website', `${CFG.siteUrl}/gen.html`, true));
 
 console.log(`✔ 构建完成 → ${OUT_DIR}`);
 console.log(`  已发布 ${articles.length} 篇 · 草稿 ${drafts.length} 篇（已生成页面但不进目录/RSS） · 独立页面 ${pages.length} 个 · 工具 ${TOOLS.length} 个`);
