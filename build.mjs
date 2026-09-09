@@ -1119,5 +1119,383 @@ ${palRows}
   fs.writeFileSync(path.join(OUT_DIR, 's52.html'), layout('S-52 颜色与符号速查', 'S-52 在线速查：五套标准调色板（白昼/黄昏/夜间）63 个颜色令牌屏显值，166 个 INT 1 图式常用海图符号中文图库，支持实时过滤。', s52Body, 'website', `${CFG.siteUrl}/s52.html`, true));
 }
 
+/* ---------------- S-100 要素目录解析器 ---------------- */
+if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
+  const fcBody = `<section class="post tool-page">
+<h1 class="post-title">S-100 要素目录解析器</h1>
+<div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Feature Catalogue 2.0.0 · 支持上传任意 S-100 产品的 FC XML</div>
+<p>把 S-100 要素目录（FC）XML 拖进来或上传，即刻得到可搜索的要素类型 / 信息类型 / 属性 / 枚举值 / 关联全景。做 S-101 解析器和 ECDIS 校验时，这就是你的离线字典。</p>
+<p class="toolbar"><span class="btn file-btn">上传目录 XML<input type="file" id="fc-file" accept=".xml,text/xml" hidden></span><button id="fc-sample" class="btn" type="button">加载内置 S-101 样本</button><span id="fc-status" class="panel-desc">正在加载内置样本…</span></p>
+<div id="fc-stats" class="fc-stats hidden"></div>
+<p class="toolbar cat-pills hidden" id="fc-tabs">
+<button class="pill on" data-tab="ft" type="button">要素类型</button><button class="pill" data-tab="it" type="button">信息类型</button><button class="pill" data-tab="attr" type="button">属性</button><button class="pill" data-tab="assoc" type="button">关联</button>
+</p>
+<p class="toolbar hidden" id="fc-searchbar"><span class="search"><input id="fc-q" class="search-input" type="search" placeholder="过滤：如 DEPARE / Anchorage / 深度…" aria-label="过滤目录"></span><span class="panel-desc" style="margin:0">命中 <span id="fc-count">0</span> 条 · 点击行展开明细</span></p>
+<div class="table-wrap hidden" id="fc-tablewrap"><table class="data-table"><thead id="fc-head"></thead><tbody id="fc-body"></tbody></table></div>
+<p class="panel-desc hidden" id="fc-foot">解析在你的浏览器本地完成，文件不会上传到任何服务器。内置样本为 IHO S-101 Feature Catalogue 2.0.0（2024-10-16），版权归 IHO，仅作开发参考。</p>
+</section>
+<script>
+(function(){
+  var FC = null;
+  function kids(el, name){ var out=[]; for (var i=0;i<el.children.length;i++){ var c=el.children[i]; if (c.localName===name) out.push(c); } return out; }
+  function kid(el, name){ var a=kids(el,name); return a.length?a[0]:null; }
+  function txt(el, name){ var c=kid(el,name); return c?c.textContent.trim():''; }
+  function deep(el, name){ var out=[]; for (var i=0;i<el.children.length;i++){ var c=el.children[i]; if (c.localName===name) out.push(c); out=out.concat(deep(c,name)); } return out; }
+  function parseFC(text){
+    var doc = new DOMParser().parseFromString(text, 'text/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('XML 解析失败：不是合法的 XML 文件');
+    var all = doc.getElementsByTagName('*'), b = {};
+    for (var i=0;i<all.length;i++){ var ln = all[i].localName; (b[ln]=b[ln]||[]).push(all[i]); }
+    function bindings(el){ return kids(el,'attributeBinding').map(function(ab){
+      var ref='', m=deep(ab,'lower')[0], mu=deep(ab,'upper')[0];
+      var attrEl = kids(ab,'attribute')[0] || kids(ab,'complexAttribute')[0];
+      if (attrEl) ref = attrEl.getAttribute('ref')||'';
+      var pv = deep(ab,'permittedValues')[0], pvs = pv ? [].slice.call(pv.children).map(function(v){return v.textContent.trim()}) : [];
+      var lower = m?m.textContent.trim():'0', upper = mu?mu.textContent.trim():'1';
+      if (mu && mu.getAttribute('infinite')==='true') upper = '*';
+      return {ref:ref, mult:lower+'..'+upper, pvs:pvs};
+    }); }
+    function infoBindings(el){ return kids(el,'informationBinding').map(function(ib){
+      var itEl = kids(ib,'informationType')[0];
+      var mu=deep(ib,'lower')[0], muu=deep(ib,'upper')[0];
+      return {ref: itEl?(itEl.getAttribute('ref')||''):'', role: ib.getAttribute('roleType')||'', mult:(mu?mu.textContent.trim():'0')+'..'+(muu?muu.textContent.trim():'1')};
+    }); }
+    function listed(el){ return deep(el,'listedValue').map(function(lv){ return {code:(kid(lv,'code')?kid(lv,'code').textContent.trim():''), def:(kid(lv,'definition')?kid(lv,'definition').textContent.trim():''), label:(kid(lv,'label')?kid(lv,'label').textContent.trim():'')}; }); }
+    function typeOf(el){ return { name:txt(el,'name'), def:txt(el,'definition'), code:txt(el,'code'), alias:txt(el,'alias'), abstract:el.getAttribute('isAbstract')==='true', clause:(function(){var dr=kid(el,'definitionReference'); return dr?(kid(dr,'sourceIdentifier')?kid(dr,'sourceIdentifier').textContent.trim():''):''})(), attrs:bindings(el), infos:infoBindings(el) }; }
+    var fc = { featureTypes: (b['S100_FC_FeatureType']||[]).map(typeOf),
+      informationTypes: (b['S100_FC_InformationType']||[]).map(typeOf),
+      simple: (b['S100_FC_SimpleAttribute']||[]).map(function(el){ return { name:txt(el,'name'), def:txt(el,'definition'), code:txt(el,'code'), alias:txt(el,'alias'), vt:txt(el,'valueType'), values:listed(el) }; }),
+      complex: (b['S100_FC_ComplexAttribute']||[]).map(function(el){ return { name:txt(el,'name'), def:txt(el,'definition'), code:txt(el,'code'), alias:txt(el,'alias'), attrs:bindings(el) }; }),
+      assoc: (b['S100_FC_FeatureAssociation']||[]).map(function(el){ return { name:txt(el,'name'), def:txt(el,'definition'), code:txt(el,'code'), roles:[].slice.call(el.children).filter(function(c){return c.localName==='role'}).map(function(r){return r.getAttribute('ref')||''}) }; }),
+      roles: (b['S100_FC_Role']||[]).map(function(el){ return { code:txt(el,'code'), name:txt(el,'name'), type:txt(el,'roleType'), members:deep(el,'member').map(function(m){return m.getAttribute('ref')||''}) }; })
+    };
+    if (!fc.featureTypes.length && !fc.simple.length) throw new Error('没有找到 FC 内容：确认这是 S-100 要素目录（FC）XML');
+    return fc;
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function render(){
+    var ft=FC.featureTypes.length, it=FC.informationTypes.length, sa=FC.simple.length, ca=FC.complex.length, as=FC.assoc.length;
+    var lv=0; FC.simple.forEach(function(a){lv+=a.values.length});
+    var chips=[['要素类型',ft],['信息类型',it],['简单属性',sa],['复杂属性',ca],['关联',as],['枚举值',lv]];
+    document.getElementById('fc-stats').innerHTML = chips.map(function(c){return '<div class="pal-card fc-stat"><div class="fc-num">'+c[1]+'</div><div class="pal-zh">'+c[0]+'</div></div>'}).join('');
+    ['fc-stats','fc-tabs','fc-searchbar','fc-tablewrap','fc-foot'].forEach(function(id){document.getElementById(id).classList.remove('hidden')});
+    applyTab();
+  }
+  var TAB='ft', Q='';
+  function multCls(m){ return m.indexOf('0')===0 ? 'fc-opt' : 'fc-req'; }
+  function applyTab(){
+    var head=document.getElementById('fc-head'), body=document.getElementById('fc-body'), q=Q.toLowerCase();
+    function hit(o){ return !q || [o.code,o.alias,o.name,o.def].join(' ').toLowerCase().indexOf(q)>=0; }
+    var rows='';
+    if (TAB==='ft' || TAB==='it') {
+      var list=(TAB==='ft'?FC.featureTypes:FC.informationTypes).filter(hit);
+      head.innerHTML='<tr><th>编码</th><th>S-57 别名</th><th>名称</th><th>属性绑定</th><th>信息绑定</th></tr>';
+      rows=list.map(function(o){
+        var det='<div class="fc-def">'+esc(o.def||'(无定义)')+(o.clause?'<span class="sym-obj">DCEG '+esc(o.clause)+'</span>':'')+'</div>'
+          + (o.abstract?'<p class="panel-desc">抽象类型</p>':'')
+          + (o.attrs.length?'<p class="panel-desc"><strong>属性绑定</strong></p><ul class="fc-list">'+o.attrs.map(function(a){var pvs=a.pvs.length?' <span class=fc-opt>允许值: '+esc(a.pvs.join(' / '))+'</span>':''; return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span>'+pvs+'</li>'}).join('')+'</ul>':'')
+          + (o.infos.length?'<p class="panel-desc"><strong>信息绑定</strong></p><ul class="fc-list">'+o.infos.map(function(a){return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span> '+(a.role?esc(a.role):'')+'</li>'}).join('')+'</ul>':'');
+        return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.alias||'—')+'</td><td>'+esc(o.name)+'</td><td>'+o.attrs.length+'</td><td>'+o.infos.length+'</td></tr>';
+      }).join('');
+      document.getElementById('fc-count').textContent=list.length;
+    } else if (TAB==='attr') {
+      var list=FC.simple.filter(hit).map(function(o){return {kind:'simple', o:o}}).concat(FC.complex.filter(hit).map(function(o){return {kind:'complex', o:o}}));
+      head.innerHTML='<tr><th>编码</th><th>S-57 别名</th><th>名称</th><th>类型</th><th>枚举值</th></tr>';
+      rows=list.map(function(w){
+        var o=w.o;
+        var det='<div class="fc-def">'+esc(o.def||'(无定义)')+'</div>';
+        if (w.kind==='complex') det+=o.attrs.length?'<ul class="fc-list">'+o.attrs.map(function(a){return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span></li>'}).join('')+'</ul>':'';
+        return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.alias||'—')+'</td><td>'+esc(o.name)+'</td><td>'+(w.kind==='complex'?'复杂':esc(o.vt||'—'))+'</td><td>'+(w.kind==='simple'?o.values.length:'—')+'</td></tr>';
+      }).join('');
+      document.getElementById('fc-count').textContent=list.length;
+    } else {
+      var list=FC.assoc.filter(hit);
+      head.innerHTML='<tr><th>编码</th><th>名称</th><th>角色</th></tr>';
+      rows=list.map(function(o){
+        var members=[];
+        o.roles.forEach(function(rc){ var role=FC.roles.filter(function(x){return x.code===rc})[0]; if(role) members.push({rc:rc, role:role}); });
+        var det='<div class="fc-def">'+esc(o.def||'')+'</div>'+(members.length?'<ul class="fc-list">'+members.map(function(m){return '<li><code>'+esc(m.rc)+'</code> '+esc(m.role.type||'')+' ← '+m.role.members.map(esc).join(', ')+'</li>'}).join('')+'</ul>':'');
+        return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.name)+'</td><td>'+o.roles.map(esc).join(' ↔ ')+'</td></tr>';
+      }).join('');
+      document.getElementById('fc-count').textContent=list.length;
+    }
+    body.innerHTML=rows || '<tr><td colspan="5" class="not-conv">无匹配</td></tr>';
+  }
+  document.getElementById('fc-tabs').addEventListener('click', function(ev){
+    var p = ev.target.closest('.pill'); if (!p) return;
+    [].slice.call(document.querySelectorAll('#fc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x===p)});
+    TAB = p.dataset.tab; applyTab();
+  });
+  document.getElementById('fc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
+  document.getElementById('fc-body').addEventListener('click', function(ev){
+    var tr = ev.target.closest('.fc-row'); if (!tr) return;
+    var next = tr.nextElementSibling;
+    if (next && next.classList.contains('fc-detail')) { next.remove(); return; }
+    [].slice.call(document.querySelectorAll('.fc-detail')).forEach(function(x){x.remove()});
+    var det = tr.getAttribute('data-det');
+    var nCols = tr.children.length;
+    tr.insertAdjacentHTML('afterend', '<tr class="fc-detail"><td colspan="'+nCols+'">'+det+'</td></tr>');
+  });
+  document.getElementById('fc-file').addEventListener('change', function(){
+    var f = this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    document.getElementById('fc-status').textContent = '解析中…';
+    rd.onload = function(){ try { FC = parseFC(rd.result); document.getElementById('fc-status').textContent = '已加载：' + f.name; render(); } catch(err){ document.getElementById('fc-status').textContent = err.message; } };
+    rd.readAsText(f);
+  });
+  document.getElementById('fc-sample').addEventListener('click', loadSample);
+  function loadSample(){
+    document.getElementById('fc-status').textContent = '加载内置样本中…（约 2MB）';
+    fetch('assets/s100-fc/s101-fc-2.0.0.xml').then(function(r){return r.text()}).then(function(t){ FC = parseFC(t); document.getElementById('fc-status').textContent = '已加载内置样本：IHO S-101 FC 2.0.0'; render(); }).catch(function(e){ document.getElementById('fc-status').textContent = '样本加载失败：' + e.message; });
+  }
+  loadSample();
+})();
+</script>`;
+  fs.writeFileSync(path.join(OUT_DIR, 'fc.html'), layout('S-100 要素目录解析器', 'S-100 要素目录（FC）XML 在线解析器：上传或加载 S-101 要素目录，即时浏览 190 个要素类型、属性绑定、枚举值与关联关系，纯浏览器本地解析。', fcBody, 'website', `${CFG.siteUrl}/fc.html`, true));
+}
+
+/* ---------------- S-100 图示表达解析器 ---------------- */
+if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portrayal_catalogue.xml'))) {
+  const pcBody = `<section class="post tool-page">
+<h1 class="post-title">S-100 图示表达解析器</h1>
+<div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Portrayal Catalogue 2.0.0（符号注册表 + 颜色配置）· 支持上传目录/颜色配置/告警目录 XML</div>
+<p>解析 S-100 图示表达目录（PC）分发件：符号注册表、视图组图层、样式表清单一览，颜色配置直接渲染成 Day / Dusk / Night 三栏对照色表。做 S-101 显示端时对着它查符号与颜色。</p>
+<p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml" hidden></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
+<div id="pc-stats" class="fc-stats hidden"></div>
+<p class="toolbar cat-pills hidden" id="pc-tabs">
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="alert" type="button">告警目录</button>
+</p>
+<p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span></p>
+<div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
+<p class="panel-desc hidden" id="pc-foot">Look-up 规则文件不在公开分发件内，本工具解析目录索引、符号注册表与颜色配置。内置样本版权归 IHO，仅作开发参考；解析在浏览器本地完成。</p>
+</section>
+<script>
+(function(){
+  var IDX=null, CP=null, AL=null;
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function kids(el,name){var o=[];for(var i=0;i<el.children.length;i++){var c=el.children[i];if(c.localName===name)o.push(c)}return o}
+  function kid(el,name){var a=kids(el,name);return a.length?a[0]:null}
+  function txt(el,name){var c=kid(el,name);return c?c.textContent.trim():''}
+  function deep(el,name){var o=[];for(var i=0;i<el.children.length;i++){var c=el.children[i];if(c.localName===name)o.push(c);o=o.concat(deep(c,name))}return o}
+  function parseAny(text){
+    var doc=new DOMParser().parseFromString(text,'text/xml');
+    if(doc.getElementsByTagName('parsererror').length) throw new Error('XML 解析失败');
+    var root=doc.documentElement.localName;
+    if(root==='portrayalCatalog'){ IDX=parseIdx(doc); return 'index'; }
+    if(root==='colorProfile'){ CP=parseCp(doc); return 'colors'; }
+    if(root.indexOf('Alert')>=0 || root.indexOf('alert')>=0){ AL=parseAlert(doc); return 'alerts'; }
+    throw new Error('未知根元素：'+root+'（支持 portrayalCatalog / colorProfile / 告警目录）');
+  }
+  function parseIdx(doc){
+    var sym={}; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='symbol'){ var d=el.getElementsByTagName('*'); var desc=''; for(var i=0;i<d.length;i++){ if(d[i].localName==='description'){desc=d[i].textContent.trim();break} } sym[el.getAttribute('id')||'']=desc; } });
+    var vgl=[]; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='viewingGroupLayer'){ vgl.push({id:el.getAttribute('id')||'', name:txt(el,'name'), groups:deep(el,'viewingGroup').map(function(g){return g.textContent.trim()})}); } });
+    var ss=[]; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='styleSheet'){ ss.push({name:txt(el,'name')||el.getAttribute('id')||'', files:[].slice.call(el.children).filter(function(c){return c.localName==='fileName'||c.localName==='file'}).map(function(c){return c.textContent.trim()})}); } });
+    return {symbols:sym, vgl:vgl, ss:ss};
+  }
+  function parseCp(doc){
+    var names={}; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='color'){ names[el.getAttribute('token')||'']={name:txt(el,'name'), desc:(kid(el,'description')?kid(el,'description').textContent.trim():'')} } });
+    var pal={}; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='palette'){ var pn=el.getAttribute('name')||''; pal[pn]=pal[pn]||{}; [].slice.call(el.children).forEach(function(item){ if(item.localName!=='item') return; var tok=item.getAttribute('token'); var s=kid(item,'srgb'); if(s){ var r=+txt(s,'red'),g=+txt(s,'green'),b=+txt(s,'blue'); pal[pn][tok]='#'+[r,g,b].map(function(v){return ('0'+Math.max(0,Math.min(255,v)).toString(16)).slice(-2)}).join(''); } }) } });
+    var tokens=Object.keys(names); Object.keys(pal).forEach(function(p){ Object.keys(pal[p]).forEach(function(t){ if(tokens.indexOf(t)<0) tokens.push(t); }) });
+    return {names:names, pal:pal, tokens:tokens};
+  }
+  function parseAlert(doc){ return [].slice.call(doc.getElementsByTagName('*')).filter(function(el){return el.localName==='alert'}).map(function(e){return {id:e.getAttribute('id')||'', name:txt(e,'name'), desc:(kid(e,'description')?kid(e,'description').textContent.trim():'')}}); }
+  var TAB='idx', Q='';
+  function applyTab(){
+    var head=document.getElementById('pc-head'), body=document.getElementById('pc-body');
+    var q=(Q||'').toLowerCase();
+    function hit(){ return true; }
+    if (TAB==='idx') {
+      var files=[['符号注册表',Object.keys(IDX.symbols).length],['视图组图层',IDX.vgl.length],['样式表',IDX.ss.length]];
+      document.getElementById('pc-stats').innerHTML=files.map(function(c){return '<div class="pal-card fc-stat"><div class="fc-num">'+c[1]+'</div><div class="pal-zh">'+c[0]+'</div></div>'}).join('');
+      var syms=Object.keys(IDX.symbols).filter(function(k){return !q || (k+' '+IDX.symbols[k]).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th>符号 ID</th><th>描述</th></tr>';
+      body.innerHTML=syms.map(function(k){return '<tr><td class="c-code"><strong>'+esc(k)+'</strong></td><td>'+esc(IDX.symbols[k])+'</td></tr>'}).join('') || '<tr><td colspan="2" class="not-conv">无匹配</td></tr>';
+      document.getElementById('pc-count').textContent=syms.length;
+    } else if (TAB==='col' && CP) {
+      var pal=CP.pal, pn=Object.keys(pal);
+      var toks=CP.tokens.filter(function(t){return !q || (t+' '+(CP.names[t]?CP.names[t].name+' '+CP.names[t].desc:'')).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th>令牌</th><th>名称</th>'+pn.map(function(p){return '<th>'+esc(p)+'</th>'}).join('')+'</tr>';
+      body.innerHTML=toks.map(function(t){
+        var n=CP.names[t]||{};
+        return '<tr><td class="c-code"><strong>'+esc(t)+'</strong></td><td class="pal-zh-cell">'+esc(n.name||'')+'</td>'+pn.map(function(p){
+          var hex=(pal[p]&&pal[p][t])||'';
+          return '<td>'+(hex?'<span class="pal-swatch" data-hex="'+hex+'" title="点击复制 '+hex+'"><span class="chip" style="background:'+hex+'"></span><span class="hex">'+hex+'</span></span>':'—')+'</td>';
+        }).join('')+'</tr>';
+      }).join('');
+      document.getElementById('pc-count').textContent=toks.length;
+    } else if (TAB==='alert' && AL) {
+      var list=AL.filter(function(a){return !q || (a.id+' '+a.name+' '+a.desc).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th>ID</th><th>名称</th><th>说明</th></tr>';
+      body.innerHTML=list.map(function(a){return '<tr><td class="c-code"><strong>'+esc(a.id)+'</strong></td><td>'+esc(a.name)+'</td><td>'+esc(a.desc)+'</td></tr>'}).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
+      document.getElementById('pc-count').textContent=list.length;
+    } else {
+      head.innerHTML=''; body.innerHTML='';
+    }
+  }
+  document.getElementById('pc-tabs').addEventListener('click', function(ev){
+    var p = ev.target.closest('.pill'); if (!p) return;
+    [].slice.call(document.querySelectorAll('#pc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x===p)});
+    TAB = p.dataset.tab; applyTab();
+  });
+  document.getElementById('pc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
+  document.getElementById('pc-tablewrap').addEventListener('click', function(ev){
+    var sw = ev.target.closest('.pal-swatch'); if (!sw) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(sw.dataset.hex);
+    sw.classList.add('copied'); setTimeout(function(){sw.classList.remove('copied')}, 800);
+  });
+  document.getElementById('pc-file').addEventListener('change', function(){
+    var f=this.files[0]; if(!f) return;
+    var rd=new FileReader();
+    document.getElementById('pc-status').textContent='解析中…';
+    rd.onload=function(){ try { var kind=parseAny(rd.result); document.getElementById('pc-status').textContent='已加载：'+f.name+'（'+kind+'）'; showLoaded(kind); } catch(err){ document.getElementById('pc-status').textContent=err.message; } };
+    rd.readAsText(f);
+  });
+  function showLoaded(kind){
+    ['pc-stats','pc-tabs','pc-searchbar','pc-tablewrap','pc-foot'].forEach(function(id){document.getElementById(id).classList.remove('hidden')});
+    var map={index:'idx', colors:'col', alerts:'alert'};
+    TAB=map[kind]||'idx';
+    [].slice.call(document.querySelectorAll('#pc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x.dataset.tab===TAB)});
+    applyTab();
+  }
+  document.getElementById('pc-sample').addEventListener('click', loadSample);
+  function loadSample(){
+    document.getElementById('pc-status').textContent='加载内置样本中…';
+    Promise.all([
+      fetch('assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml').then(function(r){return r.text()}),
+      fetch('assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml').then(function(r){return r.text()}),
+      fetch('assets/s100-pc/PortrayalCatalog_AlertCatalog-S101.xml').then(function(r){return r.text()})
+    ]).then(function(rs){ parseAny(rs[0]); parseAny(rs[1]); parseAny(rs[2]); document.getElementById('pc-status').textContent='已加载内置样本：IHO S-101 PC 2.0.0'; showLoaded('index'); }).catch(function(e){ document.getElementById('pc-status').textContent='样本加载失败：'+e.message; });
+  }
+  loadSample();
+})();
+</script>`;
+  fs.writeFileSync(path.join(OUT_DIR, 'pc.html'), layout('S-100 图示表达解析器', 'S-100 图示表达目录（PC）XML 在线解析器：符号注册表、视图组图层、样式表清单与 S-101 颜色配置 Day/Dusk/Night 三栏对照色表，纯浏览器本地解析。', pcBody, 'website', `${CFG.siteUrl}/pc.html`, true));
+}
+
+/* ---------------- HDF5 / S-102 数据解析器 ---------------- */
+const H5_PAGE = `<section class="post tool-page">
+<h1 class="post-title">HDF5 / S-102 数据解析器</h1>
+<div class="post-meta">纯浏览器解析（h5wasm，NIST）· 文件不出本机 · 内置样本：NOAA S-102 官方测试数据集（公有领域）</div>
+<p>S-102 水深表面产品是 HDF5 格式。把 .h5 文件拖进来，直接看结构树、属性和数值统计——不用再装 HDFView。若文件带 S-102 的 BathymetryCoverage 结构，会额外给出水深统计摘要。</p>
+<p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
+<div id="h5-out" class="hidden"><div id="h5-stats" class="fc-stats"></div><div id="h5-s102"></div><div id="h5-tree" class="h5-tree"></div></div>
+<p class="panel-desc hidden" id="h5-foot">解析由 WebAssembly 版 HDF5（h5wasm，NIST 出品）在你的浏览器本地完成，文件不会上传。超大数据集（元素数超 400 万）只显示形状与属性，不展开数值。</p>
+</section>
+<script src="assets/h5wasm/h5wasm.js"></script>
+<script>
+(function(){
+  var H5G = window.h5wasm || null, READY = null;
+  function boot(){
+    if (READY) return READY;
+    if (!H5G) { H5G = window.h5wasm || null; if (!H5G) { return Promise.reject(new Error('引擎脚本未加载')); } }
+    READY = (H5G.ready ? H5G.ready : Promise.resolve());
+    return READY;
+  }
+  var el = function(id){return document.getElementById(id)};
+  function stat(html){ el('h5-stats').innerHTML = html; }
+  function status(t){ el('h5-status').textContent = t; }
+  function fmtN(v){ return (typeof v === 'number') ? (Math.abs(v) >= 100000 ? v.toExponential(3) : (Math.round(v*1000)/1000)) : v; }
+  function walk(gr, path, depth, out){
+    if (depth > 6 || out.count > 400) { out.trunc = true; return; }
+    var keys = [];
+    try { keys = gr.keys(); } catch(e) { return; }
+    keys.forEach(function(k){
+      out.count++;
+      if (out.count > 400) { out.trunc = true; return; }
+      var p = path + '/' + k, obj = null;
+      try { obj = gr.get(k); } catch(err) { out.rows.push({p:p, kind:'?', meta:'读取失败'}); return; }
+      var isGroup = obj.constructor.name === 'Group' || (obj.keys && typeof obj.keys === 'function');
+      if (isGroup) {
+        out.rows.push({p:p, kind:'Group', meta:'组'});
+        walk(obj, p, depth+1, out);
+      } else {
+        var shape = (obj.shape || []).join('×') || '标量';
+        var dtype = obj.dtype || '';
+        out.rows.push({p:p, kind:'Dataset', meta:shape + ' · ' + dtype, obj:obj, path:p});
+      }
+    });
+  }
+  function handle(buf, name){
+    status('解析中…');
+    boot().then(function(){
+      try {
+        H5G.FS.writeFile('up.h5', new Uint8Array(buf));
+        var f = new H5G.File('up.h5', 'r');
+        var out = {rows: [], count: 0, trunc: false};
+        walk(f, '', 0, out);
+        var s102 = findS102(f);
+        var stats = '<div class="pal-card fc-stat"><div class="fc-num">'+out.rows.filter(function(r){return r.kind==='Dataset'}).length+'</div><div class="pal-zh">数据集</div></div>'
+          + '<div class="pal-card fc-stat"><div class="fc-num">'+out.rows.filter(function(r){return r.kind==='Group'}).length+'</div><div class="pal-zh">组</div></div>'
+          + '<div class="pal-card fc-stat"><div class="fc-num">'+name+'</div><div class="pal-zh">文件</div></div>';
+        el('h5-stats').innerHTML = stats;
+        el('h5-s102').innerHTML = s102;
+        el('h5-tree').innerHTML = out.rows.map(function(r){
+          return '<div class="h5-row h5-'+r.kind.toLowerCase()+'"><code>'+esc(r.p)+'</code><span class="h5-kind">'+r.kind+'</span><span class="fc-opt">'+esc(r.meta||'')+'</span></div>' + (r.rows?'':'');
+        }).join('') + (out.trunc ? '<div class="panel-desc">…结构过多，仅显示前 400 项</div>' : '');
+        el('h5-out').classList.remove('hidden');
+        el('h5-foot').classList.remove('hidden');
+        status('解析完成：' + name);
+        try { f.close(); } catch(e) {}
+      } catch(err) { status('解析失败：' + err.message); }
+    }).catch(function(e){ status('引擎错误：' + e.message); });
+  }
+  function findS102(f){
+    try {
+      var target = null, tpath = '';
+      (function scan(gr, path, depth){
+        if (target || depth > 5) return;
+        var keys = []; try { keys = gr.keys(); } catch(e) { return; }
+        keys.forEach(function(k){
+          if (target) return;
+          var p = path + '/' + k, obj = null;
+          try { obj = gr.get(k); } catch(e) { return; }
+          var isGroup = obj && obj.keys && typeof obj.keys === 'function';
+          if (isGroup) { scan(obj, p, depth+1); }
+          else if (k === 'values' && /BathymetryCoverage|Coverage/i.test(p)) { target = obj; tpath = p; }
+        });
+      })(f, '', 0);
+      if (!target) return '<div class="panel-desc">未检测到 S-102 标准结构（仅作一般 HDF5 解析）。</div>';
+      var shape = (target.shape||[]), total = shape.reduce(function(a,c){return a*c},1);
+      var dtype = target.dtype || '';
+      var compound = dtype.indexOf(',') >= 0;
+      var line = '<div class="panel"><h2>S-102 识别成功</h2>';
+      line += '<p class="panel-desc">数据集 <code>' + esc(tpath) + '</code> · ' + shape.join('×') + ' · ' + (compound ? '复合类型（depth + uncertainty）' : esc(dtype)) + '</p>';
+      try {
+        if (total > 0 && total <= 6000000) {
+          var v = target.value;
+          var mn = Infinity, mx = -Infinity, sum = 0, n = 0;
+          function feed(x){ var num = typeof x === 'bigint' ? Number(x) : x; if (typeof num === 'number' && isFinite(num) && Math.abs(num) < 999999) { if (num<mn) mn=num; if (num>mx) mx=num; sum+=num; n++; } }
+          if (compound) {
+            var field = null;
+            for (var i = 0; i < v.length && !field; i++) { var row0 = v[i]; if (row0 && row0.length && typeof row0[0] === 'object') { var c0 = row0[0]; field = Object.keys(c0).filter(function(k){return /depth/i.test(k)})[0] || Object.keys(c0)[0]; } }
+            for (var i = 0; i < v.length; i++) { var row = v[i]; if (!row || !row.length) continue; for (var j = 0; j < row.length; j++) { var c = row[j]; feed(typeof c === 'object' && c !== null ? c[field] : c); } }
+            line += '<p class="panel-desc">统计字段：<code>' + esc(field || '(depth)') + '</code></p>';
+          } else {
+            for (var i = 0; i < v.length; i++) { var row = v[i]; if (row && row.length) { for (var j = 0; j < row.length; j++) feed(row[j]); } else feed(row); }
+          }
+          if (n) line += '<p class="panel-desc">水深 <strong>' + (Math.round(mn*100)/100) + ' ~ ' + (Math.round(mx*100)/100) + ' m</strong>，均值 ' + (Math.round(sum/n*100)/100) + ' m（' + n + ' 个有效值）</p>';
+        } else {
+          line += '<p class="panel-desc">数据量较大（' + total + ' 单元），未展开数值统计。</p>';
+        }
+      } catch(e) { line += '<p class="panel-desc">统计段异常：' + esc(String(e.message||e)) + '</p>'; }
+return line + '</div>';
+    } catch(e) { return '<div class="panel-desc">S-102 检测异常：' + esc(String(e.message||e)) + '</div>'; }
+  }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  el('h5-file').addEventListener('change', function(){
+    var f = this.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){ handle(rd.result, f.name); };
+    rd.readAsArrayBuffer(f);
+  });
+  el('h5-sample').addEventListener('click', function(){
+    status('下载内置样本中…（352KB）');
+    fetch('assets/h5wasm/sample-s102.h5').then(function(r){ return r.arrayBuffer(); }).then(function(b){ handle(b, '102US00_US5NYCII.h5'); }).catch(function(e){ status('样本加载失败：' + e.message); });
+  });
+  boot().then(function(){ status('引擎就绪，上传 .h5 或点「加载内置 S-102 样本」'); }).catch(function(e){ status(e.message); });
+})();
+</script>`;
+  fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-102 数据解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深表面 .h5 文件，查看结构树、属性与水深统计，基于 h5wasm（WebAssembly HDF5），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
+
 console.log(`✔ 构建完成 → ${OUT_DIR}`);
 console.log(`  已发布 ${articles.length} 篇 · 草稿 ${drafts.length} 篇（已生成页面但不进目录/RSS） · 独立页面 ${pages.length} 个 · 工具 ${TOOLS.length} 个`);
