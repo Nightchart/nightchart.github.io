@@ -347,3 +347,11 @@ a.pn-item:hover .pn-title { color: var(--accent); }
 .h5-row code { font-family: Consolas, "JetBrains Mono", Menlo, monospace; flex: 1; word-break: break-all; }
 .h5-kind { flex: none; font-size: 11px; color: var(--muted); background: var(--code-bg); border-radius: 4px; padding: 0 6px; }
 .h5-dataset .h5-kind { color: var(--accent); }
+
+/* 解析器 v2 交互 */
+.fc-link { cursor: pointer; }
+.fc-link code { text-decoration: underline dotted; }
+.fc-link:hover code { color: var(--accent); }
+.fc-go { color: var(--accent); font-size: 11px; margin-left: 4px; white-space: nowrap; }
+.h5-block { border-bottom: 1px solid var(--border); }
+.h5-detail { background: var(--code-bg); padding: 6px 10px; margin: 4px 0; border-radius: 6px; font-size: .82rem; }

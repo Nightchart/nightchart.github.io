@@ -1185,7 +1185,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
   function multCls(m){ return m.indexOf('0')===0 ? 'fc-opt' : 'fc-req'; }
   function applyTab(){
     var head=document.getElementById('fc-head'), body=document.getElementById('fc-body'), q=Q.toLowerCase();
-    function hit(o){ return !q || [o.code,o.alias,o.name,o.def].join(' ').toLowerCase().indexOf(q)>=0; }
+    function hit(o){ if (!q) return true; var s=[o.code,o.alias,o.name,o.def].concat((o.attrs||[]).map(function(a){return a.ref})).concat((o.infos||[]).map(function(a){return a.ref})).join(' ').toLowerCase(); return s.indexOf(q)>=0; }
     var rows='';
     if (TAB==='ft' || TAB==='it') {
       var list=(TAB==='ft'?FC.featureTypes:FC.informationTypes).filter(hit);
@@ -1193,7 +1193,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
       rows=list.map(function(o){
         var det='<div class="fc-def">'+esc(o.def||'(无定义)')+(o.clause?'<span class="sym-obj">DCEG '+esc(o.clause)+'</span>':'')+'</div>'
           + (o.abstract?'<p class="panel-desc">抽象类型</p>':'')
-          + (o.attrs.length?'<p class="panel-desc"><strong>属性绑定</strong></p><ul class="fc-list">'+o.attrs.map(function(a){var pvs=a.pvs.length?' <span class=fc-opt>允许值: '+esc(a.pvs.join(' / '))+'</span>':''; return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span>'+pvs+'</li>'}).join('')+'</ul>':'')
+          + (o.attrs.length?'<p class="panel-desc"><strong>属性绑定</strong></p><ul class="fc-list">'+o.attrs.map(function(a){var pvs=a.pvs.length?' <span class=fc-opt>允许值: '+esc(a.pvs.join(' / '))+'</span>':''; return '<li><span class="fc-link" data-attr="'+esc(a.ref)+'"><code>'+esc(a.ref)+'</code></span> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span>'+pvs+'<span class="fc-go">查定义→</span></li>'}).join('')+'</ul>':'')
           + (o.infos.length?'<p class="panel-desc"><strong>信息绑定</strong></p><ul class="fc-list">'+o.infos.map(function(a){return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span> '+(a.role?esc(a.role):'')+'</li>'}).join('')+'</ul>':'');
         return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.alias||'—')+'</td><td>'+esc(o.name)+'</td><td>'+o.attrs.length+'</td><td>'+o.infos.length+'</td></tr>';
       }).join('');
@@ -1205,6 +1205,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
         var o=w.o;
         var det='<div class="fc-def">'+esc(o.def||'(无定义)')+'</div>';
         if (w.kind==='complex') det+=o.attrs.length?'<ul class="fc-list">'+o.attrs.map(function(a){return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span></li>'}).join('')+'</ul>':'';
+        if (w.kind==='simple' && o.values.length) det+='<p class="panel-desc"><strong>枚举值（'+o.values.length+'）</strong></p><ul class="fc-list">'+o.values.map(function(v){return '<li><code>'+esc(v.code)+'</code> '+esc(v.label||v.def||'')+'</li>'}).join('')+'</ul>';
         return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.alias||'—')+'</td><td>'+esc(o.name)+'</td><td>'+(w.kind==='complex'?'复杂':esc(o.vt||'—'))+'</td><td>'+(w.kind==='simple'?o.values.length:'—')+'</td></tr>';
       }).join('');
       document.getElementById('fc-count').textContent=list.length;
@@ -1227,7 +1228,16 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
     TAB = p.dataset.tab; applyTab();
   });
   document.getElementById('fc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
+  function jumpAttr(code){
+    TAB='attr';
+    [].slice.call(document.querySelectorAll('#fc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x.dataset.tab==='attr')});
+    var si=document.getElementById('fc-q'); si.value=code; Q=code.toLowerCase(); applyTab();
+    var tr=document.querySelector('#fc-body .fc-row');
+    if (tr){ tr.click(); }
+  }
   document.getElementById('fc-body').addEventListener('click', function(ev){
+    var lk = ev.target.closest('.fc-link');
+    if (lk) { ev.stopPropagation(); jumpAttr(lk.getAttribute('data-attr')); return; }
     var tr = ev.target.closest('.fc-row'); if (!tr) return;
     var next = tr.nextElementSibling;
     if (next && next.classList.contains('fc-detail')) { next.remove(); return; }
@@ -1263,7 +1273,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml" hidden></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
-<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="alert" type="button">告警目录</button>
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="alert" type="button">告警目录</button>
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
@@ -1311,6 +1321,11 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       head.innerHTML='<tr><th>符号 ID</th><th>描述</th></tr>';
       body.innerHTML=syms.map(function(k){return '<tr><td class="c-code"><strong>'+esc(k)+'</strong></td><td>'+esc(IDX.symbols[k])+'</td></tr>'}).join('') || '<tr><td colspan="2" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=syms.length;
+    } else if (TAB==='vgl' && IDX) {
+      var list=IDX.vgl.filter(function(v){return !q || (v.id+' '+v.name+' '+v.groups.join(' ')).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th>图层</th><th>名称</th><th>视图组</th></tr>';
+      body.innerHTML=list.map(function(v){return '<tr><td class="c-code"><strong>'+esc(v.id)+'</strong></td><td>'+esc(v.name||'')+'</td><td class="fc-opt">'+esc(v.groups.join(', '))+'</td></tr>'}).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
+      document.getElementById('pc-count').textContent=list.length;
     } else if (TAB==='col' && CP) {
       var pal=CP.pal, pn=Object.keys(pal);
       var toks=CP.tokens.filter(function(t){return !q || (t+' '+(CP.names[t]?CP.names[t].name+' '+CP.names[t].desc:'')).toLowerCase().indexOf(q)>=0});
@@ -1395,6 +1410,23 @@ const H5_PAGE = `<section class="post tool-page">
   function stat(html){ el('h5-stats').innerHTML = html; }
   function status(t){ el('h5-status').textContent = t; }
   function fmtN(v){ return (typeof v === 'number') ? (Math.abs(v) >= 100000 ? v.toExponential(3) : (Math.round(v*1000)/1000)) : v; }
+  function attrsOf(obj){
+    var out = {};
+    try { var a = obj.attrs || {}; Object.keys(a).forEach(function(k){ try { var v = a[k]; out[k] = (typeof v === 'object' && v !== null) ? JSON.stringify(v).slice(0,80) : String(v).slice(0,80); } catch(e) {} }); } catch(e) {}
+    return out;
+  }
+  function peek(obj){
+    try {
+      var shape = obj.shape || [];
+      var total = shape.length ? shape.reduce(function(a,c){return a*c},1) : 1;
+      if (!total || total > 200) return '';
+      var v = obj.value;
+      function flat(a){ var o=[]; (function r(x){ if (o.length>=10 || x===null || x===undefined) return; if (Array.isArray(x) || x.length !== undefined && typeof x !== 'string') { for (var i=0;i<x.length && o.length<10;i++) r(x[i]); } else o.push(x); })(a); return o; }
+      var flatv = [].concat(v).slice(0, 50);
+      var vals = flat(flatv).slice(0, 10).map(function(x){ return typeof x === 'bigint' ? x.toString() : (typeof x === 'number' ? (Math.round(x*1000)/1000) : String(x)); });
+      return vals.length ? vals.join(', ') : '';
+    } catch(e) { return ''; }
+  }
   function walk(gr, path, depth, out){
     if (depth > 6 || out.count > 400) { out.trunc = true; return; }
     var keys = [];
@@ -1403,15 +1435,16 @@ const H5_PAGE = `<section class="post tool-page">
       out.count++;
       if (out.count > 400) { out.trunc = true; return; }
       var p = path + '/' + k, obj = null;
-      try { obj = gr.get(k); } catch(err) { out.rows.push({p:p, kind:'?', meta:'读取失败'}); return; }
+      try { obj = gr.get(k); } catch(err) { out.rows.push({p:p, kind:'?', meta:'读取失败', depth:depth, attrs:{}}); return; }
       var isGroup = obj.constructor.name === 'Group' || (obj.keys && typeof obj.keys === 'function');
       if (isGroup) {
-        out.rows.push({p:p, kind:'Group', meta:'组'});
+        out.rows.push({p:p, kind:'Group', meta:'组', depth:depth, attrs:attrsOf(obj)});
         walk(obj, p, depth+1, out);
       } else {
         var shape = (obj.shape || []).join('×') || '标量';
         var dtype = obj.dtype || '';
-        out.rows.push({p:p, kind:'Dataset', meta:shape + ' · ' + dtype, obj:obj, path:p});
+        var total = (obj.shape||[]).reduce(function(a,c){return a*c},1);
+        out.rows.push({p:p, kind:'Dataset', meta:shape + ' · ' + dtype, depth:depth, attrs:attrsOf(obj), peek: total<=200 ? peek(obj) : ''});
       }
     });
   }
@@ -1429,8 +1462,11 @@ const H5_PAGE = `<section class="post tool-page">
           + '<div class="pal-card fc-stat"><div class="fc-num">'+name+'</div><div class="pal-zh">文件</div></div>';
         el('h5-stats').innerHTML = stats;
         el('h5-s102').innerHTML = s102;
-        el('h5-tree').innerHTML = out.rows.map(function(r){
-          return '<div class="h5-row h5-'+r.kind.toLowerCase()+'"><code>'+esc(r.p)+'</code><span class="h5-kind">'+r.kind+'</span><span class="fc-opt">'+esc(r.meta||'')+'</span></div>' + (r.rows?'':'');
+        el('h5-tree').innerHTML = out.rows.map(function(r, i){
+          var akeys = Object.keys(r.attrs||{});
+          var hasDetail = akeys.length || r.peek;
+          var det = hasDetail ? '<div class="h5-detail hidden" data-i="'+i+'">'+(akeys.length?'<strong>属性</strong><ul class="fc-list">'+akeys.map(function(k){return '<li><code>'+esc(k)+'</code> '+esc(r.attrs[k])+'</li>'}).join('')+'</ul>':'')+(r.peek?'<strong>数值预览</strong><div class="fc-opt">'+esc(r.peek)+'</div>':'')+'</div>' : '';
+          return '<div class="h5-block"><div class="h5-row h5-'+r.kind.toLowerCase()+'" data-i="'+i+'" style="padding-left:'+(8+r.depth*18)+'px"><code>'+esc(r.p)+'</code><span class="h5-kind">'+r.kind+'</span><span class="fc-opt">'+esc(r.meta||'')+'</span>'+(hasDetail?'<span class="fc-go">详情</span>':'')+'</div>'+det+'</div>';
         }).join('') + (out.trunc ? '<div class="panel-desc">…结构过多，仅显示前 400 项</div>' : '');
         el('h5-out').classList.remove('hidden');
         el('h5-foot').classList.remove('hidden');
@@ -1482,6 +1518,12 @@ return line + '</div>';
     } catch(e) { return '<div class="panel-desc">S-102 检测异常：' + esc(String(e.message||e)) + '</div>'; }
   }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  el('h5-tree').addEventListener('click', function(ev){
+    var row = ev.target.closest('.h5-row'); if (!row) return;
+    var block = row.parentElement;
+    var det = block.querySelector('.h5-detail');
+    if (det) det.classList.toggle('hidden');
+  });
   el('h5-file').addEventListener('change', function(){
     var f = this.files[0]; if (!f) return;
     var rd = new FileReader();
