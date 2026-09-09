@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+    <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <rect x="70" y="52" width="380" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="260" y="81" text-anchor="middle" font-size="15.5" fill="#2b2b28">程序启动（主线程）</text>
+  <line x1="260" y1="98" x2="260" y2="120" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="124" width="380" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="260" y="153" text-anchor="middle" font-size="15.5" fill="#2b2b28">首次调用 GetInstance()</text>
+  <line x1="260" y1="170" x2="260" y2="192" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="196" width="380" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="260" y="225" text-anchor="middle" font-size="15.5" fill="#2b2b28">magic static：取得守卫，开始构造</text>
+  <line x1="260" y1="242" x2="260" y2="264" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="268" width="380" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="260" y="297" text-anchor="middle" font-size="15.5" fill="#2b2b28">构造函数 → RefreshFineSource()</text>
+  <line x1="260" y1="314" x2="260" y2="336" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="340" width="380" height="46" rx="8" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="260" y="369" text-anchor="middle" font-size="15.5" fill="#b91c1c">内部再次调用 GetInstance()</text>
+
+  <path d="M 450 363 H 585 V 219 H 458" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#r)"/>
+  <text x="598" y="262" font-size="14.5" fill="#b91c1c">守卫：初始化未完成，</text>
+  <text x="598" y="286" font-size="14.5" fill="#b91c1c">同一线程在门口等自己</text>
+  <text x="598" y="316" font-size="16" font-weight="bold" fill="#b91c1c">→ 自死锁</text>
+
+  <text x="430" y="416" text-anchor="middle" font-size="14.5" fill="#555550">线程栈铁证：两帧 GetInstance() 之间夹着构造函数帧</text>
+</svg>

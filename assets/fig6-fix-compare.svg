@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="440" viewBox="0 0 860 440" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+    <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="440" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <!-- 左：修复前 -->
+  <text x="225" y="46" text-anchor="middle" font-size="15.5" font-weight="bold" fill="#b91c1c">修复前：构造期直调 ✗</text>
+  <rect x="70" y="70" width="310" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="225" y="99" text-anchor="middle" font-size="14.5" fill="#2b2b28">LayerManager() 构造函数</text>
+  <line x1="225" y1="116" x2="225" y2="138" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="142" width="310" height="46" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="225" y="171" text-anchor="middle" font-size="14.5" fill="#2b2b28">直接调 RefreshFineSource()</text>
+  <line x1="225" y1="188" x2="225" y2="210" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="70" y="214" width="310" height="46" rx="8" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="225" y="243" text-anchor="middle" font-size="14.5" fill="#b91c1c">内部再次 GetInstance()</text>
+
+  <path d="M 380 237 H 415 V 93 H 388" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#r)"/>
+  <text x="420" y="170" font-size="13.5" fill="#b91c1c">重入</text>
+  <text x="420" y="190" font-size="13.5" fill="#b91c1c">死锁</text>
+
+  <text x="225" y="310" text-anchor="middle" font-size="14" fill="#767470">构造函数为了"开箱即用"顺手干活，</text>
+  <text x="225" y="332" text-anchor="middle" font-size="14" fill="#767470">干着干着回头要"还没出生的自己"</text>
+
+  <!-- 右：修复后 -->
+  <text x="635" y="46" text-anchor="middle" font-size="15.5" font-weight="bold" fill="#0f6d5f">修复后：构造瘦身 + 暂存补放 ✓</text>
+  <rect x="480" y="66" width="310" height="42" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="635" y="92" text-anchor="middle" font-size="14.5" fill="#2b2b28">构造函数：只把指针显式置 nullptr</text>
+  <line x1="635" y1="108" x2="635" y2="126" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="480" y="130" width="310" height="42" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="635" y="156" text-anchor="middle" font-size="14.5" fill="#2b2b28">Init()：真正加载、建图层（显式阶段）</text>
+  <line x1="635" y1="172" x2="635" y2="190" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="480" y="194" width="310" height="42" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="635" y="220" text-anchor="middle" font-size="14.5" fill="#2b2b28">ready_ = true，Flush() 补放暂存任务</text>
+  <line x1="635" y1="236" x2="635" y2="254" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+
+  <rect x="480" y="258" width="310" height="42" rx="8" fill="#ffffff" stroke="#999999" stroke-width="1"/>
+  <text x="635" y="284" text-anchor="middle" font-size="14" fill="#555550">窗口期调用：未就绪 → 入队，不硬闯</text>
+
+  <text x="430" y="360" text-anchor="middle" font-size="14.5" fill="#333333">原则：构造函数只负责"出生"，不负责"干活"</text>
+  <text x="430" y="386" text-anchor="middle" font-size="14.5" fill="#333333">没准备好就先记账，绝不重入</text>
+  <text x="430" y="418" text-anchor="middle" font-size="13.5" fill="#888888">顺带：外部判空能快速跳过未初始化对象，而不是撞上半初始化状态</text>
+</svg>

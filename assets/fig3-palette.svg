@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="380" viewBox="0 0 860 380" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="b" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="380" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <rect x="50" y="80" width="210" height="210" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="155" y="116" text-anchor="middle" font-size="17" font-weight="bold" fill="#0f6d5f">命名色 token</text>
+  <text x="155" y="160" text-anchor="middle" font-size="14.5" fill="#444444">CHGRD（陆地）</text>
+  <text x="155" y="196" text-anchor="middle" font-size="14.5" fill="#444444">DEPVS（浅水）</text>
+  <text x="155" y="232" text-anchor="middle" font-size="14.5" fill="#444444">CHBLK（黑）</text>
+  <text x="155" y="268" text-anchor="middle" font-size="13" fill="#888888">标准只给名字和规则</text>
+
+  <line x1="268" y1="185" x2="330" y2="185" stroke="#666666" stroke-width="2" marker-end="url(#b)"/>
+  <text x="299" y="172" text-anchor="middle" font-size="13" fill="#666666">查色</text>
+
+  <!-- DAY -->
+  <rect x="338" y="60" width="150" height="240" rx="8" fill="#ffffff" stroke="#cccccc"/>
+  <text x="413" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#333333">DAY 昼</text>
+  <rect x="358" y="108" width="110" height="40" rx="4" fill="#d9cfae"/>
+  <text x="413" y="133" text-anchor="middle" font-size="12.5" fill="#5a5340">陆地</text>
+  <rect x="358" y="158" width="110" height="40" rx="4" fill="#aad3f5"/>
+  <text x="413" y="183" text-anchor="middle" font-size="12.5" fill="#33566b">浅水</text>
+  <rect x="358" y="208" width="110" height="40" rx="4" fill="#1a1a1a"/>
+  <text x="413" y="233" text-anchor="middle" font-size="12.5" fill="#eeeeee">黑</text>
+
+  <!-- DUSK -->
+  <rect x="508" y="60" width="150" height="240" rx="8" fill="#ffffff" stroke="#cccccc"/>
+  <text x="583" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#333333">DUSK 昏</text>
+  <rect x="528" y="108" width="110" height="40" rx="4" fill="#8a8578"/>
+  <text x="583" y="133" text-anchor="middle" font-size="12.5" fill="#f0efe9">陆地</text>
+  <rect x="528" y="158" width="110" height="40" rx="4" fill="#4a7fae"/>
+  <text x="583" y="183" text-anchor="middle" font-size="12.5" fill="#eaf1f7">浅水</text>
+  <rect x="528" y="208" width="110" height="40" rx="4" fill="#111111"/>
+  <text x="583" y="233" text-anchor="middle" font-size="12.5" fill="#dddddd">黑</text>
+
+  <!-- NIGHT -->
+  <rect x="678" y="60" width="150" height="240" rx="8" fill="#26282b" stroke="#444444"/>
+  <text x="753" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#f0f0f0">NIGHT 夜</text>
+  <rect x="698" y="108" width="110" height="40" rx="4" fill="#5c5e60"/>
+  <text x="753" y="133" text-anchor="middle" font-size="12.5" fill="#f0f0f0">陆地</text>
+  <rect x="698" y="158" width="110" height="40" rx="4" fill="#2e4a5e"/>
+  <text x="753" y="183" text-anchor="middle" font-size="12.5" fill="#d8e4ec">浅水</text>
+  <rect x="698" y="208" width="110" height="40" rx="4" fill="#e8e8e8"/>
+  <text x="753" y="233" text-anchor="middle" font-size="12.5" fill="#333333">黑→白</text>
+
+  <text x="430" y="345" text-anchor="middle" font-size="14.5" fill="#666666">切色盘 = 同一批命名色 token 换一套 RGB（示意色值，非 IHO 标准值；注意 CHBLK 夜间翻白）</text>
+</svg>

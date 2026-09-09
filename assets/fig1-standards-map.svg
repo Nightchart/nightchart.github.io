@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="480" viewBox="0 0 860 480" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+    <marker id="ah2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b08830"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="480" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <rect x="60" y="60" width="300" height="170" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="210" y="98" text-anchor="middle" font-size="22" font-weight="bold" fill="#0f6d5f">S-57 · 数据标准</text>
+  <text x="210" y="138" text-anchor="middle" font-size="15" fill="#444444">要素 = 对象类 + 属性 + 几何</text>
+  <text x="210" y="164" text-anchor="middle" font-size="15" fill="#444444">ENC 交换集 · 增量更新</text>
+  <text x="210" y="196" text-anchor="middle" font-size="14" fill="#888888">—— 管“是什么”</text>
+
+  <rect x="500" y="60" width="300" height="170" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="650" y="98" text-anchor="middle" font-size="22" font-weight="bold" fill="#0f6d5f">S-52 · 显示标准</text>
+  <text x="650" y="138" text-anchor="middle" font-size="15" fill="#444444">look-up 表 · 符号库</text>
+  <text x="650" y="164" text-anchor="middle" font-size="15" fill="#444444">命名色 + 昼夜色盘 · 船员参数</text>
+  <text x="650" y="196" text-anchor="middle" font-size="14" fill="#888888">—— 管“怎么画”</text>
+
+  <line x1="366" y1="145" x2="492" y2="145" stroke="#666666" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="429" y="132" text-anchor="middle" font-size="14" fill="#666666">渲染</text>
+
+  <rect x="60" y="320" width="740" height="110" rx="8" fill="#f7f3ea" stroke="#b08830" stroke-width="1.5"/>
+  <text x="430" y="360" text-anchor="middle" font-size="22" font-weight="bold" fill="#8a6a20">S-100 · 下一代框架（注册制）</text>
+  <text x="430" y="396" text-anchor="middle" font-size="14.5" fill="#444444">S-101 海图 · S-102 水深 · S-104 水位 · S-111 表层流 · S-124 航警 · S-125 航标 · S-127 交通 · S-131 港口</text>
+
+  <line x1="210" y1="318" x2="210" y2="238" stroke="#b08830" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ah2)"/>
+  <text x="222" y="284" font-size="13.5" fill="#8a6a20">S-101 接替数据</text>
+  <line x1="650" y1="318" x2="650" y2="238" stroke="#b08830" stroke-width="1.8" stroke-dasharray="6 4" marker-end="url(#ah2)"/>
+  <text x="560" y="284" font-size="13.5" fill="#8a6a20">新产品与表达</text>
+</svg>

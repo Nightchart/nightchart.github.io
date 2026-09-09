@@ -1,0 +1,1869 @@
+[
+ {
+  "code": "M_HOPA",
+  "s57name": "Horizontal datum",
+  "targets": []
+ },
+ {
+  "code": "M_VDAT",
+  "s57name": "Vertical datum",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Vertical Datum",
+    "clause": "3.9"
+   }
+  ]
+ },
+ {
+  "code": "M_SDAT",
+  "s57name": "Sounding datum",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Sounding Datum",
+    "clause": "3.8"
+   }
+  ]
+ },
+ {
+  "code": "M_QUAL",
+  "s57name": "Quality of data",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Quality of Bathymetric Data",
+    "clause": "3.7"
+   }
+  ]
+ },
+ {
+  "code": "M_SREL",
+  "s57name": "Survey reliability",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Quality of Survey",
+    "clause": "3.10"
+   }
+  ]
+ },
+ {
+  "code": "M_ACCY",
+  "s57name": "Accuracy of data",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Quality of Non-Bathymetric Data",
+    "clause": "3.3"
+   }
+  ]
+ },
+ {
+  "code": "M_COVR",
+  "s57name": "Coverage",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Data Coverage",
+    "clause": "3.4"
+   }
+  ]
+ },
+ {
+  "code": "M_CSCL",
+  "s57name": "Compilation scale of data",
+  "targets": [
+   {
+    "kind": "Meta feature",
+    "name": "Data Coverage",
+    "clause": "3.4"
+   }
+  ]
+ },
+ {
+  "code": "M_NPUB",
+  "s57name": "Nautical publication information",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Information Area",
+    "clause": "16.11"
+   }
+  ]
+ },
+ {
+  "code": "MAGVAR",
+  "s57name": "Magnetic variation",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Magnetic Variation",
+    "clause": "4.1"
+   }
+  ]
+ },
+ {
+  "code": "LOCMAG",
+  "s57name": "Local magnetic anomaly",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Local Magnetic Anomaly",
+    "clause": "4.2"
+   }
+  ]
+ },
+ {
+  "code": "TS_FEB",
+  "s57name": "Tidal stream-flood/ebb",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Tidal Stream – Flood/Ebb",
+    "clause": "10.2"
+   }
+  ]
+ },
+ {
+  "code": "TS_PAD",
+  "s57name": "Tidal steam panel data",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Tidal Stream Panel Data",
+    "clause": "10.5"
+   }
+  ]
+ },
+ {
+  "code": "CURENT",
+  "s57name": "Current",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Current – Non-Gravitational",
+    "clause": "10.3"
+   }
+  ]
+ },
+ {
+  "code": "LNDARE",
+  "s57name": "Land area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Land Area",
+    "clause": "5.4"
+   }
+  ]
+ },
+ {
+  "code": "CTRPNT",
+  "s57name": "Control point",
+  "targets": []
+ },
+ {
+  "code": "DISMAR",
+  "s57name": "Distance mark",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Distance Mark",
+    "clause": "8.9"
+   }
+  ]
+ },
+ {
+  "code": "COALNE",
+  "s57name": "Coastline",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Coastline",
+    "clause": "5.3"
+   }
+  ]
+ },
+ {
+  "code": "SLCONS",
+  "s57name": "Shoreline construction",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Shoreline Construction",
+    "clause": "8.6"
+   }
+  ]
+ },
+ {
+  "code": "HRBFAC",
+  "s57name": "Harbour facility",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Harbour Facility",
+    "clause": "22.7"
+   }
+  ]
+ },
+ {
+  "code": "BERTHS",
+  "s57name": "Berth",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Berth",
+    "clause": "8.13"
+   }
+  ]
+ },
+ {
+  "code": "CHKPNT",
+  "s57name": "Checkpoint",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Checkpoint",
+    "clause": "8.2"
+   }
+  ]
+ },
+ {
+  "code": "SMCFAC",
+  "s57name": "Small craft facility",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Small Craft Facility",
+    "clause": "22.8"
+   }
+  ]
+ },
+ {
+  "code": "DRYDOC",
+  "s57name": "Dry dock",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dry Dock",
+    "clause": "8.15"
+   }
+  ]
+ },
+ {
+  "code": "FLODOC",
+  "s57name": "Floating dock",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Floating Dock",
+    "clause": "8.16"
+   }
+  ]
+ },
+ {
+  "code": "DOCARE",
+  "s57name": "Dock area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dock Area",
+    "clause": "8.18"
+   }
+  ]
+ },
+ {
+  "code": "GATCON",
+  "s57name": "Gate",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Gate",
+    "clause": "8.10"
+   }
+  ]
+ },
+ {
+  "code": "LOKBSN",
+  "s57name": "Lock basin",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Lock Basin",
+    "clause": "8.20"
+   }
+  ]
+ },
+ {
+  "code": "GRIDRN",
+  "s57name": "Gridiron",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Gridiron",
+    "clause": "8.19"
+   }
+  ]
+ },
+ {
+  "code": "MORFAC",
+  "s57name": "Mooring / warping facility",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Mooring/Warping Facility",
+    "clause": "8.14"
+   }
+  ]
+ },
+ {
+  "code": "PILPNT",
+  "s57name": "Pile",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pile",
+    "clause": "8.4"
+   }
+  ]
+ },
+ {
+  "code": "PONTON",
+  "s57name": "Pontoon",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pontoon",
+    "clause": "8.17"
+   }
+  ]
+ },
+ {
+  "code": "HULKES",
+  "s57name": "Hulk",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Hulk",
+    "clause": "8.3"
+   }
+  ]
+ },
+ {
+  "code": "CRANES",
+  "s57name": "Crane",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Crane",
+    "clause": "8.12"
+   }
+  ]
+ },
+ {
+  "code": "LNDRGN",
+  "s57name": "Land region",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Land Region",
+    "clause": "5.11"
+   }
+  ]
+ },
+ {
+  "code": "LNDELV",
+  "s57name": "Land elevation",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Land Elevation",
+    "clause": "5.6"
+   }
+  ]
+ },
+ {
+  "code": "SLOGRD",
+  "s57name": "Sloping ground",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Sloping Ground",
+    "clause": "5.14"
+   }
+  ]
+ },
+ {
+  "code": "SLOTOP",
+  "s57name": "Slope topline",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Slope Topline",
+    "clause": "5.15"
+   }
+  ]
+ },
+ {
+  "code": "RIVERS",
+  "s57name": "River",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "River",
+    "clause": "5.7"
+   }
+  ]
+ },
+ {
+  "code": "RAPIDS",
+  "s57name": "Rapids",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Rapids",
+    "clause": "5.8"
+   }
+  ]
+ },
+ {
+  "code": "WATFAL",
+  "s57name": "Waterfall",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Waterfall",
+    "clause": "5.9"
+   }
+  ]
+ },
+ {
+  "code": "LAKARE",
+  "s57name": "Lake",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Lake",
+    "clause": "5.10"
+   }
+  ]
+ },
+ {
+  "code": "VEGATN",
+  "s57name": "Vegetation",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Vegetation",
+    "clause": "5.12"
+   }
+  ]
+ },
+ {
+  "code": "CANALS",
+  "s57name": "Canal",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Canal",
+    "clause": "8.8"
+   }
+  ]
+ },
+ {
+  "code": "RAILWY",
+  "s57name": "Railway",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Railway",
+    "clause": "6.13"
+   }
+  ]
+ },
+ {
+  "code": "TUNNEL",
+  "s57name": "Tunnel",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Tunnel",
+    "clause": "6.15"
+   }
+  ]
+ },
+ {
+  "code": "DAMCON",
+  "s57name": "Dam",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dam",
+    "clause": "8.11"
+   }
+  ]
+ },
+ {
+  "code": "DYKCON",
+  "s57name": "Dyke",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dyke",
+    "clause": "8.5"
+   }
+  ]
+ },
+ {
+  "code": "ROADWY",
+  "s57name": "Road",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Road",
+    "clause": "6.14"
+   }
+  ]
+ },
+ {
+  "code": "CAUSWY",
+  "s57name": "Causeway",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Causeway",
+    "clause": "8.7"
+   }
+  ]
+ },
+ {
+  "code": "BRIDGE",
+  "s57name": "Bridge",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Bridge",
+    "clause": "6.5"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Span Fixed",
+    "clause": "6.6"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Span Opening",
+    "clause": "6.7"
+   }
+  ]
+ },
+ {
+  "code": "CONVYR",
+  "s57name": "Conveyor",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Conveyor",
+    "clause": "6.8"
+   }
+  ]
+ },
+ {
+  "code": "AIRARE",
+  "s57name": "Airport / airfield",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Airport/Airfield",
+    "clause": "6.3"
+   }
+  ]
+ },
+ {
+  "code": "RUNWAY",
+  "s57name": "Runway",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Runway",
+    "clause": "6.4"
+   }
+  ]
+ },
+ {
+  "code": "PRDARE",
+  "s57name": "Production / storage area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Production/Storage Area",
+    "clause": "7.6"
+   }
+  ]
+ },
+ {
+  "code": "BUAARE",
+  "s57name": "Built-up area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Built-Up Area",
+    "clause": "6.1"
+   }
+  ]
+ },
+ {
+  "code": "BUISGL",
+  "s57name": "Building, single",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Building",
+    "clause": "6.2"
+   }
+  ]
+ },
+ {
+  "code": "LNDMRK",
+  "s57name": "Landmark",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Landmark",
+    "clause": "7.2"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Wind Turbine",
+    "clause": "7.4"
+   }
+  ]
+ },
+ {
+  "code": "SILTNK",
+  "s57name": "Silo / tank",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Silo/Tank",
+    "clause": "7.3"
+   }
+  ]
+ },
+ {
+  "code": "FNCLNE",
+  "s57name": "Fence/wall",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fence/Wall",
+    "clause": "6.12"
+   }
+  ]
+ },
+ {
+  "code": "FORSTC",
+  "s57name": "Fortified structure",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fortified Structure",
+    "clause": "7.5"
+   }
+  ]
+ },
+ {
+  "code": "PYLONS",
+  "s57name": "Pylon / bridge support",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pylon/Bridge Support",
+    "clause": "6.11"
+   }
+  ]
+ },
+ {
+  "code": "OILBAR",
+  "s57name": "Oil barrier",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Oil Barrier",
+    "clause": "16.21"
+   }
+  ]
+ },
+ {
+  "code": "DEPCNT",
+  "s57name": "Depth contour",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Depth Contour",
+    "clause": "11.6"
+   }
+  ]
+ },
+ {
+  "code": "SOUNDG",
+  "s57name": "Sounding",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Sounding",
+    "clause": "11.3"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Depth – No Bottom Found",
+    "clause": "11.8"
+   }
+  ]
+ },
+ {
+  "code": "DEPARE",
+  "s57name": "Depth area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Depth Area",
+    "clause": "11.7"
+   }
+  ]
+ },
+ {
+  "code": "DRGARE",
+  "s57name": "Dredged area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dredged Area",
+    "clause": "11.4"
+   }
+  ]
+ },
+ {
+  "code": "SWPARE",
+  "s57name": "Swept area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Swept Area",
+    "clause": "11.5"
+   }
+  ]
+ },
+ {
+  "code": "UNSARE",
+  "s57name": "Unsurveyed area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Unsurveyed Area",
+    "clause": "11.10"
+   }
+  ]
+ },
+ {
+  "code": "UWTROC",
+  "s57name": "Underwater / awash rock",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Underwater/Awash Rock",
+    "clause": "13.4"
+   }
+  ]
+ },
+ {
+  "code": "WRECKS",
+  "s57name": "Wreck",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Wreck",
+    "clause": "13.5"
+   }
+  ]
+ },
+ {
+  "code": "OBSTRN",
+  "s57name": "Obstruction",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Obstruction",
+    "clause": "13.6"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Foul Ground",
+    "clause": "13.7"
+   }
+  ]
+ },
+ {
+  "code": "WATTUR",
+  "s57name": "Water turbulence",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Water Turbulence",
+    "clause": "10.4"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Discoloured Water",
+    "clause": "13.8"
+   }
+  ]
+ },
+ {
+  "code": "CTNARE",
+  "s57name": "Caution area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Caution Area",
+    "clause": "16.10"
+   }
+  ]
+ },
+ {
+  "code": "SBDARE",
+  "s57name": "Seabed area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Seabed Area",
+    "clause": "12.1"
+   }
+  ]
+ },
+ {
+  "code": "SNDWAV",
+  "s57name": "Sandwaves",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Sandwave",
+    "clause": "12.4"
+   }
+  ]
+ },
+ {
+  "code": "WEDKLP",
+  "s57name": "Weed / Kelp",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Weed/Kelp",
+    "clause": "12.2"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Seagrass",
+    "clause": "12.3"
+   }
+  ]
+ },
+ {
+  "code": "SPRING",
+  "s57name": "Spring",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Spring",
+    "clause": "12.5"
+   }
+  ]
+ },
+ {
+  "code": "TIDEWY",
+  "s57name": "Tideway",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Tideway",
+    "clause": "5.16"
+   }
+  ]
+ },
+ {
+  "code": "SEAARE",
+  "s57name": "Sea area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Sea Area/Named Water Area",
+    "clause": "9.1"
+   }
+  ]
+ },
+ {
+  "code": "HRBARE",
+  "s57name": "Harbour area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Harbour Area",
+    "clause": "16.19"
+   }
+  ]
+ },
+ {
+  "code": "ACHARE",
+  "s57name": "Anchorage area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Anchorage Area",
+    "clause": "16.3"
+   }
+  ]
+ },
+ {
+  "code": "ACHBRT",
+  "s57name": "Anchor berth",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Anchor Berth",
+    "clause": "16.4"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Mooring Trot",
+    "clause": "8.21"
+   }
+  ]
+ },
+ {
+  "code": "NAVLNE",
+  "s57name": "Navigation line",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Navigation Line",
+    "clause": "15.4"
+   }
+  ]
+ },
+ {
+  "code": "RECTRC",
+  "s57name": "Recommended track",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Recommended Track",
+    "clause": "15.5"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Range System",
+    "clause": "15.6"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Range System",
+    "clause": "15.6"
+   }
+  ]
+ },
+ {
+  "code": "TSSLPT",
+  "s57name": "Traffic separation scheme lane part",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Scheme Lane Part",
+    "clause": "15.18"
+   }
+  ]
+ },
+ {
+  "code": "TSSBND",
+  "s57name": "Traffic separation scheme boundary",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Scheme Boundary",
+    "clause": "15.21"
+   }
+  ]
+ },
+ {
+  "code": "TSELNE",
+  "s57name": "Traffic separation line",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Line",
+    "clause": "15.20"
+   }
+  ]
+ },
+ {
+  "code": "TSEZNE",
+  "s57name": "Traffic separation zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Zone",
+    "clause": "15.19"
+   }
+  ]
+ },
+ {
+  "code": "TSSCRS",
+  "s57name": "Traffic separation scheme crossing",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Scheme Crossing",
+    "clause": "15.22"
+   }
+  ]
+ },
+ {
+  "code": "TSSRON",
+  "s57name": "Traffic separation scheme roundabout",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Scheme Roundabout",
+    "clause": "15.23"
+   }
+  ]
+ },
+ {
+  "code": "ISTZNE",
+  "s57name": "Inshore traffic zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Inshore Traffic Zone",
+    "clause": "15.16"
+   }
+  ]
+ },
+ {
+  "code": "PRCARE",
+  "s57name": "Precautionary area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Precautionary Area",
+    "clause": "15.17"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Deep Water Route",
+    "clause": "15.15"
+   }
+  ]
+ },
+ {
+  "code": "DWRTPT",
+  "s57name": "Deep water route part",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Deep Water Route Part",
+    "clause": "15.14"
+   }
+  ]
+ },
+ {
+  "code": "DWRTCL",
+  "s57name": "Deep water route centreline",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Deep Water Route Centreline",
+    "clause": "15.13"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Traffic Separation Scheme",
+    "clause": "15.24"
+   }
+  ]
+ },
+ {
+  "code": "RCRTCL",
+  "s57name": "Recommended route centreline",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Recommended Route Centreline",
+    "clause": "15.9"
+   }
+  ]
+ },
+ {
+  "code": "RCTLPT",
+  "s57name": "Recommended traffic lane part",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Recommended Traffic Lane Part",
+    "clause": "15.12"
+   }
+  ]
+ },
+ {
+  "code": "TWRTPT",
+  "s57name": "Two-way route part",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Two-Way Route Part",
+    "clause": "15.10"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Two-Way Route",
+    "clause": "15.11"
+   }
+  ]
+ },
+ {
+  "code": "FERYRT",
+  "s57name": "Ferry route",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Ferry Route",
+    "clause": "15.29"
+   }
+  ]
+ },
+ {
+  "code": "FAIRWY",
+  "s57name": "Fairway",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fairway",
+    "clause": "15.7"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Fairway System",
+    "clause": "15.8"
+   }
+  ]
+ },
+ {
+  "code": "ARCSLN",
+  "s57name": "Archipelagic Sea Lane",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Archipelagic Sea Lane Area",
+    "clause": "15.25"
+   }
+  ]
+ },
+ {
+  "code": "ASLXIS",
+  "s57name": "Archipelagic Sea Lane Axis",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Archipelagic Sea Lane Axis",
+    "clause": "15.26"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Archipelagic Sea Lane",
+    "clause": "15.27"
+   }
+  ]
+ },
+ {
+  "code": "RESARE",
+  "s57name": "Restricted area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Restricted Area Navigational",
+    "clause": "17.8"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Restricted Area Regulatory",
+    "clause": "17.9"
+   }
+  ]
+ },
+ {
+  "code": "ADMARE",
+  "s57name": "Administration area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Administration Area",
+    "clause": "16.8"
+   }
+  ]
+ },
+ {
+  "code": "CUSZNE",
+  "s57name": "Custom zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Custom Zone",
+    "clause": "16.14"
+   }
+  ]
+ },
+ {
+  "code": "FRPARE",
+  "s57name": "Free port area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Free Port Area",
+    "clause": "16.18"
+   }
+  ]
+ },
+ {
+  "code": "STSLNE",
+  "s57name": "Straight Territorial Sea Baseline",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Straight Territorial Sea Baseline",
+    "clause": "16.22"
+   }
+  ]
+ },
+ {
+  "code": "TESARE",
+  "s57name": "Territorial Sea area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Territorial Sea Area",
+    "clause": "16.23"
+   }
+  ]
+ },
+ {
+  "code": "CONZNE",
+  "s57name": "Contiguous Zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Contiguous Zone",
+    "clause": "16.12"
+   }
+  ]
+ },
+ {
+  "code": "FSHZNE",
+  "s57name": "Fishery zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fishery Zone",
+    "clause": "16.16"
+   }
+  ]
+ },
+ {
+  "code": "COSARE",
+  "s57name": "Continental Shelf area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Continental Shelf Area",
+    "clause": "16.13"
+   }
+  ]
+ },
+ {
+  "code": "EXEZNE",
+  "s57name": "Exclusive Economic Zone",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Exclusive Economic Zone",
+    "clause": "16.15"
+   }
+  ]
+ },
+ {
+  "code": "MIPARE",
+  "s57name": "Military practice area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Military Practice Area",
+    "clause": "16.7"
+   }
+  ]
+ },
+ {
+  "code": "SUBTLN",
+  "s57name": "Submarine transit lane",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Submarine Transit Lane",
+    "clause": "16.24"
+   }
+  ]
+ },
+ {
+  "code": "DMPGRD",
+  "s57name": "Dumping ground",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Dumping Ground",
+    "clause": "16.6"
+   }
+  ]
+ },
+ {
+  "code": "CBLSUB",
+  "s57name": "Cable, submarine",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Cable Submarine",
+    "clause": "14.2"
+   }
+  ]
+ },
+ {
+  "code": "CBLOHD",
+  "s57name": "Cable, overhead",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Cable Overhead",
+    "clause": "6.9"
+   }
+  ]
+ },
+ {
+  "code": "CBLARE",
+  "s57name": "Cable area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Cable Area",
+    "clause": "14.3"
+   }
+  ]
+ },
+ {
+  "code": "PIPSOL",
+  "s57name": "Pipeline, submarine / on land",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pipeline Submarine/On Land",
+    "clause": "14.4"
+   }
+  ]
+ },
+ {
+  "code": "PIPOHD",
+  "s57name": "Pipeline overhead",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pipeline Overhead",
+    "clause": "6.10"
+   }
+  ]
+ },
+ {
+  "code": "PIPARE",
+  "s57name": "Pipeline area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Submarine Pipeline Area",
+    "clause": "14.5"
+   }
+  ]
+ },
+ {
+  "code": "OFSPLF",
+  "s57name": "Offshore platform",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Offshore Platform",
+    "clause": "14.1"
+   }
+  ]
+ },
+ {
+  "code": "OSPARE",
+  "s57name": "Offshore production area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Offshore Production Area",
+    "clause": "14.6"
+   }
+  ]
+ },
+ {
+  "code": "FSHFAC",
+  "s57name": "Fishing facility",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fishing Facility",
+    "clause": "13.9"
+   }
+  ]
+ },
+ {
+  "code": "MARCUL",
+  "s57name": "Marine farm / culture",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Marine Farm/Culture",
+    "clause": "13.10"
+   }
+  ]
+ },
+ {
+  "code": "FSHGRD",
+  "s57name": "Fishing ground",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fishing Ground",
+    "clause": "16.17"
+   }
+  ]
+ },
+ {
+  "code": "SPLARE",
+  "s57name": "Seaplane landing area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Seaplane Landing Area",
+    "clause": "16.5"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Ice Area",
+    "clause": "5.13"
+   }
+  ]
+ },
+ {
+  "code": "LOGPON",
+  "s57name": "Log pond",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Log Pond",
+    "clause": "16.20"
+   }
+  ]
+ },
+ {
+  "code": "ICNARE",
+  "s57name": "Incineration area",
+  "targets": []
+ },
+ {
+  "code": "CTSARE",
+  "s57name": "Cargo transhipment area",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Cargo Transhipment Area",
+    "clause": "16.9"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Collision Regulations Limit",
+    "clause": "16.26"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Marine Pollution Regulations Area",
+    "clause": "16.27"
+   }
+  ]
+ },
+ {
+  "code": "M_NSYS",
+  "s57name": "Navigational system of marks",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Navigational System of Marks",
+    "clause": "3.5"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Local Direction of Buoyage",
+    "clause": "3.6"
+   }
+  ]
+ },
+ {
+  "code": "BCNCAR",
+  "s57name": "Beacon, cardinal",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Beacon Cardinal",
+    "clause": "20.9"
+   }
+  ]
+ },
+ {
+  "code": "BCNISD",
+  "s57name": "Beacon, isolated danger",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Beacon Isolated Danger",
+    "clause": "20.10"
+   }
+  ]
+ },
+ {
+  "code": "BCNLAT",
+  "s57name": "Beacon, lateral",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Beacon Lateral",
+    "clause": "20.8"
+   }
+  ]
+ },
+ {
+  "code": "BCNSAW",
+  "s57name": "Beacon, safe water",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Beacon Safe Water",
+    "clause": "20.11"
+   }
+  ]
+ },
+ {
+  "code": "BCNSPP",
+  "s57name": "Beacon, special purpose",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Beacon Special Purpose/General",
+    "clause": "20.12"
+   }
+  ]
+ },
+ {
+  "code": "DAYMAR",
+  "s57name": "Daymark",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Daymark",
+    "clause": "20.13"
+   }
+  ]
+ },
+ {
+  "code": "BOYCAR",
+  "s57name": "Buoy, cardinal",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Cardinal",
+    "clause": "20.2"
+   }
+  ]
+ },
+ {
+  "code": "BOYISD",
+  "s57name": "Buoy, isolated danger",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Isolated Danger",
+    "clause": "20.3"
+   }
+  ]
+ },
+ {
+  "code": "BOYLAT",
+  "s57name": "Buoy, lateral",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Lateral",
+    "clause": "20.1"
+   }
+  ]
+ },
+ {
+  "code": "BOYSAW",
+  "s57name": "Buoy, safe water",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Safe Water",
+    "clause": "20.4"
+   }
+  ]
+ },
+ {
+  "code": "BOYSPP",
+  "s57name": "Buoy, special purpose",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Special Purpose/General",
+    "clause": "20.5"
+   }
+  ]
+ },
+ {
+  "code": "BOYINB",
+  "s57name": "Buoy, installation",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Buoy Installation",
+    "clause": "20.7"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Buoy New Danger Marking",
+    "clause": "20.6"
+   }
+  ]
+ },
+ {
+  "code": "LITFLT",
+  "s57name": "Light float",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Light Float",
+    "clause": "20.14"
+   }
+  ]
+ },
+ {
+  "code": "LITVES",
+  "s57name": "Light vessel",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Light Vessel",
+    "clause": "20.15"
+   }
+  ]
+ },
+ {
+  "code": "FOGSIG",
+  "s57name": "Fog signal",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Fog Signal",
+    "clause": "20.18"
+   }
+  ]
+ },
+ {
+  "code": "RETRFL",
+  "s57name": "Retroreflector",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Retroreflector",
+    "clause": "20.16"
+   }
+  ]
+ },
+ {
+  "code": "LIGHTS",
+  "s57name": "Light",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Light All Around",
+    "clause": "19.2"
+   }
+  ]
+ },
+ {
+  "code": "RTPBCN",
+  "s57name": "Radar transponder beacon",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radar Transponder Beacon",
+    "clause": "21.5"
+   }
+  ]
+ },
+ {
+  "code": "RADRNG",
+  "s57name": "Radar range",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radar Range",
+    "clause": "15.31"
+   }
+  ]
+ },
+ {
+  "code": "RADLNE",
+  "s57name": "Radar line",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radar Line",
+    "clause": "15.30"
+   }
+  ]
+ },
+ {
+  "code": "RADSTA",
+  "s57name": "Radar station",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radar Station",
+    "clause": "15.32"
+   }
+  ]
+ },
+ {
+  "code": "RADRFL",
+  "s57name": "Radar reflector",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radar Reflector",
+    "clause": "20.17"
+   }
+  ]
+ },
+ {
+  "code": "RDOCAL",
+  "s57name": "Radio calling-in point",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Radio Calling-In Point",
+    "clause": "15.28"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Vessel Traffic Service Area",
+    "clause": "22.2"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Physical AIS Aid to Navigation",
+    "clause": "21.2"
+   }
+  ]
+ },
+ {
+  "code": "NEWOBJ",
+  "s57name": "New object",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Virtual AIS Aid to Navigation",
+    "clause": "21.3"
+   }
+  ]
+ },
+ {
+  "code": "PILBOP",
+  "s57name": "Pilot boarding place",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Pilot Boarding Place",
+    "clause": "22.1"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Pilotage District",
+    "clause": "16.25"
+   }
+  ]
+ },
+ {
+  "code": "CGUSTA",
+  "s57name": "Coastguard station",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Coast Guard Station",
+    "clause": "22.3"
+   }
+  ]
+ },
+ {
+  "code": "RSCSTA",
+  "s57name": "Rescue station",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Rescue Station",
+    "clause": "22.6"
+   }
+  ]
+ },
+ {
+  "code": "SISTAT",
+  "s57name": "Signal station, traffic",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Signal Station WarningTraffic",
+    "clause": "22.45"
+   }
+  ]
+ },
+ {
+  "code": "SISTAW",
+  "s57name": "Signal station, warning",
+  "targets": [
+   {
+    "kind": "Geo feature",
+    "name": "Signal Station TrafficWarning",
+    "clause": "22.54"
+   },
+   {
+    "kind": "Geo feature",
+    "name": "Island Group",
+    "clause": "5.5"
+   }
+  ]
+ }
+]

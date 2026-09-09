@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="330" viewBox="0 0 860 330" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="330" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <rect x="55" y="70" width="230" height="150" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="170" y="100" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f6d5f">S-57 要素</text>
+  <text x="80" y="132" font-size="14.5" fill="#444444">对象类：DEPARE（深度区）</text>
+  <text x="80" y="158" font-size="14.5" fill="#444444">属性：DRVAL1 = 0</text>
+  <text x="80" y="182" font-size="14.5" fill="#444444">　　　DRVAL2 = 10</text>
+  <text x="80" y="206" font-size="14.5" fill="#444444">几何：一个多边形</text>
+
+  <line x1="290" y1="145" x2="336" y2="145" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+  <text x="313" y="132" text-anchor="middle" font-size="13.5" fill="#666666">查表</text>
+
+  <rect x="342" y="70" width="230" height="150" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="457" y="100" text-anchor="middle" font-size="18" font-weight="bold" fill="#0f6d5f">S-52 look-up 表</text>
+  <text x="367" y="140" font-size="14.5" fill="#444444">深度档 → 显示模板</text>
+  <text x="367" y="168" font-size="14.5" fill="#444444">0–10 m → 浅水色填充</text>
+  <text x="367" y="196" font-size="14" fill="#888888">对照“安全等深线”判断档位</text>
+
+  <line x1="577" y1="145" x2="623" y2="145" stroke="#666666" stroke-width="2" marker-end="url(#a)"/>
+  <text x="600" y="132" text-anchor="middle" font-size="13.5" fill="#666666">着色</text>
+
+  <rect x="629" y="70" width="180" height="150" rx="8" fill="#ffffff" stroke="#0f6d5f" stroke-width="1.5"/>
+  <polygon points="655,185 668,125 740,115 786,150 768,192 668,198" fill="#aad3f2" stroke="#5a8fbe" stroke-width="1.5"/>
+  <text x="719" y="245" text-anchor="middle" font-size="14" fill="#444444">浅水色（昼）</text>
+
+  <text x="430" y="288" text-anchor="middle" font-size="15.5" fill="#333333">数据里没有颜色：颜色是按 S-52 规则查表得到的</text>
+</svg>

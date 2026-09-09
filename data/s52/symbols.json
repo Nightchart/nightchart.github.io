@@ -1,0 +1,1514 @@
+{
+ "cats": {
+  "B": "测量点",
+  "C": "植被地形",
+  "D": "交通工程",
+  "E": "建筑物",
+  "F": "港口设施",
+  "K": "礁石沉船",
+  "L": "平台缆线",
+  "M": "航路通信",
+  "N": "区域界线",
+  "P": "灯标立标",
+  "Q": "浮标航标",
+  "R": "雾号",
+  "S": "雷达应答",
+  "T": "引航"
+ },
+ "syms": [
+  {
+   "f": "assets/s52/point/B20_Triangulation_point.svg",
+   "int1": "B20",
+   "en": "Triangulation point",
+   "zh": "三角测量点",
+   "cat": "B",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/B22_Fixed_point.svg",
+   "int1": "B22",
+   "en": "Fixed point",
+   "zh": "固定点",
+   "cat": "B",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/B22a_Fixed_point.svg",
+   "int1": "B22a",
+   "en": "Fixed point",
+   "zh": "固定点（变体）",
+   "cat": "B",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/B22b_Fixed_point.svg",
+   "int1": "B22b",
+   "en": "Fixed point",
+   "zh": "固定点（变体）",
+   "cat": "B",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/C3_Cliffs.svg",
+   "int1": "C3",
+   "en": "Cliffs",
+   "zh": "陡崖",
+   "cat": "C",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C31_1_Deciduous_tree.svg",
+   "int1": "C31",
+   "en": "Deciduous tree",
+   "zh": "落叶树",
+   "cat": "C",
+   "prim": "点状",
+   "obj": "VEGATN"
+  },
+  {
+   "f": "assets/s52/point/C31_2_Evergreen_tree.svg",
+   "int1": "C31",
+   "en": "Evergreen tree",
+   "zh": "常绿树",
+   "cat": "C",
+   "prim": "点状",
+   "obj": "VEGATN"
+  },
+  {
+   "f": "assets/s52/point/C31_3_Conifer_tree.svg",
+   "int1": "C31",
+   "en": "Conifer tree",
+   "zh": "针叶树",
+   "cat": "C",
+   "prim": "点状",
+   "obj": "VEGATN"
+  },
+  {
+   "f": "assets/s52/point/C31_4_Palm_Tree.svg",
+   "int1": "C31",
+   "en": "Palm Tree",
+   "zh": "棕榈树",
+   "cat": "C",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C31_5_Nipa_palm.svg",
+   "int1": "C31",
+   "en": "Nipa palm",
+   "zh": "水椰",
+   "cat": "C",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C31_6_Casuarina.svg",
+   "int1": "C31",
+   "en": "Casuarina",
+   "zh": "木麻黄",
+   "cat": "C",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C31_7_Filao.svg",
+   "int1": "C31",
+   "en": "Filao",
+   "zh": "木麻黄（变体）",
+   "cat": "C",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C31_8_Eucalypt.svg",
+   "int1": "C31",
+   "en": "Eucalypt",
+   "zh": "桉树",
+   "cat": "C",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/C32_Mangrove.svg",
+   "int1": "C32",
+   "en": "Mangrove",
+   "zh": "红树林",
+   "cat": "C",
+   "prim": "点状",
+   "obj": "VEGATN"
+  },
+  {
+   "f": "assets/s52/line/C8_Dunes.svg",
+   "int1": "C8",
+   "en": "Dunes",
+   "zh": "沙丘",
+   "cat": "C",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/CBLS.svg",
+   "int1": "CBLS",
+   "en": "CBLS",
+   "zh": "海底线缆",
+   "cat": "C",
+   "prim": "线状",
+   "obj": "CBLSUB"
+  },
+  {
+   "f": "assets/s52/line/D11_Roadway.svg",
+   "int1": "D11",
+   "en": "Roadway",
+   "zh": "道路",
+   "cat": "D",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/D14_Cutting.svg",
+   "int1": "D14",
+   "en": "Cutting",
+   "zh": "路堑",
+   "cat": "D",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/D15_Embankment.svg",
+   "int1": "D15",
+   "en": "Embankment",
+   "zh": "路堤",
+   "cat": "D",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/D22_Vert_clr.svg",
+   "int1": "D22",
+   "en": "Vert clr",
+   "zh": "垂直净空",
+   "cat": "D",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/D26_2_SafeVertClearance.svg",
+   "int1": "D26",
+   "en": "SafeVertClearance",
+   "zh": "安全垂直净空",
+   "cat": "D",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E10_Church.svg",
+   "int1": "E10",
+   "en": "Church",
+   "zh": "教堂",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E17_Mosque.svg",
+   "int1": "E17",
+   "en": "Mosque",
+   "zh": "清真寺",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E20_Tower.svg",
+   "int1": "E20",
+   "en": "Tower",
+   "zh": "塔",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E22_Chimney.svg",
+   "int1": "E22",
+   "en": "Chimney",
+   "zh": "烟囱",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E23_Flare_stack.svg",
+   "int1": "E23",
+   "en": "Flare stack",
+   "zh": "火炬塔",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E24_Monument.svg",
+   "int1": "E24",
+   "en": "Monument",
+   "zh": "纪念碑",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E25_Windmill.svg",
+   "int1": "E25",
+   "en": "Windmill",
+   "zh": "风车",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E26_1_Wind_turbine.svg",
+   "int1": "E26",
+   "en": "Wind turbine",
+   "zh": "风力发电机",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E27_Flagpole.svg",
+   "int1": "E27",
+   "en": "Flagpole",
+   "zh": "旗杆",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E28_Radio_mast.svg",
+   "int1": "E28",
+   "en": "Radio mast",
+   "zh": "无线电天线杆",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E29_Radio_tower.svg",
+   "int1": "E29",
+   "en": "Radio tower",
+   "zh": "无线电塔",
+   "cat": "E",
+   "prim": "点状",
+   "obj": "LNDMRK"
+  },
+  {
+   "f": "assets/s52/point/E31_Dish_aerial.svg",
+   "int1": "E31",
+   "en": "Dish aerial",
+   "zh": "抛物面天线",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/E36_Mine.svg",
+   "int1": "E36",
+   "en": "Mine",
+   "zh": "矿区",
+   "cat": "E",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F10_Fishing_harbor.svg",
+   "int1": "F10",
+   "en": "Fishing harbor",
+   "zh": "渔港",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F11_1_Boat_harbor.svg",
+   "int1": "F11",
+   "en": "Boat harbor",
+   "zh": "小艇港",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F11_2_Yacht_berths.svg",
+   "int1": "F11",
+   "en": "Yacht berths",
+   "zh": "游艇泊位",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F11_3_Yacht_club.svg",
+   "int1": "F11",
+   "en": "Yacht club",
+   "zh": "游艇俱乐部",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F20_Dolphin.svg",
+   "int1": "F20",
+   "en": "Dolphin",
+   "zh": "系船墩",
+   "cat": "F",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/F20b_Dolphin.svg",
+   "int1": "F20b",
+   "en": "Dolphin",
+   "zh": "系船墩（变体）",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F21_Deviation_dolphin.svg",
+   "int1": "F21",
+   "en": "Deviation dolphin",
+   "zh": "偏移系船墩",
+   "cat": "F",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/F22_Post.svg",
+   "int1": "F22",
+   "en": "Post",
+   "zh": "桩",
+   "cat": "F",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/F53_Crane.svg",
+   "int1": "F53",
+   "en": "Crane",
+   "zh": "起重机",
+   "cat": "F",
+   "prim": "点状",
+   "obj": "CRANES"
+  },
+  {
+   "f": "assets/s52/line/rock_ledge.svg",
+   "int1": "K_ledge",
+   "en": "rock ledge",
+   "zh": "礁棚",
+   "cat": "K",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_DryWk.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm DryWk",
+   "zh": "障碍物 4mm（干出沉船）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "OBSTRN"
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_InDepthRange.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm InDepthRange",
+   "zh": "障碍物 4mm（深度范围内）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "OBSTRN"
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_InDepthRangeWk.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm InDepthRangeWk",
+   "zh": "障碍物 4mm（深度范围内沉船）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_shoal_wiredrag.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm shoal wiredrag",
+   "zh": "障碍物 4mm（浅滩·已扫海）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_shoal.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm shoal",
+   "zh": "障碍物 4mm（浅滩）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "OBSTRN"
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction4mm_shoalWk.svg",
+   "int1": "K1",
+   "en": "Obstruction4mm shoalWk",
+   "zh": "障碍物 4mm（浅滩沉船）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction6mm_InDepthRange.svg",
+   "int1": "K1",
+   "en": "Obstruction6mm InDepthRange",
+   "zh": "障碍物 6mm（深度范围内）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction6mm_shoal_wiredrag.svg",
+   "int1": "K1",
+   "en": "Obstruction6mm shoal wiredrag",
+   "zh": "障碍物 6mm（浅滩·已扫海）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K1_Obstruction6mm_shoal.svg",
+   "int1": "K1",
+   "en": "Obstruction6mm shoal",
+   "zh": "障碍物 6mm（浅滩）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K10_LandPoint.svg",
+   "int1": "K10",
+   "en": "LandPoint",
+   "zh": "陆部点（碍航参照）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K11a_Rock_uncovers.svg",
+   "int1": "K11a",
+   "en": "Rock uncovers",
+   "zh": "礁石（干出）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "UWTROC"
+  },
+  {
+   "f": "assets/s52/point/K11b_Rock_uncovers.svg",
+   "int1": "K11b",
+   "en": "Rock uncovers",
+   "zh": "礁石（干出·变体）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K12a_Rock_awash.svg",
+   "int1": "K12a",
+   "en": "Rock awash",
+   "zh": "适淹礁",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "UWTROC"
+  },
+  {
+   "f": "assets/s52/point/K12a_Rock_awash2mm.svg",
+   "int1": "K12a",
+   "en": "Rock awash2mm",
+   "zh": "适淹礁（2mm）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K12b_Rock_awash.svg",
+   "int1": "K12b",
+   "en": "Rock awash",
+   "zh": "适淹礁（变体）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K13a_Dangerous_underwater_rk.svg",
+   "int1": "K13a",
+   "en": "Dangerous underwater rk",
+   "zh": "危险水下礁石",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "UWTROC"
+  },
+  {
+   "f": "assets/s52/point/K13b_Dangerous_underwater_rk.svg",
+   "int1": "K13b",
+   "en": "Dangerous underwater rk",
+   "zh": "危险水下礁石（变体）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K2_SweptDepth_magenta.svg",
+   "int1": "K2",
+   "en": "SweptDepth magenta",
+   "zh": "扫海水深（品红）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K21_Wreck_uncovers.svg",
+   "int1": "K21",
+   "en": "Wreck uncovers",
+   "zh": "沉船（干出）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K22_Wreck_submerged.svg",
+   "int1": "K22",
+   "en": "Wreck submerged",
+   "zh": "沉船（水下）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K24_Wreck_showing_hull.svg",
+   "int1": "K24",
+   "en": "Wreck showing hull",
+   "zh": "沉船（露体）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K25_Wreck_danger_no_depth.svg",
+   "int1": "K25",
+   "en": "Wreck danger no depth",
+   "zh": "沉船（危险·水深不明）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K27_SweptDepth.svg",
+   "int1": "K27",
+   "en": "SweptDepth",
+   "zh": "扫海水深",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K29_Wreck_notdangerous.svg",
+   "int1": "K29",
+   "en": "Wreck notdangerous",
+   "zh": "沉船（无危险）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K30_Wreck_safe_clearance.svg",
+   "int1": "K30",
+   "en": "Wreck safe clearance",
+   "zh": "沉船（安全净深）",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "WRECKS"
+  },
+  {
+   "f": "assets/s52/point/K31_Foul_ground.svg",
+   "int1": "K31",
+   "en": "Foul ground",
+   "zh": "碍航底质区",
+   "cat": "K",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/K48_Marine_farm.svg",
+   "int1": "K48",
+   "en": "Marine farm",
+   "zh": "海上养殖场",
+   "cat": "K",
+   "prim": "点状",
+   "obj": "MIPARE"
+  },
+  {
+   "f": "assets/s52/point/L10_Offshore_platform.svg",
+   "int1": "L10",
+   "en": "Offshore platform",
+   "zh": "海上平台",
+   "cat": "L",
+   "prim": "点状",
+   "obj": "OFSPLF"
+  },
+  {
+   "f": "assets/s52/point/L16_Tanker_mooring.svg",
+   "int1": "L16",
+   "en": "Tanker mooring",
+   "zh": "油轮系泊设施",
+   "cat": "L",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/line/L30_Cable.svg",
+   "int1": "L30",
+   "en": "Cable",
+   "zh": "线缆区段",
+   "cat": "L",
+   "prim": "线状",
+   "obj": "CBLSUB"
+  },
+  {
+   "f": "assets/s52/line/L31_1_PowerCable.svg",
+   "int1": "L31",
+   "en": "PowerCable",
+   "zh": "电力线缆",
+   "cat": "L",
+   "prim": "线状",
+   "obj": "CBLSUB"
+  },
+  {
+   "f": "assets/s52/line/L32_DisusedCable.svg",
+   "int1": "L32",
+   "en": "DisusedCable",
+   "zh": "废弃线缆",
+   "cat": "L",
+   "prim": "线状",
+   "obj": "CBLSUB"
+  },
+  {
+   "f": "assets/s52/line/L40_pipeline_supply.svg",
+   "int1": "L40",
+   "en": "pipeline supply",
+   "zh": "输送管线",
+   "cat": "L",
+   "prim": "线状",
+   "obj": "PIPSOL"
+  },
+  {
+   "f": "assets/s52/line/L41_pipeline_outfall_intake.svg",
+   "int1": "L41",
+   "en": "pipeline outfall intake",
+   "zh": "排放/进水管线",
+   "cat": "L",
+   "prim": "线状",
+   "obj": "PIPARE"
+  },
+  {
+   "f": "assets/s52/point/Light_Flare_green.svg",
+   "int1": "Light",
+   "en": "Flare green",
+   "zh": "灯质光弧（绿）",
+   "cat": "L",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Light_Flare_red.svg",
+   "int1": "Light",
+   "en": "Flare red",
+   "zh": "灯质光弧（红）",
+   "cat": "L",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Light_Flare_white.svg",
+   "int1": "Light",
+   "en": "Flare white",
+   "zh": "灯质光弧（白）",
+   "cat": "L",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Light_Flare.svg",
+   "int1": "Light",
+   "en": "Flare",
+   "zh": "灯质光弧（无色）",
+   "cat": "L",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/M1_NavigationLine.svg",
+   "int1": "M1",
+   "en": "NavigationLine",
+   "zh": "航行线",
+   "cat": "M",
+   "prim": "线状",
+   "obj": "NAVLNE"
+  },
+  {
+   "f": "assets/s52/line/M4_RecommendedTrack1.svg",
+   "int1": "M4",
+   "en": "RecommendedTrack1",
+   "zh": "推荐航迹（单向）",
+   "cat": "M",
+   "prim": "线状",
+   "obj": "RECTRC"
+  },
+  {
+   "f": "assets/s52/line/M4_RecommendedTrack2.svg",
+   "int1": "M4",
+   "en": "RecommendedTrack2",
+   "zh": "推荐航迹（双向）",
+   "cat": "M",
+   "prim": "线状",
+   "obj": "RECTRC"
+  },
+  {
+   "f": "assets/s52/point/M40_1a_Radio_calling_in.svg",
+   "int1": "M40",
+   "en": "1a Radio calling in",
+   "zh": "无线电报告点（a）",
+   "cat": "M",
+   "prim": "点状",
+   "obj": "RDOCAL"
+  },
+  {
+   "f": "assets/s52/point/M40_1b_Radio_calling_in.svg",
+   "int1": "M40",
+   "en": "1b Radio calling in",
+   "zh": "无线电报告点（b）",
+   "cat": "M",
+   "prim": "点状",
+   "obj": "RDOCAL"
+  },
+  {
+   "f": "assets/s52/line/N1_1_RecommendedTrack.svg",
+   "int1": "N1",
+   "en": "RecommendedTrack",
+   "zh": "推荐航路",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RECTRC"
+  },
+  {
+   "f": "assets/s52/line/N1_Limit_general.svg",
+   "int1": "N1",
+   "en": "Limit general",
+   "zh": "区域界线（一般）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/N10_Reported_anchorage.svg",
+   "int1": "N10",
+   "en": "Reported anchorage",
+   "zh": "报告锚地",
+   "cat": "N",
+   "prim": "点状",
+   "obj": "ACHARE"
+  },
+  {
+   "f": "assets/s52/line/N2_1_RestrictedArea.svg",
+   "int1": "N2",
+   "en": "RestrictedArea",
+   "zh": "限制区",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/line/N2_2_EntryProhibited.svg",
+   "int1": "N2",
+   "en": "EntryProhibited",
+   "zh": "禁止进入（线）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/line/N2_2_EntryProhibitedPoint.svg",
+   "int1": "N2",
+   "en": "EntryProhibitedPoint",
+   "zh": "禁止进入（点）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/point/N2_2_EntryProhibitedPoint.svg",
+   "int1": "N2",
+   "en": "EntryProhibitedPoint",
+   "zh": "禁止进入（点）",
+   "cat": "N",
+   "prim": "点状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/line/N20_AnchoringProhibited.svg",
+   "int1": "N20",
+   "en": "AnchoringProhibited",
+   "zh": "禁止抛锚（线）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/line/N20_AnchoringProhibitedPoint.svg",
+   "int1": "N20",
+   "en": "AnchoringProhibitedPoint",
+   "zh": "禁止抛锚（点）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/N20_NoAnchor.svg",
+   "int1": "N20",
+   "en": "NoAnchor",
+   "zh": "禁止抛锚（变体）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/point/N20_AnchoringProhibitedPoint.svg",
+   "int1": "N20",
+   "en": "AnchoringProhibitedPoint",
+   "zh": "禁止抛锚（点）",
+   "cat": "N",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/N21_1_Fishing_Prohibited.svg",
+   "int1": "N21",
+   "en": "Fishing Prohibited",
+   "zh": "禁止捕鱼（线）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/N21_1_Fishing_ProhibitedPoint.svg",
+   "int1": "N21",
+   "en": "Fishing ProhibitedPoint",
+   "zh": "禁止捕鱼（点）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/line/N21_NoFishing.svg",
+   "int1": "N21",
+   "en": "NoFishing",
+   "zh": "禁止捕鱼（变体）",
+   "cat": "N",
+   "prim": "线状",
+   "obj": "RESARE"
+  },
+  {
+   "f": "assets/s52/point/N21_1_Fishing_ProhibitedPoint.svg",
+   "int1": "N21",
+   "en": "Fishing ProhibitedPoint",
+   "zh": "禁止捕鱼（点）",
+   "cat": "N",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/P1_Light_green.svg",
+   "int1": "P1",
+   "en": "Light green",
+   "zh": "灯标（绿）",
+   "cat": "P",
+   "prim": "点状",
+   "obj": "LIGHTS"
+  },
+  {
+   "f": "assets/s52/point/P1_Light_red.svg",
+   "int1": "P1",
+   "en": "Light red",
+   "zh": "灯标（红）",
+   "cat": "P",
+   "prim": "点状",
+   "obj": "LIGHTS"
+  },
+  {
+   "f": "assets/s52/point/P1_Light_white.svg",
+   "int1": "P1",
+   "en": "Light white",
+   "zh": "灯标（白）",
+   "cat": "P",
+   "prim": "点状",
+   "obj": "LIGHTS"
+  },
+  {
+   "f": "assets/s52/point/P1_Light-fixed.svg",
+   "int1": "P1",
+   "en": "Light-fixed",
+   "zh": "定光灯标",
+   "cat": "P",
+   "prim": "点状",
+   "obj": "LIGHTS"
+  },
+  {
+   "f": "assets/s52/point/P1_Light.svg",
+   "int1": "P1",
+   "en": "Light",
+   "zh": "灯标",
+   "cat": "P",
+   "prim": "点状",
+   "obj": "LIGHTS"
+  },
+  {
+   "f": "assets/s52/point/P4_Lighted_beacon.svg",
+   "int1": "P4",
+   "en": "Lighted beacon",
+   "zh": "灯立标",
+   "cat": "P",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/P63_Flood_light.svg",
+   "int1": "P63",
+   "en": "Flood light",
+   "zh": "泛光灯",
+   "cat": "P",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/P64_Strip_light.svg",
+   "int1": "P64",
+   "en": "Strip light",
+   "zh": "排灯",
+   "cat": "P",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q100_cairn.svg",
+   "int1": "Q100",
+   "en": "cairn",
+   "zh": "石堆标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q101_Mark.svg",
+   "int1": "Q101",
+   "en": "Mark",
+   "zh": "标志杆",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q110a_Beacon_tower.svg",
+   "int1": "Q110a",
+   "en": "Beacon tower",
+   "zh": "塔式立标（a）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BCNCAR"
+  },
+  {
+   "f": "assets/s52/point/Q110b_Beacon_tower.svg",
+   "int1": "Q110b",
+   "en": "Beacon tower",
+   "zh": "塔式立标（b）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BCNCAR"
+  },
+  {
+   "f": "assets/s52/point/Q111_Lattice_beacon.svg",
+   "int1": "Q111",
+   "en": "Lattice beacon",
+   "zh": "格架立标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BCNCAR"
+  },
+  {
+   "f": "assets/s52/point/Q130_3_topmark_E.svg",
+   "int1": "Q130",
+   "en": "topmark E",
+   "zh": "顶标（东方位）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q130_3_topmark_N.svg",
+   "int1": "Q130",
+   "en": "topmark N",
+   "zh": "顶标（北方位）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q130_3_topmark_S.svg",
+   "int1": "Q130",
+   "en": "topmark S",
+   "zh": "顶标（南方位）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q130_3_topmark_W.svg",
+   "int1": "Q130",
+   "en": "topmark W",
+   "zh": "顶标（西方位）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q130_4_Isolated_danger_mark.svg",
+   "int1": "Q130",
+   "en": "Isolated danger mark",
+   "zh": "孤立危险标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYISD"
+  },
+  {
+   "f": "assets/s52/point/Q130_5_Closed_safe_water_mark.svg",
+   "int1": "Q130",
+   "en": "Closed safe water mark",
+   "zh": "安全水域标（球形）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSAW"
+  },
+  {
+   "f": "assets/s52/point/Q130_5_Safe_water_mark.svg",
+   "int1": "Q130",
+   "en": "Safe water mark",
+   "zh": "安全水域标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSAW"
+  },
+  {
+   "f": "assets/s52/point/Q130_6_Special_mark.svg",
+   "int1": "Q130",
+   "en": "Special mark",
+   "zh": "专用标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q20a_Conical_buoy.svg",
+   "int1": "Q20a",
+   "en": "Conical buoy",
+   "zh": "锥形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q20b_Conical_buoy.svg",
+   "int1": "Q20b",
+   "en": "Conical buoy",
+   "zh": "锥形浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q21a_Can_buoy.svg",
+   "int1": "Q21a",
+   "en": "Can buoy",
+   "zh": "罐形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q21b_Can_buoy.svg",
+   "int1": "Q21b",
+   "en": "Can buoy",
+   "zh": "罐形浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q22a_Spherical_buoy.svg",
+   "int1": "Q22a",
+   "en": "Spherical buoy",
+   "zh": "球形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q22b_Spherical_buoy.svg",
+   "int1": "Q22b",
+   "en": "Spherical buoy",
+   "zh": "球形浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q22c_Spherical_buoy.svg",
+   "int1": "Q22c",
+   "en": "Spherical buoy",
+   "zh": "球形浮标（杆式）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q23a_Pillar_buoy.svg",
+   "int1": "Q23a",
+   "en": "Pillar buoy",
+   "zh": "柱形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q23b_Pillar_buoy.svg",
+   "int1": "Q23b",
+   "en": "Pillar buoy",
+   "zh": "柱形浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q23c_Pillar_buoy.svg",
+   "int1": "Q23c",
+   "en": "Pillar buoy",
+   "zh": "柱形浮标（杆顶）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYLAT"
+  },
+  {
+   "f": "assets/s52/point/Q24_Spar_buoy.svg",
+   "int1": "Q24",
+   "en": "Spar buoy",
+   "zh": "杆形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q25a_Barrel_buoy.svg",
+   "int1": "Q25a",
+   "en": "Barrel buoy",
+   "zh": "桶形浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q25b_Barrel_buoy.svg",
+   "int1": "Q25b",
+   "en": "Barrel buoy",
+   "zh": "桶形浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q26_Super_buoy.svg",
+   "int1": "Q26",
+   "en": "Super buoy",
+   "zh": "大型浮标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BOYSPP"
+  },
+  {
+   "f": "assets/s52/point/Q30_Light_float.svg",
+   "int1": "Q30",
+   "en": "Light float",
+   "zh": "灯浮（船形）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "LITFLT"
+  },
+  {
+   "f": "assets/s52/point/Q31_Light_float.svg",
+   "int1": "Q31",
+   "en": "Light float",
+   "zh": "灯浮（船形·变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "LITFLT"
+  },
+  {
+   "f": "assets/s52/point/Q32_Light_vessel.svg",
+   "int1": "Q32",
+   "en": "Light vessel",
+   "zh": "灯船",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "LITVES"
+  },
+  {
+   "f": "assets/s52/point/Q40a_Mooring_buoy.svg",
+   "int1": "Q40a",
+   "en": "Mooring buoy",
+   "zh": "系泊浮标（球）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/Q40b_Mooring_buoy.svg",
+   "int1": "Q40b",
+   "en": "Mooring buoy",
+   "zh": "系泊浮标（柱）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/Q40c_Mooring_buoy.svg",
+   "int1": "Q40c",
+   "en": "Mooring buoy",
+   "zh": "系泊浮标（杆）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/Q40d_Mooring_buoy.svg",
+   "int1": "Q40d",
+   "en": "Mooring buoy",
+   "zh": "系泊浮标（变体）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "MORFAC"
+  },
+  {
+   "f": "assets/s52/point/Q42_Ground_tackle.svg",
+   "int1": "Q42",
+   "en": "Ground tackle",
+   "zh": "锚泊装置",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q80_Beacon.svg",
+   "int1": "Q80",
+   "en": "Beacon",
+   "zh": "立标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": "BCNLAT"
+  },
+  {
+   "f": "assets/s52/point/Q83_Beacon_submerged_rock.svg",
+   "int1": "Q83",
+   "en": "Beacon submerged rock",
+   "zh": "立标（暗礁上）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Arrow_DownFilled.svg",
+   "int1": "Q9",
+   "en": "Arrow DownFilled",
+   "zh": "向下箭头顶标（实心）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Arrow_DownOpen.svg",
+   "int1": "Q9",
+   "en": "Arrow DownOpen",
+   "zh": "向下箭头顶标（空心）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Arrow_filled.svg",
+   "int1": "Q9",
+   "en": "Arrow filled",
+   "zh": "箭头顶标（实心）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Arrow.svg",
+   "int1": "Q9",
+   "en": "Arrow",
+   "zh": "箭头顶标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Cross.svg",
+   "int1": "Q9",
+   "en": "Cross",
+   "zh": "十字顶标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Cylinder_filled.svg",
+   "int1": "Q9",
+   "en": "Cylinder filled",
+   "zh": "圆柱顶标（实心）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Cylinder.svg",
+   "int1": "Q9",
+   "en": "Cylinder",
+   "zh": "圆柱顶标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Rhombus.svg",
+   "int1": "Q9",
+   "en": "Rhombus",
+   "zh": "菱形顶标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q9_Square.svg",
+   "int1": "Q9",
+   "en": "Square",
+   "zh": "方形顶标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q90_Stake_pole.svg",
+   "int1": "Q90",
+   "en": "Stake pole",
+   "zh": "杆标",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q91_Lateral_hand_perch.svg",
+   "int1": "Q91",
+   "en": "Lateral hand perch",
+   "zh": "侧面杆标（右）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q91_Port_hand_perch.svg",
+   "int1": "Q91",
+   "en": "Port hand perch",
+   "zh": "侧面杆标（左）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q92_Withy_port.svg",
+   "int1": "Q92",
+   "en": "Withy port",
+   "zh": "柔条杆标（左）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/Q92_Withy_starboard.svg",
+   "int1": "Q92",
+   "en": "Withy starboard",
+   "zh": "柔条杆标（右）",
+   "cat": "Q",
+   "prim": "点状",
+   "obj": ""
+  },
+  {
+   "f": "assets/s52/point/R1_Fog_signal.svg",
+   "int1": "R1",
+   "en": "Fog signal",
+   "zh": "雾号",
+   "cat": "R",
+   "prim": "点状",
+   "obj": "FOGSIG"
+  },
+  {
+   "f": "assets/s52/point/S1_Ra_transponder_bn.svg",
+   "int1": "S1",
+   "en": "Ra transponder bn",
+   "zh": "雷达应答标",
+   "cat": "S",
+   "prim": "点状",
+   "obj": "RTPBCN"
+  },
+  {
+   "f": "assets/s52/point/S1_Ra_transponder_wLight.svg",
+   "int1": "S1",
+   "en": "Ra transponder wLight",
+   "zh": "雷达应答标（带灯）",
+   "cat": "S",
+   "prim": "点状",
+   "obj": "RTPBCN"
+  },
+  {
+   "f": "assets/s52/point/S5_Radar_conspicuous.svg",
+   "int1": "S5",
+   "en": "Radar conspicuous",
+   "zh": "雷达显著物",
+   "cat": "S",
+   "prim": "点状",
+   "obj": "RADRFL"
+  },
+  {
+   "f": "assets/s52/point/T1_pilot_boarding_place.svg",
+   "int1": "T1",
+   "en": "pilot boarding place",
+   "zh": "引航员登轮点",
+   "cat": "T",
+   "prim": "点状",
+   "obj": "PILPNT"
+  }
+ ]
+}

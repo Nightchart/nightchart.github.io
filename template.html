@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{pageTitle}}</title>
+  <meta name="description" content="{{metaDescription}}">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta property="og:title" content="{{pageTitle}}">
+  <meta property="og:description" content="{{metaDescription}}">
+  <meta property="og:type" content="{{ogType}}">
+  <meta property="og:url" content="{{ogUrl}}">
+  <meta property="og:site_name" content="{{siteTitle}}">
+  <link rel="stylesheet" href="style.css">
+  <link rel="alternate" type="application/rss+xml" title="{{siteTitle}}" href="rss.xml">
+  {{extraHead}}
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15.8 8.2 13.2 13.2 8.2 15.8 10.8 10.8Z" fill="currentColor" stroke="none"></path></svg></span>{{siteTitle}}</a>
+      <nav class="nav">
+        <a href="index.html">文章</a>
+        <a href="tools.html">工具</a>
+        <a href="about.html">关于</a>
+        <a href="rss.xml">RSS</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+{{content}}
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">© {{year}} {{penName}} · 内容仅代表个人观点，与任何雇主无关 · <a href="rss.xml">RSS 订阅</a></div>
+  </footer>
+  <script>(function(){var p=location.pathname.split("/").pop();document.querySelectorAll(".nav a").forEach(function(a){var h=a.getAttribute("href");if(h===p||(h==="index.html"&&(p===""||p==="/")))a.setAttribute("aria-current","page");});})();</script>
+</body>
+</html>

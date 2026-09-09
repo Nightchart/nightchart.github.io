@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="400" viewBox="0 0 860 400" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#666666"/>
+    </marker>
+    <marker id="r" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="400" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <!-- 左：并发安全 -->
+  <text x="225" y="46" text-anchor="middle" font-size="15.5" font-weight="bold" fill="#0f6d5f">场景一：多线程并发首次调用 —— 安全</text>
+  <rect x="55" y="66" width="340" height="38" rx="6" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="225" y="90" text-anchor="middle" font-size="14.5" fill="#0f6d5f">初始化守卫：同一时刻只放一个线程进来</text>
+
+  <rect x="80" y="136" width="95" height="52" rx="6" fill="#ffffff" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="127" y="157" text-anchor="middle" font-size="14" fill="#2b2b28">线程 A</text>
+  <text x="127" y="177" text-anchor="middle" font-size="12.5" fill="#0f6d5f">初始化中</text>
+  <text x="127" y="210" text-anchor="middle" font-size="12.5" fill="#0f6d5f">获准进入 ✓</text>
+
+  <rect x="190" y="136" width="95" height="52" rx="6" fill="#f4f3ef" stroke="#999999" stroke-width="1"/>
+  <text x="237" y="157" text-anchor="middle" font-size="14" fill="#2b2b28">线程 B</text>
+  <text x="237" y="177" text-anchor="middle" font-size="12.5" fill="#767470">门外等待</text>
+  <text x="237" y="210" text-anchor="middle" font-size="12.5" fill="#767470">排队</text>
+
+  <rect x="300" y="136" width="95" height="52" rx="6" fill="#f4f3ef" stroke="#999999" stroke-width="1"/>
+  <text x="347" y="157" text-anchor="middle" font-size="14" fill="#2b2b28">线程 C</text>
+  <text x="347" y="177" text-anchor="middle" font-size="12.5" fill="#767470">门外等待</text>
+  <text x="347" y="210" text-anchor="middle" font-size="12.5" fill="#767470">排队</text>
+
+  <text x="225" y="252" text-anchor="middle" font-size="14" fill="#444444">A 完成初始化并放行，</text>
+  <text x="225" y="274" text-anchor="middle" font-size="14" fill="#444444">B / C 依次进入，拿到同一个实例 ✓</text>
+
+  <!-- 右：重入死锁 -->
+  <text x="635" y="46" text-anchor="middle" font-size="15.5" font-weight="bold" fill="#b91c1c">场景二：初始化中同线程重入 —— 自死锁</text>
+  <rect x="465" y="66" width="340" height="38" rx="6" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="635" y="90" text-anchor="middle" font-size="14.5" fill="#0f6d5f">初始化守卫：同一时刻只放一个线程进来</text>
+
+  <rect x="495" y="132" width="130" height="52" rx="6" fill="#ffffff" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="560" y="153" text-anchor="middle" font-size="14" fill="#2b2b28">线程 A</text>
+  <text x="560" y="173" text-anchor="middle" font-size="12.5" fill="#0f6d5f">正在构造中</text>
+
+  <rect x="660" y="208" width="150" height="52" rx="6" fill="#fef2f2" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="735" y="229" text-anchor="middle" font-size="13" fill="#b91c1c">构造函数里再次</text>
+  <text x="735" y="249" text-anchor="middle" font-size="13" fill="#b91c1c">调用 GetInstance()</text>
+
+  <path d="M 625 158 H 735 V 204" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#r)"/>
+  <path d="M 660 234 H 635 V 108" fill="none" stroke="#b91c1c" stroke-width="2" marker-end="url(#r)"/>
+  <text x="508" y="200" font-size="13" fill="#b91c1c">被守卫拦下：</text>
+  <text x="508" y="220" font-size="13" fill="#b91c1c">初始化未完成</text>
+
+  <text x="635" y="300" text-anchor="middle" font-size="14" fill="#444444">A 在门口等自己放行，而放行条件</text>
+  <text x="635" y="322" text-anchor="middle" font-size="14" fill="#b91c1c">恰恰是 A 完成初始化 → 永远等待 ✗</text>
+
+  <text x="430" y="374" text-anchor="middle" font-size="13.5" fill="#888888">C++ 标准 [stmt.dcl]：初始化期间递归再入 = 未定义行为；主流实现（MSVC/GCC/Clang）的表现就是死锁</text>
+</svg>

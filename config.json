@@ -1,0 +1,17 @@
+{
+  "siteTitle": "航图笔记",
+  "penName": "夜航海图",
+  "siteUrl": "https://nightchart.cn",
+  "description": "电子海图与地图渲染技术笔记：S-57 / S-52 / S-100 / MapLibre 源码走读",
+  "postsDir": "posts",
+  "outputDir": "publish",
+  "giscus": {
+    "repo": "Nightchart/nightchart.github.io",
+    "repoId": "R_kgDOUQsSlQ",
+    "category": "Announcements",
+    "categoryId": "DIC_kwDOUQsSlc4DFDXy"
+  },
+  "analytics": {
+    "goatcounter": "nightchart.goatcounter.com"
+  }
+}
