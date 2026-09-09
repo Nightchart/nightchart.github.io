@@ -326,3 +326,24 @@ a.pn-item:hover .pn-title { color: var(--accent); }
 /* 宽幅容器：工具/数据页在大屏上用满空间 */
 .wrap-wide { max-width: 1440px; }
 .wrap-wide .sym-grid { grid-template-columns: repeat(auto-fill, minmax(122px, 1fr)); }
+
+/* S-100 要素目录解析器 */
+.fc-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin: 12px 0; }
+.fc-stat { text-align: center; padding: 10px 6px; }
+.fc-num { font-size: 22px; font-weight: 700; font-family: Consolas, "JetBrains Mono", Menlo, monospace; color: var(--accent); }
+.file-btn { position: relative; display: inline-block; cursor: pointer; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.fc-detail td { background: var(--code-bg); font-size: .85rem; padding: .5rem .7rem !important; }
+.fc-def { margin-bottom: 6px; line-height: 1.55; }
+.fc-list { margin: 2px 0 6px; padding-left: 18px; }
+.fc-list li { margin: 2px 0; list-style: disc; }
+.fc-opt { color: var(--muted); font-family: Consolas, Menlo, monospace; font-size: .82rem; }
+.fc-req { color: var(--accent); font-weight: 700; font-family: Consolas, Menlo, monospace; font-size: .82rem; }
+.fc-row { cursor: pointer; }
+
+/* HDF5 解析器 */
+.h5-tree { font-size: .88rem; }
+.h5-row { display: flex; gap: 10px; align-items: baseline; padding: 3px 8px; border-bottom: 1px solid var(--border); }
+.h5-row code { font-family: Consolas, "JetBrains Mono", Menlo, monospace; flex: 1; word-break: break-all; }
+.h5-kind { flex: none; font-size: 11px; color: var(--muted); background: var(--code-bg); border-radius: 4px; padding: 0 6px; }
+.h5-dataset .h5-kind { color: var(--accent); }

@@ -1,0 +1,33 @@
+<p><strong>开篇的话</strong>：我是夜航海图，做电子海图渲染相关开发。公众号会持续更新 S-57 / S-100 / S-52 标准解读与海图渲染的工程实操，与博客「航图笔记」同步。第一篇，先把自己天天要查的东西做成工具送给大家。</p><hr><p>做电子海图（ENC / ECDIS）二次开发，有几样东西的查阅频率高得离谱：S-57 的对象类和属性编码、S-101 的新旧要素对应关系、投影带和磁差。官方答案都在 IHO 的 PDF 里，每次翻文档都要在几百页里找一个缩写。</p>
+<p>于是我把这些高频查询做成了四个在线工具：<strong>不用登录、不用安装、纯前端、手机能开</strong>。本文逐个介绍，顺带把实现思路和数据来源讲清楚，想自建同类工具的可以直接抄。</p>
+<h2 id="sec-1">一、S-57 对象类码表</h2>
+<p><strong>地址：https://nightchart.cn/objl.html</strong></p>
+<p>179 个核心 ENC 对象类（OBJL）全量速查：编码、缩写、英文名、中文译名、图元类型（点/线/面）。输入 <code>DEPARE</code>、<code>深度</code> 或 <code>wreck</code> 都能实时过滤；44 个开发中的高频对象标了 ★，勾选&quot;只看常用&quot;可以收窄到日常真正会碰的那一批。</p>
+<p>数据来自 GDAL 的 <code>s57objectclasses.csv</code>（源自 IHO S-57 Appendix A 公开目录），但做了一层清洗：去掉了内河水道（IW）和军用图层（AML）的扩展对象，只留核心 ENC 目录。</p>
+<h2 id="sec-2">二、S-57 属性码表</h2>
+<p><strong>地址：https://nightchart.cn/attr.html</strong></p>
+<p>200 项属性（ATT）速查，60+ 条中文注释。最有用的部分是给高频属性附了<strong>枚举值中文释义</strong>——比如 <code>WATLEV</code> 直接告诉你 1=常年干出、2=常年淹没、3=周期性干出、4=漂浮，不用再翻 Appendix A Chapter 2 的表格。</p>
+<p>顺带提醒一个我记错的坑：顶标属性的缩写是 <strong>TOPSHP</strong>（Topmark/daymark shape），很多人会记成 TOPMAR——S-57 里没有 TOPMAR。</p>
+<h2 id="sec-3">三、S-57 ↔ S-101 要素对照表</h2>
+<p><strong>地址：https://nightchart.cn/s57-s101.html</strong></p>
+<p>S-100 时代最现实的问题是：手上的 S-57 数据到 S-101 里变成了什么。这个页面给出 160 个 S-57 对象的官方转换目标，每行带 S-101 DCEG 条款引用（如 DEPARE → Depth Area，DCEG 11.7）。</p>
+<p>数据不是凭记忆整理的，提取自 IHO conversion sub-WG 官方仓库的《S-57 to S-101 Conversion Guidance》文档。几个值得知道的点：</p>
+<ul><li><strong>一对多很常见</strong>：BRIDGE 会拆成 Bridge / Span Fixed / Span Opening 三个 S-101 要素——S-101 把桥梁建模拆细了</li><li><strong>有不转换清单</strong>：CTRPNT（控制点）、ICNARE 等对象在 S-101 中已移除</li><li>元对象去向不同：M_QUAL → Quality of Bathymetric Data，M_COVR → Data Coverage</li></ul>
+<h2 id="sec-4">四、坐标 / 磁差速算</h2>
+<p><strong>地址：https://nightchart.cn/geo-calc.html</strong></p>
+<p>三个计算器合在一页：</p>
+<ul><li><strong>磁差计算</strong>：按 NOAA WMM2025 模型（2025.0–2030.0 有效期），输入经纬度和日期，输出磁差、年变率、磁倾角、总强度；水平强度低于 6000 nT 时会提示磁罗经不可靠。磁差东偏为正、西偏为负，和海图上的 Var. 一致</li><li><strong>经纬度 ↔ Web 墨卡托</strong>（EPSG:3857）：做 Web 端底图的基本功</li><li><strong>经纬度 ↔ UTM / 高斯-克吕格 3°带</strong>：UTM 按 WGS84 六度带，高斯按 CGCS2000 三度带（国内 GIS 同学常用），南半球假定北有开关</li></ul>
+<p>全部在浏览器本地计算，断网可用。当然，航海用途请以官方海图和 ECDIS 为准——工具定位是开发速查。</p>
+<h2 id="sec-5">实现思路</h2>
+<p>四个工具是同一套极简架构，想自建的可以直接抄：</p>
+<ol><li><strong>零依赖静态生成</strong>：一个几百行的 Node 脚本在构建期把 CSV/JSON 数据内嵌进页面，浏览器里用原生 JS 做过滤渲染，没有框架、没有构建链依赖，托管在 GitHub Pages 上</li><li><strong>算法构建期校验</strong>：磁差用的 WMM2025 算法，在构建脚本里对照 NOAA 官方测试值自动验证（偏差超过 10⁻⁶° 直接让构建失败）——移植算法却不加校验，等于裸奔</li><li><strong>数据都有出处</strong>：码表来自 GDAL 目录（IHO 公开数据），对照表来自 IHO 官方转换文档，每个页面都标注了数据来源和&quot;以 IHO 原始出版物为准&quot;的声明</li></ol>
+<h2 id="sec-6">开始用</h2>
+<p>四个工具都在 <a href="https://nightchart.cn/tools.html" target="_blank" rel="noopener">nightchart.cn/tools.html</a>，缺什么工具欢迎邮件 hi@nightchart.cn 提议。这个博客在持续写 S-57 解析、S-100 迁移和渲染引擎源码拆解，欢迎收藏。</p>
+</div>
+<nav class="pn"><a class="pn-item pn-prev" href="https://nightchart.cn/singleton-reentrant-deadlock.html"><span class="pn-label">← 上一篇</span><span class="pn-title">一次启动自死锁：单例重入引发的崩溃排查实录</span></a><a class="pn-item pn-next" href="https://nightchart.cn/s100-family-map.html"><span class="pn-label">下一篇 →</span><span class="pn-title">S-100 体系地图：S-101/102/124/125/127/129/131 各是什么</span></a></nav>
+<p class="back"><a href="https://nightchart.cn/index.html">← 返回目录</a></p>
+</article>
+<script>(function(){var p=location.pathname;var el=document.getElementById("gc-views");if(!el||!window.fetch)return;fetch("/api/views?path="+encodeURIComponent(p),{method:"POST"}).then(function(r){return r.json()}).then(function(j){if(j&&typeof j.views==="number"){el.textContent="阅读 "+j.views}}).catch(function(){})})();</script>
+<section class="comments"><h2>评论</h2>
+<script src="https://giscus.app/client.js" data-repo="Nightchart/nightchart.github.io" data-repo-id="R_kgDOUQsSlQ" data-category="Announcements" data-category-id="DIC_kwDOUQsSlc4DFDXy" data-mapping="pathname" data-strict="0" data-reactions-enabled="0" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous" async></script>
+<p class="comments-hint">评论基于 GitHub Discussions，需要 GitHub 账号；没有也欢迎通过 RSS 阅读器或各平台评论区交流。</p>
