@@ -1,7 +1,7 @@
 ---
 title: 启动期竞态崩溃：指针初始化与时序依赖的教训
 slug: startup-race-crash
-date: 2025-10-14
+date: 2025-10-21
 draft: true
 description: 百分之一的启动崩溃怎么查：一个"先检查后使用"的指针、一条看不见的初始化时序，以及 DCLP 的正确写法。附防复发清单。
 tags: C++, 竞态, 崩溃分析, 多线程, 排查实录
