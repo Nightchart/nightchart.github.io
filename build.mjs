@@ -1425,7 +1425,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
 <p class="toolbar cat-pills hidden" id="fc-tabs">
 <button class="pill on" data-tab="ft" type="button">要素类型</button><button class="pill" data-tab="it" type="button">信息类型</button><button class="pill" data-tab="attr" type="button">属性</button><button class="pill" data-tab="assoc" type="button">关联</button>
 </p>
-<p class="toolbar hidden" id="fc-searchbar"><span class="search"><input id="fc-q" class="search-input" type="search" placeholder="过滤：如 DEPARE / Anchorage / 深度…" aria-label="过滤目录"></span><span class="panel-desc" style="margin:0">命中 <span id="fc-count">0</span> 条 · 点击行展开明细</span></p>
+<p class="toolbar hidden" id="fc-searchbar"><span class="search"><input id="fc-q" class="search-input" type="search" placeholder="过滤：如 DEPARE / Anchorage / 深度…" aria-label="过滤目录"></span><span class="panel-desc" style="margin:0">命中 <span id="fc-count">0</span> 条 · 点击行展开明细</span><button id="fc-csv" class="btn" type="button" style="padding:5px 12px">导出 CSV</button></p>
 <div class="table-wrap hidden" id="fc-tablewrap"><table class="data-table"><thead id="fc-head"></thead><tbody id="fc-body"></tbody></table></div>
 <p class="panel-desc hidden" id="fc-foot">解析在你的浏览器本地完成，文件不会上传到任何服务器。内置样本为 IHO S-101 Feature Catalogue 2.0.0（2024-10-16），版权归 IHO，仅作开发参考。支持把目录 XML 直接拖到页面任意位置上传。</p>
 </section>
@@ -1525,6 +1525,19 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
   document.getElementById('fc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
   // URL 深链：fc.html?q=ANCH 直接预填过滤
   try { var upq = new URLSearchParams(location.search).get('q'); if (upq) { document.getElementById('fc-q').value = upq; Q = upq.toLowerCase(); } } catch(e) {}
+  document.getElementById('fc-csv').addEventListener('click', function(){
+    var lines = [];
+    var head = Array.prototype.map.call(document.querySelectorAll('#fc-head th'), function(th){ return th.textContent.trim(); });
+    lines.push(head.join(','));
+    document.querySelectorAll('#fc-body tr').forEach(function(tr){
+      var tds = Array.prototype.map.call(tr.cells, function(td){ var t = td.textContent.trim().replace(/\\s+/g, ' '); return '"' + t.replace(/"/g, '""') + '"'; });
+      lines.push(tds.join(','));
+    });
+    var blob = new Blob(["\\ufeff" + lines.join("\\r\\n")], { type: 'text/csv;charset=utf-8' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 's100-fc-' + TAB + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
+  });
   function jumpAttr(code){
     TAB='attr';
     [].slice.call(document.querySelectorAll('#fc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x.dataset.tab==='attr')});
