@@ -932,6 +932,20 @@ if (fs.existsSync(WMM_COF)) {
 </section>
 
 <section class="panel">
+<h2>批量磁差计算</h2>
+<p class="panel-desc">每行一个点：<code>纬度,经度</code>（十进制度）。年份统一取下方选择、高程按 0 计算，最多 100 行。适合航线各转向点的磁差一次算完。</p>
+<div class="field-row">
+<label class="field"><span>年份</span><select id="bw-y" class="select">${[2025, 2026, 2027, 2028, 2029, 2030].map((y) => `<option${y === 2026 ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
+<button id="bw-go" class="btn" type="button">批量计算</button>
+<button id="bw-copy" class="btn" type="button">复制结果</button>
+</div>
+<label class="field" style="width:100%"><span>输入坐标（每行一个点）</span><textarea id="bw-in" class="input" rows="6" style="width:100%;font-family:ui-monospace,Consolas,monospace;resize:vertical">31.2304,121.4737
+38.9213,121.6447
+55.7558,37.6173</textarea></label>
+<div id="bw-out" class="result" aria-live="polite"></div>
+</section>
+
+<section class="panel">
 <h2>经纬度 ↔ Web 墨卡托（EPSG:3857）</h2>
 <div class="field-row">
 <label class="field"><span>纬度 °N</span><input id="mc-lat" class="input" type="number" step="0.000001" value="31.2304" style="width:8rem"></label>
@@ -1036,6 +1050,36 @@ function magCalc(){
   $("mg-out").innerHTML="磁差 <strong>"+r1.D.toFixed(2)+"°</strong>（"+ew+" "+Math.abs(r1.D).toFixed(2)+"°） · 年变率 <strong>"+(rate>=0?"+":"")+rate.toFixed(2)+"°</strong>/年 · 磁倾角 <strong>"+r1.I.toFixed(1)+"°</strong> · 总强度 <strong>"+Math.round(r1.F)+"</strong> nT · 水平强度 <strong>"+Math.round(r1.H)+"</strong> nT"+warn;
 }
 $("mg-go").addEventListener("click",magCalc);magCalc();
+/* 批量磁差：每行「纬度,经度」，年份统一、高程 0 */
+var bwRows=[];
+function bwF(){
+  var y=parseInt($("bw-y").value,10);
+  var lines=$("bw-in").value.split("\\n").filter(function(l){return l.trim()});
+  if(lines.length>100)lines=lines.slice(0,100);
+  bwRows=[];
+  var rows=[],ok=0,bad=0,i,la,lo,t,r1,r2;
+  for(i=0;i<lines.length;i++){
+    var parts=lines[i].split(/[,，\\t]/);
+    la=parseFloat(parts[0]);lo=parseFloat(parts[1]);
+    if(isNaN(la)||isNaN(lo)){bad++;rows.push([lines[i],"","","无法解析"]);continue;}
+    t=y+0.5;
+    r1=WMM.calculate(WMM_DATA,la,lo,0,t);r2=WMM.calculate(WMM_DATA,la,lo,0,t+1);
+    ok++;bwRows.push([la.toFixed(4)+","+lo.toFixed(4),(r1.D>=0?"东偏 ":"西偏 ")+Math.abs(r1.D).toFixed(2)+"°"]);
+    rows.push([la.toFixed(4)+","+lo.toFixed(4),"<strong>"+r1.D.toFixed(2)+"°</strong>（"+(r1.D>=0?"东":"西")+"）",(r2.D-r1.D>=0?"+":"")+(r2.D-r1.D).toFixed(2)+"°/年",Math.round(r1.F)+" nT"]);
+  }
+  var html="<table class='ctable' style='width:auto'><thead><tr><th>#</th><th>纬度,经度</th><th>磁差</th><th>年变率</th><th>总强度</th></tr></thead><tbody>";
+  for(i=0;i<rows.length;i++){html+="<tr><td>"+(i+1)+"</td><td>"+esc(rows[i][0])+"</td><td>"+rows[i][1]+"</td><td>"+rows[i][2]+"</td><td>"+rows[i][3]+"</td></tr>";}
+  html+="</tbody></table><p class='panel-desc' style='margin:8px 0 0'>成功 "+ok+" 条"+(bad?" · 跳过 "+bad+" 条":"")+"（年份 "+y+"，高程 0）</p>";
+  $("bw-out").innerHTML=html;
+}
+$("bw-go").addEventListener("click",bwF);bwF();
+$("bw-copy").addEventListener("click",function(){
+  if(!bwRows.length)return;
+  var t="";for(var i=0;i<bwRows.length;i++)t+=bwRows[i][0]+" → "+bwRows[i][1]+"\\n";
+  function done(){$("bw-copy").textContent="已复制 ✓";setTimeout(function(){$("bw-copy").textContent="复制结果"},1500)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fb()})}else fb();
+  function fb(){var ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){}document.body.removeChild(ta)}
+});
 /* Web 墨卡托 */
 function mcF(){var lat=parseFloat($("mc-lat").value),lon=parseFloat($("mc-lon").value);
   if(isNaN(lat)||isNaN(lon))return;
