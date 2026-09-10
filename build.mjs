@@ -977,8 +977,8 @@ if (fs.existsSync(WMM_COF)) {
 <h2>磁差 / 磁偏角计算</h2>
 <p class="panel-desc">按经纬度与日期计算磁差（海图上的 Var.）。东偏为正（+），西偏为负（−）。<strong>航海用途请以官方海图与 ECDIS 为准。</strong></p>
 <div class="field-row">
-<label class="field"><span>纬度 °N</span><input id="mg-lat" class="input" type="number" step="0.0001" value="31.2304" style="width:6.8rem"></label>
-<label class="field"><span>经度 °E</span><input id="mg-lon" class="input" type="number" step="0.0001" value="121.4737" style="width:6.8rem"></label>
+<label class="field"><span>纬度（°或度分秒）</span><input id="mg-lat" class="input" type="text" value="31.2304" style="width:8.2rem"></label>
+<label class="field"><span>经度（°或度分秒）</span><input id="mg-lon" class="input" type="text" value="121.4737" style="width:8.2rem"></label>
 <label class="field"><span>高程 km</span><input id="mg-alt" class="input" type="number" step="0.1" value="0" style="width:4rem"></label>
 <label class="field"><span>年</span><select id="mg-y" class="select">${[2025, 2026, 2027, 2028, 2029, 2030].map((y) => `<option${y === 2026 ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
 <label class="field"><span>月</span><select id="mg-m" class="select">${Array.from({ length: 12 }, (_, i) => `<option${i === 8 ? ' selected' : ''}>${i + 1}</option>`).join('')}</select></label>
@@ -989,7 +989,7 @@ if (fs.existsSync(WMM_COF)) {
 
 <section class="panel">
 <h2>批量磁差计算</h2>
-<p class="panel-desc">每行一个点：<code>纬度,经度</code>（十进制度）。年份统一取下方选择、高程按 0 计算，最多 100 行。适合航线各转向点的磁差一次算完。</p>
+<p class="panel-desc">每行一个点：<code>纬度,经度</code>，支持十进制度与度分秒文本（如 31°13′49″N）。年份统一取下方选择、高程按 0 计算，最多 100 行。适合航线各转向点的磁差一次算完。</p>
 <div class="field-row">
 <label class="field"><span>年份</span><select id="bw-y" class="select">${[2025, 2026, 2027, 2028, 2029, 2030].map((y) => `<option${y === 2026 ? ' selected' : ''}>${y}</option>`).join('')}</select></label>
 <button id="bw-go" class="btn" type="button">批量计算</button>
@@ -1095,8 +1095,18 @@ var WMM_DATA=JSON.parse(document.getElementById("wmm-data").textContent);
 function $(id){return document.getElementById(id)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
 /* 磁差 */
+function geoDD(str){
+  var v=String(str).trim();
+  if(/^[+-]?\\d+(\\.\\d+)?$/.test(v))return parseFloat(v);
+  var nums=v.match(/\\d+(\\.\\d+)?/g);
+  if(!nums||!nums.length)return NaN;
+  var out=0,mul=1;
+  for(var i=0;i<Math.min(nums.length,3);i++){out+=parseFloat(nums[i])*mul;mul/=60;}
+  if(/[SW]/i.test(v))out=-out;
+  return out;
+}
 function magCalc(){
-  var lat=parseFloat($("mg-lat").value),lon=parseFloat($("mg-lon").value),alt=parseFloat($("mg-alt").value)||0;
+  var lat=geoDD($("mg-lat").value),lon=geoDD($("mg-lon").value),alt=parseFloat($("mg-alt").value)||0;
   var y=parseInt($("mg-y").value,10),mo=parseInt($("mg-m").value,10);
   if(isNaN(lat)||isNaN(lon)){$("mg-out").textContent="请输入经纬度";return;}
   var t=y+(mo-0.5)/12;
@@ -1124,7 +1134,7 @@ function bwF(){
   var rows=[],ok=0,bad=0,i,la,lo,t,r1,r2;
   for(i=0;i<lines.length;i++){
     var parts=lines[i].split(/[,，\\t]/);
-    la=parseFloat(parts[0]);lo=parseFloat(parts[1]);
+    la=geoDD(parts[0]);lo=geoDD(parts[1]);
     if(isNaN(la)||isNaN(lo)){bad++;rows.push([lines[i],"","","无法解析"]);continue;}
     t=y+0.5;
     r1=WMM.calculate(WMM_DATA,la,lo,0,t);r2=WMM.calculate(WMM_DATA,la,lo,0,t+1);
