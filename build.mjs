@@ -611,7 +611,8 @@ if (fs.existsSync(OBJL_CSV)) {
 <div class="post-meta">数据来源：IHO S-57 Appendix A（经 GDAL 目录转换） · 共 ${objs.length} 类核心 ENC 对象 · <span title="随站点构建更新">更新于 ${YEAR}-09</span></div>
 <p>输入缩写、英文名或中文快速过滤。带 ★ 的是渲染开发中的高频对象。不含内河水道（IW）与军用图层（AML）扩展对象。<strong>仅供开发参考，正式生产请以 IHO 原始出版物为准。</strong></p>
 <p class="toolbar"><span class="search"><input id="objl-search" class="search-input" type="search" placeholder="过滤：如 DEPARE / 深度 / wreck …" aria-label="过滤对象类"></span>
-<label class="check"><input id="objl-common" type="checkbox"> 只看常用 ★</label></p>
+<label class="check"><input id="objl-common" type="checkbox"> 只看常用 ★</label>
+<button id="objl-csv" class="btn" type="button" style="padding:5px 12px">导出 CSV</button></p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th class="c-num">OBJL</th><th>缩写</th><th>英文名称</th><th>中文</th><th>图元</th><th>属性</th></tr></thead>
@@ -652,6 +653,17 @@ if (fs.existsSync(OBJL_CSV)) {
     if(sub)sub.classList.toggle("hidden");
   });
   q.addEventListener("input",render);onlyC.addEventListener("change",render);render();
+  document.getElementById("objl-csv").addEventListener("click",function(){
+    var lines=["OBJL,缩写,英文名称,中文,图元,属性清单"];
+    document.querySelectorAll("#objl-body tr").forEach(function(tr){
+      var tds=Array.prototype.map.call(tr.cells,function(td){var t=td.textContent.trim().replace(/\\s+/g," ");return '"'+t.replace(/"/g,'""')+'"';});
+      if(tr.classList.contains("subrow"))lines.push('"","","","","",'+tds.slice(-1)[0]);
+      else lines.push(tds.join(","));
+    });
+    var blob=new Blob(["\\ufeff"+lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="s57-objectclasses.csv";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);
+  });
 })();</script>
 </section>`;
   fs.writeFileSync(path.join(OUT_DIR, 'objl.html'), layout('S-57 对象类码表', 'S-57 对象类（OBJL）在线码表：179 个核心 ENC 对象类缩写、编码、图元类型速查，支持中文与缩写过滤。', objlBody, 'website', `${CFG.siteUrl}/objl.html`, true));
@@ -722,7 +734,7 @@ if (fs.existsSync(ATTR_CSV)) {
 <h1 class="post-title">S-57 属性码表</h1>
 <div class="post-meta">数据来源：IHO S-57 Appendix A Chapter 2（经 GDAL 目录转换） · 共 ${attrs.length} 项 · <span title="随站点构建更新">更新于 ${YEAR}-09</span></div>
 <p>输入缩写、英文名或中文快速过滤。高频属性附枚举值中文释义。<strong>仅供开发参考，正式生产请以 IHO 原始出版物为准。</strong></p>
-<p class="toolbar"><span class="search"><input id="attr-search" class="search-input" type="search" placeholder="过滤：如 WATLEV / 水位 / colour …" aria-label="过滤属性"></span></p>
+<p class="toolbar"><span class="search"><input id="attr-search" class="search-input" type="search" placeholder="过滤：如 WATLEV / 水位 / colour …" aria-label="过滤属性"></span><button id="attr-csv" class="btn" type="button" style="padding:5px 12px">导出 CSV</button></p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th class="c-num">ATT</th><th>缩写</th><th>英文名称</th><th>中文</th><th>类型</th></tr></thead>
@@ -757,6 +769,16 @@ if (fs.existsSync(ATTR_CSV)) {
     document.getElementById("attr-count").textContent=rows.length;
   }
   q.addEventListener("input",render);render();
+  document.getElementById("attr-csv").addEventListener("click",function(){
+    var lines=["ATT,缩写,英文名称,中文,类型,枚举值 / 使用对象"];
+    document.querySelectorAll("#attr-body tr").forEach(function(tr){
+      var tds=Array.prototype.map.call(tr.cells,function(td){var t=td.textContent.trim().replace(/\\s+/g," ");return '"'+t.replace(/"/g,'""')+'"';});
+      lines.push(tds.join(","));
+    });
+    var blob=new Blob(["\\ufeff"+lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="s57-attributes.csv";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);
+  });
 })();</script>
 </section>`;
   fs.writeFileSync(path.join(OUT_DIR, 'attr.html'), layout('S-57 属性码表', 'S-57 属性（ATT）在线码表：300+ 属性缩写、编码、类型速查，含中文注释与高频枚举值释义，支持中文与缩写过滤。', attrBody, 'website', `${CFG.siteUrl}/attr.html`, true));
@@ -768,11 +790,19 @@ if (fs.existsSync(S101_JSON)) {
   const map = JSON.parse(fs.readFileSync(S101_JSON, 'utf8'))
     .map((o) => ({ ...o, cn: OBJL_CN[o.code] || S101_EXTRA_CN[o.code] || '' }))
     .sort((a, b) => (a.code < b.code ? -1 : 1));
+  const convN = map.filter((m) => m.targets && m.targets.length).length;
+  const infoT = map.reduce((acc, m) => acc + (m.targets || []).filter((t) => t.kind === 'Information type').length, 0);
   const s101Body = `<section class="post tool-page">
 <h1 class="post-title">S-57 ↔ S-101 要素对照</h1>
 <div class="post-meta">数据来源：IHO S-57 to S-101 Conversion Guidance（conversion sub-WG 官方仓库） · 共 ${map.length} 个对象 · <span title="随站点构建更新">更新于 ${YEAR}-09</span></div>
+<div class="fc-stats">
+<div class="pal-card fc-stat"><div class="fc-num">${map.length}</div><div class="pal-zh">S-57 对象</div></div>
+<div class="pal-card fc-stat"><div class="fc-num">${convN}</div><div class="pal-zh">可转换</div></div>
+<div class="pal-card fc-stat"><div class="fc-num">${map.length - convN}</div><div class="pal-zh">不转换</div></div>
+<div class="pal-card fc-stat"><div class="fc-num">${infoT}</div><div class="pal-zh">信息型目标</div></div>
+</div>
 <p>每个 S-57 对象在自动化转换中的 S-101 目标要素（含 DCEG 条款引用）。S-101 侧建模更细，一个 S-57 对象可能对应多个 S-101 要素；标注「不转换」的对象在 S-101 中已移除或并入其他要素。<strong>以 IHO 最新版转换文档为准。</strong></p>
-<p class="toolbar"><span class="search"><input id="s101-search" class="search-input" type="search" placeholder="过滤：如 DEPARE / 深度 / Wreck / 灯标 …" aria-label="过滤对照表"></span></p>
+<p class="toolbar"><span class="search"><input id="s101-search" class="search-input" type="search" placeholder="过滤：如 DEPARE / 深度 / Wreck / 灯标 …" aria-label="过滤对照表"></span><button id="s101-csv" class="btn" type="button" style="padding:5px 12px">导出 CSV</button></p>
 <div class="table-wrap">
 <table class="data-table">
 <thead><tr><th>S-57 缩写</th><th>S-57 名称</th><th>中文</th><th>S-101 目标要素</th></tr></thead>
@@ -787,6 +817,16 @@ if (fs.existsSync(S101_JSON)) {
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
   // URL 深链：s57-s101.html?q=DEPARE 直接预填过滤（供 fc 工具的 S-57 别名跳转）
   try { var up=new URLSearchParams(location.search).get("q"); if(up){q.value=up;} } catch(e){}
+  document.getElementById("s101-csv").addEventListener("click",function(){
+    var lines=["S-57 编码,S-57 名称,中文,转换目标"];
+    document.querySelectorAll("#s101-body tr").forEach(function(tr){
+      var tds=Array.prototype.map.call(tr.cells,function(td){var t=td.textContent.trim().replace(/\s+/g," ");return '"'+t.replace(/"/g,'""')+'"';});
+      lines.push(tds.join(","));
+    });
+    var blob=new Blob(["\\ufeff"+lines.join("\\r\\n")],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="s57-s101-conversion.csv";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);
+  });
   function render(){
     var kw=(q.value||"").trim().toLowerCase(),rows=[];
     for(var i=0;i<data.length;i++){var o=data[i];
@@ -1942,7 +1982,7 @@ const H5_PAGE = `<section class="post tool-page">
       }
       line += '<canvas id="h5-canvas" style="width:100%;max-width:860px;image-rendering:pixelated;border:1px solid var(--border);border-radius:6px;cursor:crosshair"></canvas>';
       line += '<div id="h5-legend" style="max-width:860px"></div>';
-      line += '<p class="panel-desc" id="h5-probe">点按网格任意位置读取该单元数值</p>';
+      line += '<p class="panel-desc"><button id="h5-png" class="btn" type="button">下载热力图 PNG</button><span id="h5-probe"> 点按网格任意位置读取该单元数值</span></p>';
       return line + '</div>';
     } catch(e) {
       PD = null;
@@ -1997,6 +2037,17 @@ const H5_PAGE = `<section class="post tool-page">
   }
   function bindProbe(){
     var cv = el('h5-canvas');
+    var pngBtn = el('h5-png');
+    if (pngBtn) pngBtn.addEventListener('click', function(){
+      if (!PD || !PD.cur) return;
+      cv.toBlob(function(blob){
+        var a2 = document.createElement('a');
+        a2.href = URL.createObjectURL(blob);
+        a2.download = (PD.kind === 'S-102' ? 's102-heat' : 's111-current') + '-frame-' + String((PD.sel || 0) + 1).padStart(3, '0') + '.png';
+        document.body.appendChild(a2); a2.click(); document.body.removeChild(a2);
+        setTimeout(function(){ URL.revokeObjectURL(a2.href); }, 3000);
+      });
+    });
     cv.addEventListener('click', function(ev){
       if (!PD || !PD.cur || !PD.meta) return;
       var rect = cv.getBoundingClientRect();
