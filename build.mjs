@@ -1105,7 +1105,15 @@ function magCalc(){
   var warn=r1.H<6000?" <span class='hint'>⚠ 水平强度低，磁罗经不可靠</span>":"";
   $("mg-out").innerHTML="磁差 <strong>"+r1.D.toFixed(2)+"°</strong>（"+ew+" "+Math.abs(r1.D).toFixed(2)+"°） · 年变率 <strong>"+(rate>=0?"+":"")+rate.toFixed(2)+"°</strong>/年 · 磁倾角 <strong>"+r1.I.toFixed(1)+"°</strong> · 总强度 <strong>"+Math.round(r1.F)+"</strong> nT · 水平强度 <strong>"+Math.round(r1.H)+"</strong> nT"+warn;
 }
-$("mg-go").addEventListener("click",magCalc);magCalc();
+  $("mg-go").addEventListener("click",magCalc);magCalc();
+  // URL 深链：geo-calc.html?lat=31.2&lon=121.5 预填磁差面板
+  try {
+    var gq = new URLSearchParams(location.search);
+    var glat = parseFloat(gq.get("lat")), glon = parseFloat(gq.get("lon"));
+    if (!isNaN(glat)) { $("mg-lat").value = glat; }
+    if (!isNaN(glon)) { $("mg-lon").value = glon; }
+    if (!isNaN(glat) || !isNaN(glon)) magCalc();
+  } catch(e) {}
 /* 批量磁差：每行「纬度,经度」，年份统一、高程 0 */
 var bwRows=[];
 function bwF(){
@@ -1423,6 +1431,16 @@ ${palRows}
       navigator.clipboard.writeText(hex).then(done,fallback);
     }else fallback();
   })});
+  // 符号卡：点击 INT 1 编号即复制
+  document.querySelectorAll(".sym-card .sym-int1").forEach(function(n){
+    n.title = "点击复制 INT 1 编号"; n.style.cursor = "pointer";
+    n.addEventListener("click", function(){
+      var t = n.textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t);
+      var old = n.textContent; n.textContent = "已复制";
+      setTimeout(function(){ n.textContent = old }, 900);
+    });
+  });
 })();
 </script>`;
   fs.writeFileSync(path.join(OUT_DIR, 's52.html'), layout('S-52 颜色与符号速查', 'S-52 在线速查：五套标准调色板（白昼/黄昏/夜间）63 个颜色令牌屏显值，166 个 INT 1 图式常用海图符号中文图库，支持实时过滤。', s52Body, 'website', `${CFG.siteUrl}/s52.html`, true));
