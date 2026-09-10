@@ -1598,7 +1598,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <p class="toolbar cat-pills hidden" id="pc-tabs">
 <button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button>
 </p>
-<p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span></p>
+<p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span><span id="pat-palsw" class="hidden" style="margin-left:6px"></span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
 <p class="panel-desc hidden" id="pc-foot">Look-up 规则文件不在公开分发件内，本工具解析目录索引、符号注册表与颜色配置。内置样本版权归 IHO，仅作开发参考；解析在浏览器本地完成。支持把 XML 直接拖到页面任意位置上传。</p>
 </section>
@@ -1633,8 +1633,10 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     return {names:names, pal:pal, tokens:tokens};
   }
   function parseAlert(doc){ return [].slice.call(doc.getElementsByTagName('*')).filter(function(el){return el.localName==='alert'}).map(function(e){return {id:e.getAttribute('id')||'', name:txt(e,'name'), desc:(kid(e,'description')?kid(e,'description').textContent.trim():'')}}); }
-  var TAB='idx', Q='';
+  var TAB='idx', Q='', PATPAL='Day';
   function applyTab(){
+    var psw = document.getElementById('pat-palsw');
+    if (psw && TAB !== 'pat') psw.classList.add('hidden');
     var head=document.getElementById('pc-head'), body=document.getElementById('pc-body');
     var q=(Q||'').toLowerCase();
     function hit(){ return true; }
@@ -1669,6 +1671,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       document.getElementById('pc-count').textContent=list.length;
     } else if (TAB==='pat') {
       if (!window.PAT) { loadPat(); return; }
+      if (psw) { psw.classList.remove('hidden'); psw.innerHTML = ['Day','Dusk','Night'].map(function(pn){ return '<button class="pill'+(PATPAL===pn?' on':'')+'" data-pal="'+pn+'" type="button">'+pn+'</button>'; }).join(''); }
       var plist = window.PAT.list.filter(function(p2){ return !q || (p2.name+' '+p2.expo).toLowerCase().indexOf(q)>=0; });
       head.innerHTML='<tr><th>名称</th><th>类型</th><th>说明</th><th style="min-width:240px">预览</th></tr>';
       body.innerHTML=plist.map(function(p2){
@@ -1684,6 +1687,15 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     var p = ev.target.closest('.pill'); if (!p) return;
     [].slice.call(document.querySelectorAll('#pc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x===p)});
     TAB = p.dataset.tab; applyTab();
+  });
+  document.addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-pal]'); if (!b) return;
+    PATPAL = b.dataset.pal;
+    [].slice.call(document.querySelectorAll('#pat-palsw [data-pal]')).forEach(function(x){ x.classList.toggle('on', x.dataset.pal === PATPAL); });
+    document.querySelectorAll('.pat-cv[data-f]').forEach(function(cv2){
+      var item = window.PAT && window.PAT.list.filter(function(p2){ return p2.file === cv2.dataset.f; })[0];
+      if (item && item.parsed) drawLinePreview(cv2, item.parsed);
+    });
   });
   document.getElementById('pc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
   document.getElementById('pc-tablewrap').addEventListener('click', function(ev){
@@ -1716,12 +1728,12 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     applyTab();
   }
   document.getElementById('pc-sample').addEventListener('click', loadSample);
-  var PAT=null;
+  var PAT=null, PATPAL='Day';
   function drawLinePreview(cv, st){
     if (!cv || !st) return;
     var ctx = cv.getContext('2d');
     ctx.clearRect(0,0,cv.width,cv.height);
-    var pal = (CP && CP.pal && CP.pal.Day) || {};
+    var pal = (CP && CP.pal && (CP.pal[PATPAL] || CP.pal.Day)) || {};
     var hex = pal[st.color] || '#888888';
     var y = cv.height/2, W = cv.width, span = st.interval || 32, ppu = W/(span*1.15);
     ctx.strokeStyle = '#c9c5bb'; ctx.lineWidth = 1;
@@ -2044,7 +2056,10 @@ const H5_PAGE = `<section class="post tool-page">
       PD.cur = A; PD.curB = B;
       var stopsCss = (PD.kind === 'S-111' ? SPEED_STOPS : DEPTH_STOPS).map(function(s2){ return 'rgb(' + s2[1].join(',') + ') ' + Math.round(s2[0]*100) + '%'; }).join(', ');
       var loCn = PD.kind === 'S-102' ? '浅' : '缓', hiCn = PD.kind === 'S-102' ? (mx.toFixed(1) + ' m 深') : (mx.toFixed(2) + PD.uomTxt + ' 急');
-      el('h5-legend').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + loCn + '</span><div style="flex:1;height:12px;border-radius:6px;background:linear-gradient(90deg,' + stopsCss + ')"></div><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + hiCn + '</span></div>'
+      var extraLegend = PD.kind === 'S-102'
+        ? '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:10px"><span style="width:12px;height:12px;border-radius:3px;background:#D8B79E;border:1px solid var(--border)"></span>干出</span><span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px"><span style="width:12px;height:12px;border-radius:3px;background:#EDEBE6;border:1px solid var(--border)"></span>填充</span>'
+        : '<span style="display:inline-flex;align-items:center;gap:4px;margin-left:10px"><span style="width:12px;height:12px;border-radius:3px;background:#EDEBE6;border:1px solid var(--border)"></span>填充</span>';
+      el('h5-legend').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap"><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + loCn + '</span><div style="flex:1;min-width:120px;height:12px;border-radius:6px;background:linear-gradient(90deg,' + stopsCss + ')"></div><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + hiCn + '</span>' + extraLegend + '</div>'
         + '<p class="panel-desc" style="margin-top:6px">均值 ' + (Math.round(sum/cnt*100)/100) + ' · ' + cnt + ' 个有效值' + (dry ? ' · 干出单元 ' + dry : '') + '</p>';
     } catch(e) { el('h5-legend').innerHTML = '<p class="panel-desc">渲染异常：' + esc(String(e.message||e)) + '</p>'; }
   }
