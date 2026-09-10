@@ -639,7 +639,7 @@ if (fs.existsSync(OBJL_CSV)) {
       var pills="";if(o2.p&&o2.p.length){for(var w=0;w<o2.p.length;w++)pills+="<span class='pill'>"+o2.p[w]+"</span>";}
       var atN=o2.at?o2.at.length:0;
       var atCell=atN?"<button class='pill at-btn' data-a='"+esc(o2.a)+"' type='button'>"+atN+" 个 ▾</button>":"—";
-      html+="<tr class='objl-row' data-code='"+esc(o2.a)+"'><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong>"+esc(o2.a)+"</strong>"+(o2.common?"<span class='star'>★</span>":"")+"</td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(pills||"—")+"</td><td>"+atCell+"</td></tr>";
+      html+="<tr class='objl-row' data-code='"+esc(o2.a)+"'><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong title='点击复制缩写' style='cursor:pointer'>"+esc(o2.a)+"</strong>"+(o2.common?"<span class='star'>★</span>":"")+"</td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(pills||"—")+"</td><td>"+atCell+"</td></tr>";
       if(atN){var chips="";for(var k2=0;k2<atN;k2++)chips+="<a class='pill' href='attr.html?att="+encodeURIComponent(o2.at[k2])+"'>"+esc(o2.at[k2])+"</a> ";
         html+="<tr class='subrow hidden' data-for='"+esc(o2.a)+"'><td colspan='6'>"+chips+"</td></tr>";}
     }
@@ -647,6 +647,12 @@ if (fs.existsSync(OBJL_CSV)) {
     document.getElementById("objl-count").textContent=rows.length;
   }
   body.addEventListener("click",function(ev){
+    var st=ev.target.closest("td.c-code strong");
+    if(st&&st.closest(".objl-row")){
+      var t=st.textContent.replace("★","");
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t);
+      st.textContent="已复制";setTimeout(function(){st.textContent=t},700);return;
+    }
     var b=ev.target.closest(".at-btn");if(!b)return;
     var code=b.getAttribute("data-a");
     var sub=body.querySelector(".subrow[data-for='"+code+"']");
@@ -758,7 +764,7 @@ if (fs.existsSync(ATTR_CSV)) {
     }
     var html="";
     for(var j=0;j<rows.length;j++){var o2=rows[j];
-      html+="<tr><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong>"+esc(o2.a)+"</strong></td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(o2.t?"<span class='pill'>"+esc(TN[o2.t]||o2.t)+"</span>":"—")+"</td></tr>";
+      html+="<tr><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong title='点击复制缩写' style='cursor:pointer'>"+esc(o2.a)+"</strong></td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(o2.t?"<span class='pill'>"+esc(TN[o2.t]||o2.t)+"</span>":"—")+"</td></tr>";
       if(o2.v){var vals="";for(var w=0;w<o2.v.length;w++)vals+=(w?"　·　":"")+esc(o2.v[w]);
         html+="<tr class='subrow'><td colspan='5'>"+vals+"</td></tr>";}
       if(o2.u&&o2.u.length){var us="";for(var k2=0;k2<o2.u.length&&k2<12;k2++)us+="<a class='pill' href='objl.html?objl="+encodeURIComponent(o2.u[k2])+"'>"+esc(o2.u[k2])+"</a> ";
@@ -768,6 +774,14 @@ if (fs.existsSync(ATTR_CSV)) {
     body.innerHTML=html||"<tr><td colspan='5' style='padding:1rem;color:var(--muted)'>无匹配</td></tr>";
     document.getElementById("attr-count").textContent=rows.length;
   }
+  body.addEventListener("click",function(ev){
+    var st=ev.target.closest("td.c-code strong");
+    if(st&&st.closest("#attr-body")){
+      var t=st.textContent;
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t);
+      st.textContent="已复制";setTimeout(function(){st.textContent=t},700);
+    }
+  });
   q.addEventListener("input",render);render();
   document.getElementById("attr-csv").addEventListener("click",function(){
     var lines=["ATT,缩写,英文名称,中文,类型,枚举值 / 使用对象"];
@@ -2161,7 +2175,7 @@ const GEN_PAGE = `<section class="post tool-page">
 <p class="panel-desc"><strong>GeoJSON Feature / FeatureCollection</strong>（渲染测试用）<button class="btn" data-copy="gen-geo" type="button">复制</button><button class="btn" data-dl="gen-geo" type="button">下载 .geojson</button></p>
 <pre class="result" id="gen-geo"></pre>
 </div>
-<p class="panel-desc">枚举值取自 S-101 目录的合法值清单；复杂属性 v1 暂不生成，仅在属性表中标注。目录数据：IHO S-101 FC 2.0.0，版权归 IHO。</p>
+<p class="panel-desc">枚举值取自 S-101 目录的合法值清单；复杂属性（v1.1 起）会按目录定义递归展开子属性生成嵌套结构。目录数据：IHO S-101 FC 2.0.0，版权归 IHO。</p>
 </section>
 <script src="assets/s100-fc/fc-data.js"></script>
 <script>
@@ -2189,16 +2203,34 @@ const GEN_PAGE = `<section class="post tool-page">
       var isComplex = def && def.attrs ? true : false;
       var required = a.mult.indexOf('0') !== 0;
       var pvs = a.pvs.length ? a.pvs : (def && def.values ? def.values.map(function(v){return v.code}) : []);
+      var required = a.mult.indexOf('0') !== 0;
       var field;
-      if (isComplex) field = '<span class="fc-opt">复杂属性，v1 不生成</span>';
+      if (isComplex) field = '<span class="fc-opt">复杂属性 · 展开生成子结构</span>';
       else if (pvs.length) field = '<select class="input" data-i="'+i+'" data-code="'+esc(a.ref)+'">'+pvs.map(function(v){return '<option>'+esc(v)+'</option>'}).join('')+'</select>';
       else field = '<input class="input" data-i="'+i+'" data-code="'+esc(a.ref)+'" data-vt="'+esc((def&&def.vt)||'H5')+'" style="width:180px" placeholder="'+esc(a.mult)+'">';
-      return '<div class="gen-row"><label class="check"><input type="checkbox" class="gen-inc" data-i="'+i+'" '+((required||!isComplex)?'checked':'')+(isComplex?' disabled':'')+'> <code>'+esc(a.ref)+'</code></label> <span class="'+(required?'fc-req':'fc-opt')+'">'+esc(a.mult)+'</span> '+(def?esc(def.name||''):'')+' '+field+'</div>';
+      return '<div class="gen-row"><label class="check"><input type="checkbox" class="gen-inc" data-i="'+i+'" '+(required?'checked':'')+'> <code>'+esc(a.ref)+'</code></label> <span class="'+(required?'fc-req':'fc-opt')+'">'+esc(a.mult)+'</span> '+(def?esc(def.name||''):'')+' '+field+'</div>';
     }).join('');
   }
   document.getElementById('gen-q').addEventListener('input', loadTypes);
   document.getElementById('gen-type').addEventListener('change', showAttrs);
   function rnd(a2, b2){ return a2 + Math.random() * (b2 - a2); }
+  // 复杂属性：递归展开子绑定（深度上限 2），枚举轮转 / 数值随机 / 文本加序号
+  function genComplex(b, depth, n2){
+    var def = attrByCode(b.ref);
+    var out = {};
+    (def && def.attrs ? def.attrs : []).forEach(function(sb){
+      var sdef = attrByCode(sb.ref);
+      var pvs = sb.pvs.length ? sb.pvs : (sdef && sdef.values ? sdef.values.map(function(v){return v.code}) : []);
+      if (sdef && sdef.attrs && depth < 2) { out[sb.ref] = genComplex(sb, depth + 1, n2); return; }
+      var val;
+      if (pvs.length) val = pvs[(n2 + depth) % pvs.length];
+      else if (sdef && sdef.vt === 'real') val = Math.round(rnd(0, 10) * 100) / 100;
+      else if (sdef && sdef.vt === 'integer') val = Math.floor(rnd(0, 100));
+      else val = 'test-' + (n2 + 1);
+      out[sb.ref] = val;
+    });
+    return out;
+  }
   document.getElementById('gen-go').addEventListener('click', function(){
     if (!cur) { status('请先选择要素类型'); return; }
     var lon = parseFloat(document.getElementById('gen-lon').value) || 0;
@@ -2215,7 +2247,7 @@ const GEN_PAGE = `<section class="post tool-page">
       var attrs = {};
       binds.forEach(function(bn){
         var b = bn.b, def = attrByCode(b.ref);
-        if (def && def.attrs) { if (n2 === 0) missing.push(b.ref + '（复杂属性）'); return; }
+        if (def && def.attrs) { attrs[b.ref] = genComplex(b, 0, n2); return; }
         var el = document.querySelector('.gen-row [data-i="' + bn.i + '"][data-code]');
         var val;
         if (el && el.tagName === 'SELECT') {
