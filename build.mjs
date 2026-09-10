@@ -1296,6 +1296,12 @@ ${symCards}
 <p class="panel-desc">符号图为 INT 1 纸海图风格的再绘制（许可见页脚），与 ECDIS 屏显符号形状一致、配色细节或有差异；「对应对象」为该符号最常用的 S-57 对象。符号含义中文为编者译注。</p>
 
 <h2 id="sec-color" class="sec-anchor">颜色令牌（S-52 调色板对比）</h2>
+<div class="field-row" style="margin-bottom:10px">
+<span class="panel-desc" style="margin:0;align-self:center">整包导出：</span>
+${palNames.map((p) => `<button class="btn" type="button" data-palexp="${p}" style="padding:5px 12px">${PAL_ZH[p] || p} JSON</button>`).join('')}
+<button class="btn" type="button" data-cssexp="DAY_BRIGHT" style="padding:5px 12px">CSS 变量（白昼）</button>
+<span class="panel-desc" id="pal-exp-hint" style="margin:0"></span>
+</div>
 <div class="table-wrap">
 <table class="data-table ctable">
 <thead><tr><th>令牌</th><th>中文</th>${palHead}</tr></thead>
@@ -1309,8 +1315,33 @@ ${palRows}
 </section>
 <script>
 (function(){
+  var PALETTES = ${JSON.stringify(palettes)};
   var q=document.getElementById("sym-q"),pills=document.querySelectorAll(".cat-pills .pill"),
       cards=document.querySelectorAll("#sym-grid .sym-card"),cat="*";
+  function copyText(t, btn, okLabel){
+    var orig = btn.textContent;
+    var done = function(){ btn.textContent = okLabel; setTimeout(function(){ btn.textContent = orig; }, 1200); };
+    var fallback = function(){ var ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy"); done();}catch(e){} document.body.removeChild(ta); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, fallback); else fallback();
+  }
+  document.addEventListener("click", function(ev){
+    var pb = ev.target.closest("[data-palexp]");
+    if (pb) {
+      var p = pb.dataset.palexp;
+      copyText(JSON.stringify(PALETTES[p], null, 2), pb, "已复制 ✓");
+      var h = document.getElementById("pal-exp-hint");
+      if (h) h.textContent = "已复制 " + p + " 全部 " + Object.keys(PALETTES[p]).length + " 个令牌（JSON）";
+      return;
+    }
+    var cb = ev.target.closest("[data-cssexp]");
+    if (cb) {
+      var p2 = cb.dataset.cssexp;
+      var lines = Object.keys(PALETTES[p2]).map(function(t){ return "--s52-" + t.toLowerCase() + ": " + PALETTES[p2][t] + ";"; });
+      copyText(":root {\\n  " + lines.join("\\n  ") + "\\n}", cb, "已复制 ✓");
+      var h2 = document.getElementById("pal-exp-hint");
+      if (h2) h2.textContent = "已复制 CSS 变量（" + p2 + "，--s52- 前缀）";
+    }
+  });
   function apply(){var k=(q.value||"").trim().toLowerCase(),n=0;
     cards.forEach(function(c){
       var ok=(cat==="*"||c.dataset.cat===cat)&&(!k||c.dataset.s.indexOf(k)>=0);
