@@ -1,0 +1,91 @@
+<blockquote><p><strong>首发于个人博客</strong>：<a href="https://nightchart.cn/singleton-reentrant-deadlock.html" target="_blank" rel="noopener">航图笔记 nightchart.cn</a>（S-57 / S-52 / S-100 / 渲染引擎源码走读，持续更新）。CSDN 同步发布，转载请保留出处。</p></blockquote>
+<p>这篇不聊标准，聊一次真实的翻车。当时在给渲染引擎加一种新的数据图层，改动本身不复杂，编译一次通过，本地验证也正常。合入后的第二天早上，版本一起，程序直接&quot;石化&quot;：进程在，窗口白，没有崩溃报告，日志停在启动流程的某一行之后再无下文。</p>
+<h2 id="sec-1">现象：不是崩溃，是&quot;石化&quot;</h2>
+<p>排查先从三个特征排除最常见的嫌疑：</p>
+<ul><li><strong>没有崩溃报告、没有异常栈</strong> → 不是空指针、越界那类硬崩</li><li><strong>CPU 占用接近 0</strong> → 不是死循环（死循环会吃满至少一个核）</li><li><strong>日志断流</strong> → 卡住的位置就在最后一行日志对应的下一步</li></ul>
+<p>&quot;不干活但也不退出&quot;，加上 CPU 安静，基本可以断定：<strong>某个线程在等一把永远等不到的锁。</strong></p>
+<h2 id="sec-2">十分钟定位：让线程栈说话</h2>
+<p>这种&quot;石化&quot;，最快的定位方式不是加日志重跑，而是<strong>直接 attach 上去看线程栈</strong>——卡住的线程此刻就站在案发现场，不需要复现。</p>
+<p>主线程的栈（简化后）长这样：</p>
+<pre><code>  [等待中]  互斥量加锁 ...
+  GetInstance()
+  LayerManager::LayerManager()     ← 构造函数
+  RefreshFineSource()
+  GetInstance()                    ← 又一次
+  OnMapReady()
+  main()</code></pre>
+<p>栈里出现了<strong>两帧 <code>GetInstance()</code>，中间夹着构造函数</strong>。翻译成人话：外层的 <code>GetInstance()</code> 正在初始化这个单例、还没返回；而初始化过程中的构造函数里，又有一层代码伸手去要这个还没出生的单例。</p>
+<p>把闭环画出来，原因基本就锁定了：</p>
+<p><img src="https://nightchart.cn/assets/fig4-deadlock-callchain.svg" alt="构造期重入调用链示意" loading="lazy"></p>
+<p><em>图 1：构造函数内部再次调用 GetInstance()，请求回到还没完成的初始化守卫——自己等自己</em></p>
+<h2 id="sec-3">根因：构造函数里伸手拿&quot;还没出生的自己&quot;</h2>
+<p>出问题的代码模式，脱敏后长这样：</p>
+<pre><code class="language-cpp"><span class="tok-kw">class</span> <span class="tok-type">LayerManager</span> {
+<span class="tok-kw">public</span>:
+  <span class="tok-kw">static</span> <span class="tok-type">LayerManager</span>&amp; <span class="tok-fn">GetInstance</span>() {
+    <span class="tok-kw">static</span> <span class="tok-type">LayerManager</span> inst;   <span class="tok-com">// C++11 起：线程安全的&quot;魔法静态&quot;</span>
+    <span class="tok-kw">return</span> inst;
+  }
+
+  <span class="tok-fn">LayerManager</span>() {
+    <span class="tok-com">// 想着&quot;开箱即用&quot;，把刷新逻辑塞进了构造……</span>
+    <span class="tok-fn">RefreshFineSource</span>();
+  }
+
+  <span class="tok-kw">void</span> <span class="tok-fn">RefreshFineSource</span>() {
+    <span class="tok-kw">auto</span>&amp; self = <span class="tok-fn">GetInstance</span>();  <span class="tok-com">// 重入！此时初始化还没完成</span>
+    <span class="tok-com">// ...</span>
+  }
+};</code></pre>
+<p>关键在 <code>static LayerManager inst;</code> 这一行。C++11 起，局部静态变量的初始化是线程安全的：编译器会生成一个<strong>初始化守卫</strong>，第一个到达的线程把门关上开始构造，其他线程在门口排队。</p>
+<p>那同一线程在初始化过程中再次进来呢？标准在这里写得毫不留情——<strong>行为未定义</strong>（[stmt.dcl]：如果控制流在变量初始化完成前递归地再入这条声明……）。而主流实现（MSVC / GCC / Clang）守卫的实现方式决定了：重入的线程，哪怕就是初始化线程自己，也会在门口等待。</p>
+<p>于是：构造线程在等守卫放行，守卫在等构造完成。<strong>没人动，进程石化。</strong></p>
+<p><img src="https://nightchart.cn/assets/fig5-guard-reentry.svg" alt="magic static 守卫：并发安全，重入死锁" loading="lazy"></p>
+<p><em>图 2：同一个守卫，多线程并发是安全的，同线程重入就是死锁</em></p>
+<p>顺带把两个容易混淆的问题分清：这不是 static initialization order fiasco（跨编译单元全局变量的初始化顺序问题），那个是&quot;谁先构造&quot;的玄学；这里是<strong>单例初始化过程中的重入</strong>，确定性的死锁，每次必现——反而好抓。</p>
+<h2 id="sec-4">修复：三层加固</h2>
+<p><strong>第一层：构造瘦身（治本）。</strong> 构造函数只做成员初始化，所有&quot;干活&quot;的逻辑挪出去，改成显式两阶段：构造完成、对象可用之后，由初始化流程显式调 <code>Init()</code>。</p>
+<p><strong>第二层：未就绪先暂存。</strong> 现实里总有调用时机绕不开初始化窗口——异步线程、外部回调，你控制不了谁先到。对这类调用不再硬闯单例，而是先入队，初始化完成后按序补放。真实工程里&quot;安装记录未就绪时暂存、就绪后补写&quot;的改法就是这个思路。</p>
+<p><strong>第三层：指针显式置空兜底。</strong> 可能被其他线程读到的成员指针一律显式初始化为 <code>nullptr</code>，让外部的判空逻辑能快速跳过，而不是撞上一个&quot;半初始化&quot;的对象。</p>
+<p>修复后的示意：</p>
+<pre><code class="language-cpp"><span class="tok-kw">class</span> <span class="tok-type">LayerManager</span> {
+<span class="tok-kw">public</span>:
+  <span class="tok-kw">static</span> <span class="tok-type">LayerManager</span>&amp; <span class="tok-fn">GetInstance</span>() {
+    <span class="tok-kw">static</span> <span class="tok-type">LayerManager</span> inst;    <span class="tok-com">// 构造函数里再无任何&quot;重活&quot;</span>
+    <span class="tok-kw">return</span> inst;
+  }
+
+  <span class="tok-kw">void</span> <span class="tok-fn">OnDataReady</span>(<span class="tok-kw">const</span> <span class="tok-type">TileData</span>&amp; d) {
+    <span class="tok-type">std::lock_guard</span>&lt;<span class="tok-type">std::mutex</span>&gt; <span class="tok-fn">lk</span>(mtx_);
+    <span class="tok-kw">if</span> (!ready_) {               <span class="tok-com">// 未就绪：先记账，不硬闯</span>
+      pending_.<span class="tok-fn">push_back</span>(d);
+      <span class="tok-kw">return</span>;
+    }
+    <span class="tok-fn">Apply</span>(d);
+  }
+
+  <span class="tok-kw">void</span> <span class="tok-fn">FinishInit</span>() {            <span class="tok-com">// 初始化完成点（由 Init 流程调用）</span>
+    <span class="tok-type">std::lock_guard</span>&lt;<span class="tok-type">std::mutex</span>&gt; <span class="tok-fn">lk</span>(mtx_);
+    ready_ = <span class="tok-kw">true</span>;
+    <span class="tok-kw">for</span> (<span class="tok-kw">auto</span>&amp; d : pending_) <span class="tok-fn">Apply</span>(d);   <span class="tok-com">// 按序补放</span>
+    pending_.<span class="tok-fn">clear</span>();
+  }
+
+<span class="tok-kw">private</span>:
+  <span class="tok-fn">LayerManager</span>() = <span class="tok-kw">default</span>;      <span class="tok-com">// 瘦身：只初始化成员，指针一律 nullptr</span>
+  <span class="tok-kw">void</span> <span class="tok-fn">Apply</span>(<span class="tok-kw">const</span> <span class="tok-type">TileData</span>&amp; d);
+
+  <span class="tok-type">std::mutex</span> mtx_;
+  <span class="tok-type">std::atomic</span>&lt;<span class="tok-kw">bool</span>&gt; ready_{<span class="tok-kw">false</span>};
+  <span class="tok-type">std::vector</span>&lt;<span class="tok-type">TileData</span>&gt; pending_;
+};</code></pre>
+<p><img src="https://nightchart.cn/assets/fig6-fix-compare.svg" alt="修复前后对比" loading="lazy"></p>
+<p><em>图 3：构造只管&quot;出生&quot;，干活挪到显式阶段；初始化窗口内的调用先暂存、就绪后补放</em></p>
+<h2 id="sec-5">防复发清单</h2>
+<p>这类问题真正的麻烦在于：它经常<strong>不发作</strong>。改代码的时候恰好没人重入，一切正常；某天别处加了个调用时机，雷就响了。所以 review 时直接对照清单：</p>
+<ul><li>构造函数里<strong>不调用任何可能回头拿单例/全局对象的函数</strong>——间接的也算，顺着调用链往下多看两层</li><li>构造函数里不启动线程、不注册回调——回调可能在你构造完成之前就到达</li><li>构造函数里不打日志——日志系统自己往往也是单例</li><li>两个单例互相引用要格外警惕：A 的构造调 B，B 的构造调 A，结果取决于谁先进门</li><li>&quot;启动必现的挂死&quot;先看线程栈再动手，不要先加日志重跑——有些问题重跑一次就复现不出来了</li></ul>
+<h2 id="sec-6">小结</h2>
+<ul><li><strong>现象识别</strong>：无崩溃 + CPU 安静 + 日志断流 ≈ 在等一把永远等不到的锁，直接 attach 看线程栈</li><li><strong>根因</strong>：<code>static</code> 局部变量的初始化守卫<strong>不防重入</strong>——初始化线程自己再进来就是死锁（标准定义为未定义行为，主流实现的表现就是死锁）</li><li><strong>药方</strong>：构造瘦身两阶段、未就绪暂存补放、指针显式置空。三件事都不难，难的是写代码和 review 的时候能想起来</li></ul>
+<p>按计划，下一篇回到标准主线《S-57 数据解剖：把一个 ENC 文件拆给你看》；踩坑实录这个系列也会继续——真实的工程问题，比标准条文好消化。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。你也踩过单例的坑吗，评论区聊聊。</p>
