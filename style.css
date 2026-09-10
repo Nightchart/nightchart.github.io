@@ -362,3 +362,27 @@ a.pn-item:hover .pn-title { color: var(--accent); }
 select.input, input.input { background: var(--card); color: var(--fg); border: 1px solid var(--border); border-radius: 6px; padding: .3rem .5rem; font-size: .88rem; font-family: inherit; }
 select.input:focus, input.input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--ring); }
 .result { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; overflow-x: auto; font-size: .8rem; white-space: pre-wrap; word-break: break-all; }
+
+/* 相关文章 */
+.related { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 18px; }
+.related h2 { font-size: 16px; color: var(--muted); margin: 0 0 8px; }
+.rel-list { list-style: none; margin: 0; padding: 0; }
+.rel-list li { padding: 6px 0; }
+.rel-list a { font-weight: 500; }
+
+/* 归档页 */
+.arc-year h2 { font-size: 20px; margin: 34px 0 6px; }
+.arc-year:first-of-type h2 { margin-top: 18px; }
+.arc-count { color: var(--muted); font-size: 13.5px; font-weight: 400; }
+.arc-list { list-style: none; margin: 0; padding: 0; }
+.arc-item { display: flex; gap: 14px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.arc-item time { color: var(--muted); font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.arc-item a { font-weight: 500; }
+
+/* 工具页推荐资源 */
+.res { margin-top: 48px; border-top: 1px solid var(--border); padding-top: 22px; }
+.res h2 { font-size: 20px; margin: 0 0 8px; }
+.res-list { list-style: none; margin: 0; padding: 0; }
+.res-list li { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14.5px; }
+.res-list a { font-weight: 600; }
+.res-note { color: var(--muted); font-size: 13.5px; margin-top: 14px; }
