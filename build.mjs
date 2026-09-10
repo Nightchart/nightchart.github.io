@@ -294,6 +294,24 @@ function prevNextHtml(p, articles) {
   return `<nav class="pn">${cell(older, 'prev')}${cell(newer, 'next')}</nav>`;
 }
 
+// 相关文章：共享标签最多者优先，同分取更新的一篇，最多 3 条
+function relatedHtml(p, articles) {
+  const scored = articles
+    .filter((a) => a.slug !== p.slug)
+    .map((a) => ({ a, n: a.tags.filter((t) => p.tags.includes(t)).length }))
+    .filter((x) => x.n > 0)
+    .sort((x, y) => (x.n !== y.n ? y.n - x.n : (x.a.date < y.a.date ? 1 : -1)))
+    .slice(0, 3);
+  if (!scored.length) return '';
+  const items = scored.map(({ a }) => `<li><a href="${a.slug}.html">${esc(a.title)}</a></li>`).join('');
+  return `<section class="related">
+<h2>相关文章</h2>
+<ul class="rel-list">
+${items}
+</ul>
+</section>`;
+}
+
 function articlePage(p, articles) {
   const draftBadge = p.draft ? '<p><span class="draft-badge">草稿</span> <span style="color:var(--muted);font-size:13px;">仅本地预览，未出现在首页目录与 RSS</span></p>' : '';
   const tags = p.tags.length ? ' · ' + p.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('') : '';
@@ -309,6 +327,7 @@ ${tocHtml(p.toc)}
 ${p.html}
 </div>
 ${prevNextHtml(p, articles)}
+${relatedHtml(p, articles)}
 <p class="back"><a href="index.html">← 返回目录</a></p>
 </article>
 ${viewsScript}
@@ -358,6 +377,27 @@ ${items}
 </ul>`;
 }
 
+function archivePage(articles) {
+  const years = [...new Set(articles.map((p) => p.date.slice(0, 4)))].sort().reverse();
+  const secs = years.map((y) => {
+    const list = articles.filter((p) => p.date.startsWith(y));
+    const items = list
+      .map((p) => `<li class="arc-item"><time>${esc(p.date.slice(5))}</time><a href="${p.slug}.html">${esc(p.title)}</a></li>`)
+      .join('\n');
+    return `<section class="arc-year">
+<h2>${y} <span class="arc-count">${list.length} 篇</span></h2>
+<ul class="arc-list">
+${items}
+</ul>
+</section>`;
+  }).join('\n');
+  return `<section class="intro">
+<h1>归档</h1>
+<p>全部文章按时间倒序排列，共 ${articles.length} 篇。在线工具在 <a href="tools.html">工具页</a>。</p>
+</section>
+${secs}`;
+}
+
 const TOOL_ICONS = {
   table: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2"></rect><path d="M3.5 9.5h17M9.5 9.5v10"></path></svg>',
   list: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 6h12M8.5 12h12M8.5 18h12"></path><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="2.6"></path></svg>',
@@ -378,7 +418,19 @@ function toolsPage() {
 <ul class="tool-list">
 ${cards}
 </ul>
-<p class="tool-planned">计划中：S-57 数据文件（.000）在线解析器……有更急用的直接来信。</p>`;
+<section class="res">
+<h2>推荐资源</h2>
+<p>做海图 / 地图开发反复要去的官方站点，放在这里一并收藏：</p>
+<ul class="res-list">
+<li><a href="https://www.iho.int" target="_blank" rel="noopener">IHO 国际海道测量组织</a> —— S-57 / S-52 / S-100 系列规范的官方出处，标准文本免费下载</li>
+<li><a href="https://gdal.org" target="_blank" rel="noopener">GDAL</a> —— GIS 数据读写基础库，内置 S-57 驱动，读 .000 文件的现成开源实现</li>
+<li><a href="https://opencpn.org" target="_blank" rel="noopener">OpenCPN</a> —— 开源电子海图显示系统，插件架构设计值得一读</li>
+<li><a href="https://maplibre.org" target="_blank" rel="noopener">MapLibre</a> —— 开源地图渲染引擎，本站源码走读系列的主角</li>
+<li><a href="https://www.charts.noaa.gov" target="_blank" rel="noopener">NOAA 电子海图</a> —— 免费 S-57 / S-102 官方数据，本站工具的样例数据出自这里</li>
+<li><a href="https://www.hdfgroup.org" target="_blank" rel="noopener">The HDF Group</a> —— HDF5 格式官方，S-102 / S-104 数据的封装载体</li>
+</ul>
+<p class="res-note">缺什么工具、或想推荐补充的资源，欢迎来信 hi@nightchart.cn。</p>
+</section>`;
 }
 
 function rss(articles) {
@@ -459,6 +511,7 @@ for (const p of posts) {
 
 fs.writeFileSync(path.join(OUT_DIR, 'index.html'), layout('', CFG.description, indexPage(articles)));
 fs.writeFileSync(path.join(OUT_DIR, 'tools.html'), layout('实用工具', '航图笔记在线工具集：S-57 对象类码表等海图 / ECDIS 开发速查工具，随博客持续更新。', toolsPage(), 'website', `${CFG.siteUrl}/tools.html`, true));
+fs.writeFileSync(path.join(OUT_DIR, 'archive.html'), layout('归档', '航图笔记全部文章归档：电子海图标准（S-57 / S-100 系列）、地图渲染与 C++ 工程实践文章目录，按时间排列。', archivePage(articles), 'website', `${CFG.siteUrl}/archive.html`));
 fs.writeFileSync(path.join(OUT_DIR, 'rss.xml'), rss(articles));
 fs.writeFileSync(
   path.join(OUT_DIR, 'sitemap.xml'),
@@ -467,6 +520,7 @@ fs.writeFileSync(
     // 草稿不进 sitemap，避免未发布内容被搜索引擎发现
     ...[...articles, ...pages].map((p) => ({ loc: `${CFG.siteUrl}/${p.slug}.html`, lastmod: p.date || new Date().toISOString().slice(0, 10) })),
     { loc: `${CFG.siteUrl}/tools.html`, lastmod: new Date().toISOString().slice(0, 10) },
+    { loc: `${CFG.siteUrl}/archive.html`, lastmod: new Date().toISOString().slice(0, 10) },
     ...TOOLS.map((t) => ({ loc: `${CFG.siteUrl}/${t.href}`, lastmod: t.added || '2026-09-08' })),
   ]),
 );
