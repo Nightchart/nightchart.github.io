@@ -11,7 +11,8 @@ const DATA_FILE = path.join(ROOT, 'data', 'gc-counts.json');
 const BASE = 'https://nightchart.goatcounter.com';
 
 const token = fs.readFileSync(TOKEN_FILE, 'utf8').trim();
-const H = { Authorization: `Bearer ${token}` };
+// GoatCounter 的防护会 404 掉无 User-Agent 的请求（浏览器/curl 都带，Node fetch 默认不带）
+const H = { Authorization: `Bearer ${token}`, 'User-Agent': 'nightchart-site/1.0 (+https://nightchart.cn)' };
 
 const get = async (p) => {
   const r = await fetch(BASE + p, { headers: H });
