@@ -1778,7 +1778,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 
 /* ---------------- HDF5 / S-102 数据解析器 ---------------- */
 const H5_PAGE = `<section class="post tool-page">
-<h1 class="post-title">HDF5 / S-102 数据解析器</h1>
+<h1 class="post-title">HDF5 / S-100 网格解析器</h1>
 <div class="post-meta">纯浏览器解析（h5wasm，NIST）· 文件不出本机 · 内置样本：NOAA S-102 官方测试数据集（公有领域）</div>
 <p>S-100 系列网格产品（S-102 水深 / S-111 表层流场）是 HDF5 格式。把 .h5 文件拖进来：除结构树、属性与数值统计外，识别到标准结构时会自动渲染<strong>热力图</strong>——S-102 按水深着色（区分干出与填充值），S-111 按流速着色并叠加流向箭头，多时序帧可下拉切换，点选网格任意位置读取单元数值。</p>
 <p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><button id="h5-sample111" class="btn" type="button">加载内置 S-111 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
@@ -2096,7 +2096,7 @@ const H5_PAGE = `<section class="post tool-page">
   boot().then(function(){ status('引擎就绪，上传 .h5 或点「加载内置 S-102 样本」'); }).catch(function(e){ status(e.message); });
 })();
 </script>`;
-  fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-102 数据解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深 / S-111 流场 .h5 文件，查看结构树与属性，自动渲染水深 / 流场热力图（可切时序帧、点选读值），基于 h5wasm（WebAssembly），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
+  fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-100 网格解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深 / S-111 流场 .h5 文件，查看结构树与属性，自动渲染水深 / 流场热力图（可切时序帧、点选读值），基于 h5wasm（WebAssembly），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
 /* ---------------- S-100 测试数据生成器 ---------------- */
 const GEN_PAGE = `<section class="post tool-page">
 <h1 class="post-title">S-100 测试数据生成器</h1>
