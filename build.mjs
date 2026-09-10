@@ -1538,8 +1538,8 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 const H5_PAGE = `<section class="post tool-page">
 <h1 class="post-title">HDF5 / S-102 数据解析器</h1>
 <div class="post-meta">纯浏览器解析（h5wasm，NIST）· 文件不出本机 · 内置样本：NOAA S-102 官方测试数据集（公有领域）</div>
-<p>S-102 水深表面产品是 HDF5 格式。把 .h5 文件拖进来，直接看结构树、属性和数值统计——不用再装 HDFView。若文件带 S-102 的 BathymetryCoverage 结构，会额外给出水深统计摘要。</p>
-<p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
+<p>S-100 系列网格产品（S-102 水深 / S-111 表层流场）是 HDF5 格式。把 .h5 文件拖进来：除结构树、属性与数值统计外，识别到标准结构时会自动渲染<strong>热力图</strong>——S-102 按水深着色（区分干出与填充值），S-111 按流速着色并叠加流向箭头，多时序帧可下拉切换，点选网格任意位置读取单元数值。</p>
+<p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><button id="h5-sample111" class="btn" type="button">加载内置 S-111 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
 <div id="h5-out" class="hidden"><div id="h5-stats" class="fc-stats"></div><div id="h5-s102"></div><div id="h5-tree" class="h5-tree"></div></div>
 <p class="panel-desc hidden" id="h5-foot">解析由 WebAssembly 版 HDF5（h5wasm，NIST 出品）在你的浏览器本地完成，文件不会上传。超大数据集（元素数超 400 万）只显示形状与属性，不展开数值。</p>
 </section>
@@ -1603,12 +1603,13 @@ const H5_PAGE = `<section class="post tool-page">
         var f = new H5G.File('up.h5', 'r');
         var out = {rows: [], count: 0, trunc: false};
         walk(f, '', 0, out);
-        var s102 = findS102(f);
+        var s102 = findProduct(f);
         var stats = '<div class="pal-card fc-stat"><div class="fc-num">'+out.rows.filter(function(r){return r.kind==='Dataset'}).length+'</div><div class="pal-zh">数据集</div></div>'
           + '<div class="pal-card fc-stat"><div class="fc-num">'+out.rows.filter(function(r){return r.kind==='Group'}).length+'</div><div class="pal-zh">组</div></div>'
           + '<div class="pal-card fc-stat"><div class="fc-num">'+name+'</div><div class="pal-zh">文件</div></div>';
         el('h5-stats').innerHTML = stats;
         el('h5-s102').innerHTML = s102;
+        if (PD) { drawProduct(); bindProbe(); }
         el('h5-tree').innerHTML = out.rows.map(function(r, i){
           var akeys = Object.keys(r.attrs||{});
           var hasDetail = akeys.length || r.peek;
@@ -1618,51 +1619,195 @@ const H5_PAGE = `<section class="post tool-page">
         el('h5-out').classList.remove('hidden');
         el('h5-foot').classList.remove('hidden');
         status('解析完成：' + name);
-        try { f.close(); } catch(e) {}
+        if (PD) { if (PREVF && PREVF !== f) { try { PREVF.close(); } catch(e) {} } PREVF = f; }
+        else { try { f.close(); } catch(e) {} }
       } catch(err) { status('解析失败：' + err.message); }
     }).catch(function(e){ status('引擎错误：' + e.message); });
   }
-  function findS102(f){
+  var PD = null, PREVF = null; // PD：识别到的 S-100 网格产品（含文件句柄，供时序帧切换复读）
+  var DEPTH_STOPS = [[0,[155,232,245]],[0.45,[61,155,209]],[1,[18,62,107]]];
+  var SPEED_STOPS = [[0,[234,246,255]],[0.5,[127,200,240]],[1,[10,42,85]]];
+  function lerpStops(t, stops){
+    if (!(t >= 0)) t = 0; if (t > 1) t = 1;
+    for (var i = 1; i < stops.length; i++) {
+      if (t <= stops[i][0]) {
+        var a = stops[i-1], b = stops[i], f = (t - a[0]) / ((b[0] - a[0]) || 1);
+        return [Math.round(a[1][0]+(b[1][0]-a[1][0])*f), Math.round(a[1][1]+(b[1][1]-a[1][1])*f), Math.round(a[1][2]+(b[1][2]-a[1][2])*f)];
+      }
+    }
+    return stops[stops.length-1][1];
+  }
+  function resolveGroup(f, p){ return p.split('/').filter(function(x){ return x; }).reduce(function(g, k){ return g.get(k); }, f); }
+  function findProduct(f){
     try {
-      var target = null, tpath = '';
+      var found = null;
       (function scan(gr, path, depth){
-        if (target || depth > 5) return;
+        if (depth > 6) return;
         var keys = []; try { keys = gr.keys(); } catch(e) { return; }
         keys.forEach(function(k){
-          if (target) return;
           var p = path + '/' + k, obj = null;
           try { obj = gr.get(k); } catch(e) { return; }
           var isGroup = obj && obj.keys && typeof obj.keys === 'function';
-          if (isGroup) { scan(obj, p, depth+1); }
-          else if (k === 'values' && /BathymetryCoverage|Coverage/i.test(p)) { target = obj; tpath = p; }
+          if (!isGroup) return;
+          if (!found) {
+            var m = p.match(/\\/(BathymetryCoverage|SurfaceCurrent|WaterLevel)(\\.\\d+)?$/i);
+            if (m) found = { kind: /bathymetry/i.test(m[1]) ? 'S-102' : (/surfacecurrent/i.test(m[1]) ? 'S-111' : 'S-104'), base: p.replace(/\\.\\d+$/, ''), groups: [], extentText: '' };
+          }
+          if (found && p.indexOf(found.base) === 0) {
+            if (/Group_F$/i.test(p)) {
+              // Group_F 是要素元数据表：fillValue / uom 都以规范声明在此，优先级高于内置默认
+              try {
+                obj.keys().forEach(function(dn){
+                  try {
+                    var rows2 = obj.get(dn).value;
+                    for (var ri = 0; ri < rows2.length; ri++) {
+                      var rec = rows2[ri] || {};
+                      var code = String(rec.code || rec.name || '');
+                      if (/speed|depth|height/i.test(code)) {
+                        var fv = parseFloat(String(rec.fillValue));
+                        if (isFinite(fv)) found.fill = fv;
+                        var um = String(rec['uom.name'] || '').trim();
+                        if (um) found.uom = um;
+                      }
+                    }
+                  } catch(e) {}
+                });
+              } catch(e) {}
+            }
+            if (/\\/extent$/i.test(p)) {
+              try {
+                var a = obj.attrs || {};
+                function g2(n){ return a[n] !== undefined ? a[n] : (a[n.charAt(0).toUpperCase()+n.slice(1)] !== undefined ? a[n.charAt(0).toUpperCase()+n.slice(1)] : null); }
+                var w = g2('westLon'), e2 = g2('eastLon'), s = g2('southLat'), n2 = g2('northLat');
+                if (w !== null && n2 !== null && w !== '' && n2 !== '') found.extentText = '经度 ' + w + ' ~ ' + e2 + ' · 纬度 ' + s + ' ~ ' + n2;
+              } catch(e) {}
+            }
+            if (/^Group/i.test(k)) {
+              var vals = null; try { vals = obj.get('values'); } catch(e) {}
+              if (vals && vals.shape && vals.shape.length === 2) found.groups.push({ name: k, path: p + '/values', rows: vals.shape[0], cols: vals.shape[1] });
+            }
+          }
+          scan(obj, p, depth+1);
         });
       })(f, '', 0);
-      if (!target) return '<div class="panel-desc">未检测到 S-102 标准结构（仅作一般 HDF5 解析）。</div>';
-      var shape = (target.shape||[]), total = shape.reduce(function(a,c){return a*c},1);
-      var dtype = target.dtype || '';
-      var compound = dtype.indexOf(',') >= 0;
-      var line = '<div class="panel"><h2>S-102 识别成功</h2>';
-      line += '<p class="panel-desc">数据集 <code>' + esc(tpath) + '</code> · ' + shape.join('×') + ' · ' + (compound ? '复合类型（depth + uncertainty）' : esc(dtype)) + '</p>';
+      if (!found || !found.groups.length) {
+        return '<div class="panel-desc">未检测到 S-102 / S-111 标准网格结构（仅作一般 HDF5 解析；S-104 站点时序请直接展开结构树查看）。</div>';
+      }
+      var g0 = found.groups[0], kind = found.kind;
+      var ds0 = resolveGroup(f, g0.path);
+      var v0 = ds0.value;
+      // h5wasm 对 (rows,cols) 数据集一律返回扁平数组：数值型是平铺的 TypedArray，复合型是 [分量0, 分量1, …] 小数组
+      var n0 = g0.rows * g0.cols;
+      var flat = v0.length === n0;
+      var names = [];
       try {
-        if (total > 0 && total <= 6000000) {
-          var v = target.value;
-          var mn = Infinity, mx = -Infinity, sum = 0, n = 0;
-          function feed(x){ var num = typeof x === 'bigint' ? Number(x) : x; if (typeof num === 'number' && isFinite(num) && Math.abs(num) < 999999) { if (num<mn) mn=num; if (num>mx) mx=num; sum+=num; n++; } }
-          if (compound) {
-            var field = null;
-            for (var i = 0; i < v.length && !field; i++) { var row0 = v[i]; if (row0 && row0.length && typeof row0[0] === 'object') { var c0 = row0[0]; field = Object.keys(c0).filter(function(k){return /depth/i.test(k)})[0] || Object.keys(c0)[0]; } }
-            for (var i = 0; i < v.length; i++) { var row = v[i]; if (!row || !row.length) continue; for (var j = 0; j < row.length; j++) { var c = row[j]; feed(typeof c === 'object' && c !== null ? c[field] : c); } }
-            line += '<p class="panel-desc">统计字段：<code>' + esc(field || '(depth)') + '</code></p>';
-          } else {
-            for (var i = 0; i < v.length; i++) { var row = v[i]; if (row && row.length) { for (var j = 0; j < row.length; j++) feed(row[j]); } else feed(row); }
-          }
-          if (n) line += '<p class="panel-desc">水深 <strong>' + (Math.round(mn*100)/100) + ' ~ ' + (Math.round(mx*100)/100) + ' m</strong>，均值 ' + (Math.round(sum/n*100)/100) + ' m（' + n + ' 个有效值）</p>';
+        var dts = ds0.dtype;
+        if (dts && typeof dts === 'object') {
+          // h5wasm 复合 dtype 是对象/数组，字段名藏在每个分量的 name/code 属性里
+          Object.keys(dts).forEach(function(k){
+            var item = dts[k];
+            var nm2 = null;
+            if (Array.isArray(item)) nm2 = (typeof item[0] === 'string') ? item[0] : null;
+            else if (item && typeof item === 'object') nm2 = item.name || item.code || item.label;
+            else if (typeof item === 'string') { var m3 = item.match(/[A-Za-z_][A-Za-z0-9_]*/); nm2 = m3 ? m3[0] : null; if (nm2 && nm2.charAt(0) === '<') nm2 = null; }
+            if (nm2 && names.indexOf(nm2) < 0) names.push(nm2);
+          });
         } else {
-          line += '<p class="panel-desc">数据量较大（' + total + ' 单元），未展开数值统计。</p>';
+          var dts2 = String(dts || '');
+          var nm, re2 = /['"]([A-Za-z_][A-Za-z0-9_]*)['"]\s*[:,]/g;
+          while ((nm = re2.exec(dts2))) { if (names.indexOf(nm[1]) < 0 && nm[1].charAt(0) !== '<') names.push(nm[1]); }
         }
-      } catch(e) { line += '<p class="panel-desc">统计段异常：' + esc(String(e.message||e)) + '</p>'; }
-return line + '</div>';
-    } catch(e) { return '<div class="panel-desc">S-102 检测异常：' + esc(String(e.message||e)) + '</div>'; }
+      } catch(e) {}
+      // 字段名仍为空时，探测首个复合单元（小数值数组）的分量数，退化为分量序号
+      if (!names.length) {
+        for (var pi = 0; pi < v0.length; pi++) {
+          var pc = v0[pi];
+          if (pc && typeof pc === 'object' && pc.length && typeof pc[0] === 'number') { for (var qi = 0; qi < pc.length; qi++) names.push('分量' + qi); break; }
+        }
+      }
+      var isCompound = names.length > 0;
+      var field = isCompound ? (names.filter(function(k){ return /depth|speed/i.test(k); })[0] || names[0]) : null;
+      var extraField = isCompound ? (names.filter(function(k){ return k !== field; })[0] || null) : null;
+      found.meta = { rows: g0.rows, cols: g0.cols, names: names, field: field, extraField: extraField, fieldIdx: isCompound ? names.indexOf(field) : 0, extraIdx: isCompound && extraField ? names.indexOf(extraField) : 1, f: f };
+      if (!isFinite(found.fill)) found.fill = (kind === 'S-102') ? 1000000 : -9999;
+      found.uomTxt = found.uom === 'knots' ? ' kn' : (found.uom ? ' ' + found.uom : (kind === 'S-102' ? ' m' : ''));
+      PD = found;
+      var line = '<div class="panel"><h2>' + kind + (kind === 'S-102' ? ' 水深表面' : ' 表层流场') + '识别成功</h2>';
+      line += '<p class="panel-desc">数据集 <code>' + esc(g0.path) + '</code> · ' + g0.rows + '×' + g0.cols + ' 网格 · ' + (isCompound ? ('复合类型（' + esc((field || '分量0') + ' + ' + (extraField || '分量1')) + '）') : '数值类型') + '</p>';
+      if (found.extentText) line += '<p class="panel-desc">地理范围：' + esc(found.extentText) + '</p>';
+      if (found.groups.length > 1) {
+        line += '<p class="panel-desc">时序帧（' + found.groups.length + '）：<select id="h5-gsel" class="select">' + found.groups.map(function(g, i){ return '<option value="' + i + '"' + (i ? '' : ' selected') + '>' + esc(g.name) + '</option>'; }).join('') + '</select></p>';
+      }
+      line += '<canvas id="h5-canvas" style="width:100%;max-width:860px;image-rendering:pixelated;border:1px solid var(--border);border-radius:6px;cursor:crosshair"></canvas>';
+      line += '<div id="h5-legend" style="max-width:860px"></div>';
+      line += '<p class="panel-desc" id="h5-probe">点按网格任意位置读取该单元数值</p>';
+      return line + '</div>';
+    } catch(e) {
+      PD = null;
+      return '<div class="panel-desc">S-100 网格识别异常：' + esc(String(e.message||e)) + '</div>';
+    }
+  }
+  function drawProduct(){
+    if (!PD || !PD.meta) return;
+    var g = PD.groups[PD.sel || 0], m = PD.meta;
+    try {
+      var v = resolveGroup(m.f, g.path).value;
+      var rows = m.rows, cols = m.cols, n = rows * cols;
+      var A = new Float32Array(n), B = m.extraField ? new Float32Array(n) : null;
+      var mn = Infinity, mx = -Infinity, sum = 0, cnt = 0, dry = 0;
+      var compound = m.names.length > 0;
+      for (var i = 0; i < n; i++) {
+        var cell = v[i];
+        var num = compound ? (cell ? cell[m.fieldIdx] : null) : (typeof cell === 'object' ? cell[0] : cell);
+        num = (typeof num === 'bigint') ? Number(num) : num;
+        if (typeof num === 'number' && isFinite(num) && Math.abs(num) < 999999 && num !== PD.fill) {
+          A[i] = num; mn = Math.min(mn, num); mx = Math.max(mx, num); sum += num; cnt++;
+          if (B) { var b2 = compound ? (cell ? cell[m.extraIdx] : null) : null; b2 = (typeof b2 === 'bigint') ? Number(b2) : b2; B[i] = (typeof b2 === 'number' && isFinite(b2)) ? b2 : 0; }
+          if (PD.kind === 'S-102' && num < 0) dry++;
+        } else A[i] = NaN;
+      }
+      if (!cnt) { el('h5-legend').innerHTML = '<p class="panel-desc">该帧无有效数值。</p>'; return; }
+      if (PD.kind === 'S-102') mn = Math.max(mn, 0);
+      var cv = el('h5-canvas'); cv.width = cols; cv.height = rows;
+      var ctx = cv.getContext('2d'); var img = ctx.createImageData(cols, rows); var d = img.data;
+      for (var i2 = 0; i2 < n; i2++) {
+        var o = i2 * 4, val = A[i2];
+        if (val !== val) { d[o]=237; d[o+1]=235; d[o+2]=230; d[o+3]=255; }
+        else if (PD.kind === 'S-102' && val < 0) { d[o]=216; d[o+1]=183; d[o+2]=158; d[o+3]=255; }
+        else { var col = lerpStops((val - mn) / ((mx - mn) || 1), PD.kind === 'S-111' ? SPEED_STOPS : DEPTH_STOPS); d[o]=col[0]; d[o+1]=col[1]; d[o+2]=col[2]; d[o+3]=255; }
+      }
+      ctx.putImageData(img, 0, 0);
+      if (PD.kind === 'S-111' && B) {
+        var S = Math.max(2, Math.round(Math.max(rows, cols) / 26));
+        ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(.8, Math.max(rows, cols) / 380);
+        for (var r2 = S >> 1; r2 < rows; r2 += S) for (var c2 = S >> 1; c2 < cols; c2 += S) {
+          var sp = A[r2 * cols + c2]; if (sp !== sp || sp <= 0) continue;
+          var dir = (B[r2 * cols + c2] || 0) * Math.PI / 180, dx = Math.sin(dir), dy = -Math.cos(dir), L = S * 0.62;
+          ctx.beginPath(); ctx.moveTo(c2 + .5 - dx * L / 2, r2 + .5 - dy * L / 2); ctx.lineTo(c2 + .5 + dx * L / 2, r2 + .5 + dy * L / 2); ctx.stroke();
+        }
+      }
+      PD.cur = A; PD.curB = B;
+      var stopsCss = (PD.kind === 'S-111' ? SPEED_STOPS : DEPTH_STOPS).map(function(s2){ return 'rgb(' + s2[1].join(',') + ') ' + Math.round(s2[0]*100) + '%'; }).join(', ');
+      var loCn = PD.kind === 'S-102' ? '浅' : '缓', hiCn = PD.kind === 'S-102' ? (mx.toFixed(1) + ' m 深') : (mx.toFixed(2) + PD.uomTxt + ' 急');
+      el('h5-legend').innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + loCn + '</span><div style="flex:1;height:12px;border-radius:6px;background:linear-gradient(90deg,' + stopsCss + ')"></div><span style="font-size:12px;color:var(--muted);white-space:nowrap">' + hiCn + '</span></div>'
+        + '<p class="panel-desc" style="margin-top:6px">均值 ' + (Math.round(sum/cnt*100)/100) + ' · ' + cnt + ' 个有效值' + (dry ? ' · 干出单元 ' + dry : '') + '</p>';
+    } catch(e) { el('h5-legend').innerHTML = '<p class="panel-desc">渲染异常：' + esc(String(e.message||e)) + '</p>'; }
+  }
+  function bindProbe(){
+    var cv = el('h5-canvas');
+    cv.addEventListener('click', function(ev){
+      if (!PD || !PD.cur || !PD.meta) return;
+      var rect = cv.getBoundingClientRect();
+      var c = Math.floor((ev.clientX - rect.left) / rect.width * PD.meta.cols), r = Math.floor((ev.clientY - rect.top) / rect.height * PD.meta.rows);
+      if (!(c >= 0) || !(r >= 0) || c >= PD.meta.cols || r >= PD.meta.rows) return;
+      var i = r * PD.meta.cols + c, a = PD.cur[i], msg = '行 ' + r + ' · 列 ' + c + '：';
+      if (a !== a) msg += '填充值';
+      else if (PD.kind === 'S-102') msg += '水深 ' + a.toFixed(2) + ' m' + (PD.curB ? ' · 不确定度 ±' + (PD.curB[i] || 0).toFixed(2) + ' m' : '');
+      else msg += '流速 ' + a.toFixed(2) + (PD.uomTxt || '') + (PD.curB ? ' · 流向 ' + (PD.curB[i] || 0).toFixed(0) + '°' : '');
+      el('h5-probe').textContent = msg;
+    });
+    var sel = el('h5-gsel');
+    if (sel) sel.addEventListener('change', function(){ PD.sel = parseInt(sel.value, 10) || 0; drawProduct(); });
   }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   el('h5-tree').addEventListener('click', function(ev){
@@ -1681,10 +1826,14 @@ return line + '</div>';
     status('下载内置样本中…（352KB）');
     fetch('assets/h5wasm/sample-s102.h5').then(function(r){ return r.arrayBuffer(); }).then(function(b){ handle(b, '102US00_US5NYCII.h5'); }).catch(function(e){ status('样本加载失败：' + e.message); });
   });
+  el('h5-sample111').addEventListener('click', function(){
+    status('下载内置样本中…（682KB）');
+    fetch('assets/h5wasm/sample-s111.h5').then(function(r){ return r.arrayBuffer(); }).then(function(b){ handle(b, 'S111US_CBOFS_Chesapeake.h5'); }).catch(function(e){ status('样本加载失败：' + e.message); });
+  });
   boot().then(function(){ status('引擎就绪，上传 .h5 或点「加载内置 S-102 样本」'); }).catch(function(e){ status(e.message); });
 })();
 </script>`;
-  fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-102 数据解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深表面 .h5 文件，查看结构树、属性与水深统计，基于 h5wasm（WebAssembly HDF5），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
+  fs.writeFileSync(path.join(OUT_DIR, 'h5.html'), layout('HDF5 / S-102 数据解析器', '浏览器内的 HDF5 解析器：上传 S-102 水深 / S-111 流场 .h5 文件，查看结构树与属性，自动渲染水深 / 流场热力图（可切时序帧、点选读值），基于 h5wasm（WebAssembly），文件不出本机。', H5_PAGE, 'website', `${CFG.siteUrl}/h5.html`, true));
 /* ---------------- S-100 测试数据生成器 ---------------- */
 const GEN_PAGE = `<section class="post tool-page">
 <h1 class="post-title">S-100 测试数据生成器</h1>
