@@ -602,6 +602,7 @@ if (fs.existsSync(OBJL_CSV)) {
     a: r[2],
     n: r[1],
     p: (r[7] || '').split(';').filter(Boolean).map((x) => ({ Point: '点', Line: '线', Area: '面', G: '集合' }[x] || x)),
+    at: ((r[3] || '') + ';' + (r[4] || '') + ';' + (r[5] || '')).split(';').filter(Boolean),
     cn: OBJL_CN[r[2]] || S101_EXTRA_CN[r[2]] || '',
     common: COMMON_OBJL.has(r[2]) ? 1 : 0,
   })).sort((a, b) => a.c - b.c);
@@ -613,7 +614,7 @@ if (fs.existsSync(OBJL_CSV)) {
 <label class="check"><input id="objl-common" type="checkbox"> 只看常用 ★</label></p>
 <div class="table-wrap">
 <table class="data-table">
-<thead><tr><th class="c-num">OBJL</th><th>缩写</th><th>英文名称</th><th>中文</th><th>图元</th></tr></thead>
+<thead><tr><th class="c-num">OBJL</th><th>缩写</th><th>英文名称</th><th>中文</th><th>图元</th><th>属性</th></tr></thead>
 <tbody id="objl-body"></tbody>
 </table>
 </div>
@@ -623,6 +624,8 @@ if (fs.existsSync(OBJL_CSV)) {
   var data=JSON.parse(document.getElementById("objl-data").textContent);
   var body=document.getElementById("objl-body"),q=document.getElementById("objl-search"),onlyC=document.getElementById("objl-common");
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+  // URL 深链：objl.html?objl=DEPARE 直接预填过滤
+  try { var up=new URLSearchParams(location.search).get("objl"); if(up){q.value=up;} } catch(e){}
   function render(){
     var kw=(q.value||"").trim().toLowerCase(),common=onlyC.checked,rows=[];
     for(var i=0;i<data.length;i++){var o=data[i];
@@ -633,11 +636,21 @@ if (fs.existsSync(OBJL_CSV)) {
     var html="";
     for(var j=0;j<rows.length;j++){var o2=rows[j];
       var pills="";if(o2.p&&o2.p.length){for(var w=0;w<o2.p.length;w++)pills+="<span class='pill'>"+o2.p[w]+"</span>";}
-      html+="<tr><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong>"+esc(o2.a)+"</strong>"+(o2.common?"<span class='star'>★</span>":"")+"</td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(pills||"—")+"</td></tr>";
+      var atN=o2.at?o2.at.length:0;
+      var atCell=atN?"<button class='pill at-btn' data-a='"+esc(o2.a)+"' type='button'>"+atN+" 个 ▾</button>":"—";
+      html+="<tr class='objl-row' data-code='"+esc(o2.a)+"'><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong>"+esc(o2.a)+"</strong>"+(o2.common?"<span class='star'>★</span>":"")+"</td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(pills||"—")+"</td><td>"+atCell+"</td></tr>";
+      if(atN){var chips="";for(var k2=0;k2<atN;k2++)chips+="<a class='pill' href='attr.html?att="+encodeURIComponent(o2.at[k2])+"'>"+esc(o2.at[k2])+"</a> ";
+        html+="<tr class='subrow hidden' data-for='"+esc(o2.a)+"'><td colspan='6'>"+chips+"</td></tr>";}
     }
-    body.innerHTML=html||"<tr><td colspan='5' style='padding:1rem;color:var(--muted)'>无匹配</td></tr>";
+    body.innerHTML=html||"<tr><td colspan='6' style='padding:1rem;color:var(--muted)'>无匹配</td></tr>";
     document.getElementById("objl-count").textContent=rows.length;
   }
+  body.addEventListener("click",function(ev){
+    var b=ev.target.closest(".at-btn");if(!b)return;
+    var code=b.getAttribute("data-a");
+    var sub=body.querySelector(".subrow[data-for='"+code+"']");
+    if(sub)sub.classList.toggle("hidden");
+  });
   q.addEventListener("input",render);onlyC.addEventListener("change",render);render();
 })();</script>
 </section>`;
@@ -684,6 +697,18 @@ function splitCsvLine(line) {
 }
 if (fs.existsSync(ATTR_CSV)) {
   const rows = fs.readFileSync(ATTR_CSV, 'utf8').split('\n').slice(1).filter((l) => l.trim()).map(splitCsvLine);
+  // 反向索引：属性 → 哪些对象类使用（从对象类 CSV 的 Attribute_A/B/C 汇总）
+  const objUse = {};
+  if (fs.existsSync(OBJL_CSV)) {
+    fs.readFileSync(OBJL_CSV, 'utf8').split('\n').slice(1).filter((l) => l.trim()).map(splitCsvLine)
+      .filter((r) => r.length >= 8 && /^[A-Z][A-Z0-9_]{1,7}$/.test(r[2] || ''))
+      .forEach((r) => {
+        const acr = r[2];
+        ((r[3] || '') + ';' + (r[4] || '') + ';' + (r[5] || '')).split(';').filter(Boolean).forEach((a) => {
+          (objUse[a] = objUse[a] || []).push(acr);
+        });
+      });
+  }
   const attrs = rows.filter((r) => r.length >= 5 && /^[1-9]\d{0,2}$/.test(r[0].trim())).map((r) => ({
     c: parseInt(r[0], 10),
     a: r[2].trim(),
@@ -691,6 +716,7 @@ if (fs.existsSync(ATTR_CSV)) {
     t: r[3].trim(),
     cn: ATTR_CN[r[2].trim()] || '',
     v: ATTR_VALS[r[2].trim()] || null,
+    u: objUse[r[2].trim()] || null,
   })).sort((x, y) => x.c - y.c);
   const attrBody = `<section class="post tool-page">
 <h1 class="post-title">S-57 属性码表</h1>
@@ -710,6 +736,8 @@ if (fs.existsSync(ATTR_CSV)) {
   var body=document.getElementById("attr-body"),q=document.getElementById("attr-search");
   var TN={A:"自由文本",E:"枚举",F:"格式化",I:"整数",L:"列表",S:"字符串"};
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+  // URL 深链：attr.html?att=WATLEV 直接预填过滤
+  try { var up=new URLSearchParams(location.search).get("att"); if(up){q.value=up;} } catch(e){}
   function render(){
     var kw=(q.value||"").trim().toLowerCase(),rows=[];
     for(var i=0;i<data.length;i++){var o=data[i];
@@ -721,6 +749,9 @@ if (fs.existsSync(ATTR_CSV)) {
       html+="<tr><td class='c-num'>"+o2.c+"</td><td class='c-code'><strong>"+esc(o2.a)+"</strong></td><td>"+esc(o2.n)+"</td><td>"+esc(o2.cn||"—")+"</td><td>"+(o2.t?"<span class='pill'>"+esc(TN[o2.t]||o2.t)+"</span>":"—")+"</td></tr>";
       if(o2.v){var vals="";for(var w=0;w<o2.v.length;w++)vals+=(w?"　·　":"")+esc(o2.v[w]);
         html+="<tr class='subrow'><td colspan='5'>"+vals+"</td></tr>";}
+      if(o2.u&&o2.u.length){var us="";for(var k2=0;k2<o2.u.length&&k2<12;k2++)us+="<a class='pill' href='objl.html?objl="+encodeURIComponent(o2.u[k2])+"'>"+esc(o2.u[k2])+"</a> ";
+        us+=(o2.u.length>12?"等共 "+o2.u.length+" 个对象":"");
+        html+="<tr class='subrow'><td colspan='5'><strong>用于：</strong>"+us+"</td></tr>";}
     }
     body.innerHTML=html||"<tr><td colspan='5' style='padding:1rem;color:var(--muted)'>无匹配</td></tr>";
     document.getElementById("attr-count").textContent=rows.length;
