@@ -785,6 +785,8 @@ if (fs.existsSync(S101_JSON)) {
   var data=JSON.parse(document.getElementById("s101-data").textContent);
   var body=document.getElementById("s101-body"),q=document.getElementById("s101-search");
   function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+  // URL 深链：s57-s101.html?q=DEPARE 直接预填过滤（供 fc 工具的 S-57 别名跳转）
+  try { var up=new URLSearchParams(location.search).get("q"); if(up){q.value=up;} } catch(e){}
   function render(){
     var kw=(q.value||"").trim().toLowerCase(),rows=[];
     for(var i=0;i<data.length;i++){var o=data[i];
@@ -1448,7 +1450,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
           + (o.abstract?'<p class="panel-desc">抽象类型</p>':'')
           + (o.attrs.length?'<p class="panel-desc"><strong>属性绑定</strong></p><ul class="fc-list">'+o.attrs.map(function(a){var pvs=a.pvs.length?' <span class=fc-opt>允许值: '+esc(a.pvs.join(' / '))+'</span>':''; return '<li><span class="fc-link" data-attr="'+esc(a.ref)+'"><code>'+esc(a.ref)+'</code></span> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span>'+pvs+'<span class="fc-go">查定义→</span></li>'}).join('')+'</ul>':'')
           + (o.infos.length?'<p class="panel-desc"><strong>信息绑定</strong></p><ul class="fc-list">'+o.infos.map(function(a){return '<li><code>'+esc(a.ref)+'</code> <span class="'+multCls(a.mult)+'">'+esc(a.mult)+'</span> '+(a.role?esc(a.role):'')+'</li>'}).join('')+'</ul>':'');
-        return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+esc(o.alias||'—')+'</td><td>'+esc(o.name)+'</td><td>'+o.attrs.length+'</td><td>'+o.infos.length+'</td></tr>';
+        return '<tr class="fc-row" data-det="'+esc(det)+'"><td class="c-code"><strong>'+esc(o.code)+'</strong></td><td>'+(o.alias?'<a href="s57-s101.html?q='+encodeURIComponent(o.alias)+'" title="在 S-57 ↔ S-101 对照表中查看 '+esc(o.alias)+'">'+esc(o.alias)+'</a>':'—')+'</td><td>'+esc(o.name)+'</td><td>'+o.attrs.length+'</td><td>'+o.infos.length+'</td></tr>';
       }).join('');
       document.getElementById('fc-count').textContent=list.length;
     } else if (TAB==='attr') {
@@ -1481,6 +1483,8 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
     TAB = p.dataset.tab; applyTab();
   });
   document.getElementById('fc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
+  // URL 深链：fc.html?q=ANCH 直接预填过滤
+  try { var upq = new URLSearchParams(location.search).get('q'); if (upq) { document.getElementById('fc-q').value = upq; Q = upq.toLowerCase(); } } catch(e) {}
   function jumpAttr(code){
     TAB='attr';
     [].slice.call(document.querySelectorAll('#fc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x.dataset.tab==='attr')});
