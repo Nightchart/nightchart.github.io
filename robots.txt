@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nightchart.github.io/sitemap.xml
+Sitemap: https://nightchart.cn/sitemap.xml
