@@ -951,6 +951,33 @@ if (fs.existsSync(WMM_COF)) {
 <div id="dd-out" class="result" aria-live="polite"></div>
 </section>
 
+<section class="panel">
+<h2>WGS84 ↔ GCJ02（火星坐标）</h2>
+<p class="panel-desc">国测局 GCJ02 加密偏移：高德 / 腾讯等国内在线底图用它，直接叠 WGS84 数据会整体偏移数百米。偏移算法为公开通用实现；反算（GCJ02 → WGS84）为迭代近似，误差亚米级；境外坐标原样返回。</p>
+<div class="field-row">
+<label class="field"><span>纬度 °N</span><input id="gj-lat" class="input" type="number" step="0.000001" value="31.2304" style="width:8rem"></label>
+<label class="field"><span>经度 °E</span><input id="gj-lon" class="input" type="number" step="0.000001" value="121.4737" style="width:8rem"></label>
+<label class="field"><span>方向</span><select id="gj-dir" class="select"><option value="w2g">WGS84 → GCJ02</option><option value="g2w">GCJ02 → WGS84</option></select></label>
+<button id="gj-go" class="btn" type="button">转换</button>
+</div>
+<div id="gj-out" class="result" aria-live="polite"></div>
+</section>
+
+<section class="panel">
+<h2>批量转换（WGS84 ↔ GCJ02）</h2>
+<p class="panel-desc">每行一个点，<code>纬度,经度</code> 逗号分隔；支持十进制度，也直接吃 <code>31°13′49.4″N</code> 这类度分秒文本（N/S/E/W 自动判半球）。结果可一键复制，方便粘进 Excel。最多 500 行。</p>
+<div class="field-row">
+<label class="field"><span>方向</span><select id="bt-dir" class="select"><option value="w2g">WGS84 → GCJ02</option><option value="g2w">GCJ02 → WGS84</option></select></label>
+<button id="bt-go" class="btn" type="button">批量转换</button>
+<button id="bt-copy" class="btn" type="button">复制输出列</button>
+</div>
+<label class="field" style="width:100%"><span>输入坐标（每行一个点）</span><textarea id="bt-in" class="input" rows="7" style="width:100%;font-family:ui-monospace,Consolas,monospace;resize:vertical">31.2304,121.4737
+39.9042,116.4074
+22.5431,114.0579
+55.7558,37.6173</textarea></label>
+<div id="bt-out" class="result" aria-live="polite"></div>
+</section>
+
 <p class="tool-foot">配套：<a href="objl.html">对象类码表</a> · <a href="attr.html">属性码表</a> · <a href="tools.html">← 更多工具</a> · <a href="index.html">返回目录</a></p>
 
 <script id="wmm-data" type="application/json">${JSON.stringify(WMM_DATA)}</script>
@@ -1056,9 +1083,68 @@ function ddF(){
 }
 $("ds-go").addEventListener("click",dsF);dsF();
 $("dd-back").addEventListener("click",ddF);ddF();
+/* WGS84 ↔ GCJ02（火星坐标）——公开通用偏移算法，反算用 3 轮迭代近似 */
+var GCJ_A=6378245.0,GCJ_EE=0.00669342162296594;
+function gjOut(lat,lon){return !(lon>73.66&&lon<135.05&&lat>3.86&&lat<53.55)}
+function gjTLat(x,y){var r=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y*Math.PI/30))*2/3;return r}
+function gjTLon(x,y){var r=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3;return r}
+function gjDelta(lat,lon){var dLa=gjTLat(lon-105,lat-35),dLo=gjTLon(lon-105,lat-35);var rLa=lat/180*Math.PI,m=Math.sin(rLa);m=1-GCJ_EE*m*m;var sq=Math.sqrt(m);dLa=dLa*180/((GCJ_A*(1-GCJ_EE))/(m*sq)*Math.PI);dLo=dLo*180/(GCJ_A/sq*Math.cos(rLa)*Math.PI);return[dLa,dLo]}
+function gjDist(lat,lon,d){var mLa=d[0]*Math.PI/180*6378137,mLo=d[1]*Math.PI/180*6378137*Math.cos(lat*Math.PI/180);return Math.hypot(mLa,mLo)}
+function wgs2gcj(lat,lon){if(gjOut(lat,lon))return[lat,lon,0];var d=gjDelta(lat,lon);return[lat+d[0],lon+d[1],gjDist(lat,lon,d)]}
+function gcj2wgs(lat,lon){if(gjOut(lat,lon))return[lat,lon,0];var a=lat,o=lon,i,d;for(i=0;i<3;i++){d=gjDelta(a,o);a=lat-d[0];o=lon-d[1]}return[a,o,gjDist(lat,lon,[lat-a,lon-o])]}
+function gjF(){
+  var lat=parseFloat($("gj-lat").value),lon=parseFloat($("gj-lon").value);
+  if(isNaN(lat)||isNaN(lon)){$("gj-out").textContent="请输入有效的经纬度";return}
+  var w2g=$("gj-dir").value==="w2g",r=w2g?wgs2gcj(lat,lon):gcj2wgs(lat,lon);
+  var off=r[2]<0.5?"（境外坐标，原样返回）":"，加密偏移约 <strong>"+Math.round(r[2])+"</strong> m";
+  $("gj-out").innerHTML=(w2g?"GCJ02":"WGS84")+" = <strong>"+r[0].toFixed(6)+", "+r[1].toFixed(6)+"</strong>"+off;
+}
+$("gj-go").addEventListener("click",gjF);gjF();
+/* 批量转换：每行「纬度,经度」，十进制度或度分秒文本均可 */
+function toDD(s){
+  s=String(s).trim();
+  if(/^[+-]?\\d+(\\.\\d+)?$/.test(s))return parseFloat(s);
+  var nums=s.match(/\\d+(\\.\\d+)?/g);
+  if(!nums||!nums.length)return NaN;
+  var v=0,mul=1,i;
+  for(i=0;i<Math.min(nums.length,3);i++){v+=parseFloat(nums[i])*mul;mul/=60}
+  if(/[SW]/i.test(s))v=-v;
+  return v;
+}
+function dsStr(x){return x.d+"°"+String(x.m).padStart(2,"0")+"′"+String(x.s).padStart(2,"0")+"″ "+x.h}
+var btRows=[];
+function btF(){
+  var lines=$("bt-in").value.split("\\n").filter(function(l){return l.trim()});
+  var w2g=$("bt-dir").value==="w2g";
+  var rows=[],ok=0,bad=0,i,parts,la,lo,r,A,B,trunc=lines.length>500;
+  if(trunc)lines=lines.slice(0,500);
+  for(i=0;i<lines.length;i++){
+    parts=lines[i].split(/[,，\\t]/);
+    if(parts.length<2){bad++;rows.push([lines[i],"","","行内不足两个值"]);continue}
+    la=toDD(parts[0]);lo=toDD(parts[1]);
+    if(isNaN(la)||isNaN(lo)){bad++;rows.push([lines[i],"","","无法解析"]);continue}
+    r=w2g?wgs2gcj(la,lo):gcj2wgs(la,lo);ok++;
+    A=dms(la);B=dms(lo);B.h=lo>=0?"E":"W";
+    rows.push([la.toFixed(6)+","+lo.toFixed(6),r[0].toFixed(6)+","+r[1].toFixed(6),dsStr(A)+" / "+dsStr(B),gjOut(la,lo)?"境外":Math.round(r[2])+" m"]);
+  }
+  btRows=rows;
+  var html="<table class='ctable' style='width:auto'><thead><tr><th>#</th><th>输入（纬度,经度）</th><th>输出（纬度,经度）</th><th>度分秒</th><th>偏移</th></tr></thead><tbody>";
+  for(i=0;i<rows.length;i++){html+="<tr><td>"+(i+1)+"</td><td>"+esc(rows[i][0])+"</td><td><strong>"+esc(rows[i][1])+"</strong></td><td>"+esc(rows[i][2])+"</td><td>"+esc(rows[i][3])+"</td></tr>"}
+  html+="</tbody></table><p class='panel-desc' style='margin:8px 0 0'>成功 "+ok+" 条"+(bad?" · 跳过 "+bad+" 条":"")+(trunc?" · 已截断为前 500 行":"")+"</p>";
+  $("bt-out").innerHTML=html;
+}
+$("bt-go").addEventListener("click",btF);btF();
+$("bt-copy").addEventListener("click",function(){
+  if(!btRows.length)return;
+  var t="";
+  for(var i=0;i<btRows.length;i++){if(btRows[i][1])t+=btRows[i][0]+"→"+btRows[i][1]+"\\n"}
+  function done(){$("bt-copy").textContent="已复制 ✓";setTimeout(function(){$("bt-copy").textContent="复制输出列"},1500)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,function(){fallback()})}else fallback();
+  function fallback(){var ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){}document.body.removeChild(ta)}
+});
 </script>
 </section>`;
-  fs.writeFileSync(path.join(OUT_DIR, 'geo-calc.html'), layout('坐标 / 磁差速算', '在线坐标投影与磁差速算：经纬度 ↔ Web 墨卡托 / UTM / 高斯-克吕格 3°带双向换算，WMM2025 磁差在线计算，纯前端离线可用。', geoBody, 'website', `${CFG.siteUrl}/geo-calc.html`, true));
+  fs.writeFileSync(path.join(OUT_DIR, 'geo-calc.html'), layout('坐标 / 磁差速算', '在线坐标投影与磁差速算：经纬度 ↔ Web 墨卡托 / UTM / 高斯-克吕格 3°带 / 度分秒 / GCJ02 火星坐标双向换算（支持批量），WMM2025 磁差在线计算，纯前端离线可用。', geoBody, 'website', `${CFG.siteUrl}/geo-calc.html`, true));
 }
 
 /* ---------------- S-52 颜色与符号速查页 ---------------- */
