@@ -1387,7 +1387,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
 </p>
 <p class="toolbar hidden" id="fc-searchbar"><span class="search"><input id="fc-q" class="search-input" type="search" placeholder="过滤：如 DEPARE / Anchorage / 深度…" aria-label="过滤目录"></span><span class="panel-desc" style="margin:0">命中 <span id="fc-count">0</span> 条 · 点击行展开明细</span></p>
 <div class="table-wrap hidden" id="fc-tablewrap"><table class="data-table"><thead id="fc-head"></thead><tbody id="fc-body"></tbody></table></div>
-<p class="panel-desc hidden" id="fc-foot">解析在你的浏览器本地完成，文件不会上传到任何服务器。内置样本为 IHO S-101 Feature Catalogue 2.0.0（2024-10-16），版权归 IHO，仅作开发参考。</p>
+<p class="panel-desc hidden" id="fc-foot">解析在你的浏览器本地完成，文件不会上传到任何服务器。内置样本为 IHO S-101 Feature Catalogue 2.0.0（2024-10-16），版权归 IHO，仅作开发参考。支持把目录 XML 直接拖到页面任意位置上传。</p>
 </section>
 <script>
 (function(){
@@ -1510,6 +1510,16 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
     rd.onload = function(){ try { FC = parseFC(rd.result); document.getElementById('fc-status').textContent = '已加载：' + f.name; render(); } catch(err){ document.getElementById('fc-status').textContent = err.message; } };
     rd.readAsText(f);
   });
+  ['dragover','dragenter'].forEach(function(t){ document.body.addEventListener(t, function(e){ e.preventDefault(); }); });
+  document.body.addEventListener('drop', function(e){
+    e.preventDefault();
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    document.getElementById('fc-status').textContent = '解析中…';
+    rd.onload = function(){ try { FC = parseFC(rd.result); document.getElementById('fc-status').textContent = '已加载：' + f.name; render(); } catch(err){ document.getElementById('fc-status').textContent = err.message; } };
+    rd.readAsText(f);
+  });
   document.getElementById('fc-sample').addEventListener('click', loadSample);
   function loadSample(){
     document.getElementById('fc-status').textContent = '加载内置样本中…（约 2MB）';
@@ -1537,7 +1547,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
-<p class="panel-desc hidden" id="pc-foot">Look-up 规则文件不在公开分发件内，本工具解析目录索引、符号注册表与颜色配置。内置样本版权归 IHO，仅作开发参考；解析在浏览器本地完成。</p>
+<p class="panel-desc hidden" id="pc-foot">Look-up 规则文件不在公开分发件内，本工具解析目录索引、符号注册表与颜色配置。内置样本版权归 IHO，仅作开发参考；解析在浏览器本地完成。支持把 XML 直接拖到页面任意位置上传。</p>
 </section>
 <script>var PC_FILES = ${JSON.stringify(PC_STYLES.concat(PC_AREAS))};</script>
 <script>
@@ -1635,6 +1645,16 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     rd.onload=function(){ try { var kind=parseAny(rd.result); document.getElementById('pc-status').textContent='已加载：'+f.name+'（'+kind+'）'; showLoaded(kind); } catch(err){ document.getElementById('pc-status').textContent=err.message; } };
     rd.readAsText(f);
   });
+  ['dragover','dragenter'].forEach(function(t){ document.body.addEventListener(t, function(e){ e.preventDefault(); }); });
+  document.body.addEventListener('drop', function(e){
+    e.preventDefault();
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    document.getElementById('pc-status').textContent = '解析中…';
+    rd.onload = function(){ try { var kind = parseAny(rd.result); document.getElementById('pc-status').textContent = '已加载：' + f.name + '（' + kind + '）'; showLoaded(kind); } catch(err){ document.getElementById('pc-status').textContent = err.message; } };
+    rd.readAsText(f);
+  });
   function showLoaded(kind){
     ['pc-stats','pc-tabs','pc-searchbar','pc-tablewrap','pc-foot'].forEach(function(id){document.getElementById(id).classList.remove('hidden')});
     var map={index:'idx', colors:'col', alerts:'alert'};
@@ -1723,7 +1743,7 @@ const H5_PAGE = `<section class="post tool-page">
 <p>S-100 系列网格产品（S-102 水深 / S-111 表层流场）是 HDF5 格式。把 .h5 文件拖进来：除结构树、属性与数值统计外，识别到标准结构时会自动渲染<strong>热力图</strong>——S-102 按水深着色（区分干出与填充值），S-111 按流速着色并叠加流向箭头，多时序帧可下拉切换，点选网格任意位置读取单元数值。</p>
 <p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><button id="h5-sample111" class="btn" type="button">加载内置 S-111 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
 <div id="h5-out" class="hidden"><div id="h5-stats" class="fc-stats"></div><div id="h5-s102"></div><div id="h5-tree" class="h5-tree"></div></div>
-<p class="panel-desc hidden" id="h5-foot">解析由 WebAssembly 版 HDF5（h5wasm，NIST 出品）在你的浏览器本地完成，文件不会上传。超大数据集（元素数超 400 万）只显示形状与属性，不展开数值。</p>
+<p class="panel-desc hidden" id="h5-foot">解析由 WebAssembly 版 HDF5（h5wasm，NIST 出品）在你的浏览器本地完成，文件不会上传。超大数据集（元素数超 400 万）只显示形状与属性，不展开数值。也可把 .h5 文件直接拖到页面任意位置上传。</p>
 </section>
 <script src="assets/h5wasm/h5wasm.js"></script>
 <script>
@@ -2011,6 +2031,16 @@ const H5_PAGE = `<section class="post tool-page">
   el('h5-sample111').addEventListener('click', function(){
     status('下载内置样本中…（682KB）');
     fetch('assets/h5wasm/sample-s111.h5').then(function(r){ return r.arrayBuffer(); }).then(function(b){ handle(b, 'S111US_CBOFS_Chesapeake.h5'); }).catch(function(e){ status('样本加载失败：' + e.message); });
+  });
+  ['dragover','dragenter'].forEach(function(t){ document.body.addEventListener(t, function(e){ e.preventDefault(); }); });
+  document.body.addEventListener('drop', function(e){
+    e.preventDefault();
+    var f2 = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (!f2) return;
+    status('已接收拖拽文件：' + f2.name);
+    var rd = new FileReader();
+    rd.onload = function(){ handle(rd.result, f2.name); };
+    rd.readAsArrayBuffer(f2);
   });
   boot().then(function(){ status('引擎就绪，上传 .h5 或点「加载内置 S-102 样本」'); }).catch(function(e){ status(e.message); });
 })();
