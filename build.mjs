@@ -1413,6 +1413,9 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
 
 /* ---------------- S-100 图示表达解析器 ---------------- */
 if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portrayal_catalogue.xml'))) {
+  const pcAssetDir = path.join(ROOT, 'assets', 's100-pc');
+  const PC_STYLES = fs.readdirSync(pcAssetDir).filter(function(f){ return f.indexOf('PortrayalCatalog_LineStyles_') === 0; }).sort();
+  const PC_AREAS = fs.readdirSync(pcAssetDir).filter(function(f){ return f.indexOf('PortrayalCatalog_AreaFills_') === 0; }).sort();
   const pcBody = `<section class="post tool-page">
 <h1 class="post-title">S-100 图示表达解析器</h1>
 <div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Portrayal Catalogue 2.0.0（符号注册表 + 颜色配置）· 支持上传目录/颜色配置/告警目录 XML</div>
@@ -1420,12 +1423,13 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml" hidden></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
-<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="alert" type="button">告警目录</button>
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button>
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
 <p class="panel-desc hidden" id="pc-foot">Look-up 规则文件不在公开分发件内，本工具解析目录索引、符号注册表与颜色配置。内置样本版权归 IHO，仅作开发参考；解析在浏览器本地完成。</p>
 </section>
+<script>var PC_FILES = ${JSON.stringify(PC_STYLES.concat(PC_AREAS))};</script>
 <script>
 (function(){
   var IDX=null, CP=null, AL=null;
@@ -1490,6 +1494,15 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       head.innerHTML='<tr><th>ID</th><th>名称</th><th>说明</th></tr>';
       body.innerHTML=list.map(function(a){return '<tr><td class="c-code"><strong>'+esc(a.id)+'</strong></td><td>'+esc(a.name)+'</td><td>'+esc(a.desc)+'</td></tr>'}).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=list.length;
+    } else if (TAB==='pat') {
+      if (!window.PAT) { loadPat(); return; }
+      var plist = window.PAT.list.filter(function(p2){ return !q || (p2.name+' '+p2.expo).toLowerCase().indexOf(q)>=0; });
+      head.innerHTML='<tr><th>名称</th><th>类型</th><th>说明</th><th style="min-width:240px">预览</th></tr>';
+      body.innerHTML=plist.map(function(p2){
+        return '<tr><td class="c-code"><strong>'+esc(p2.name)+'</strong></td><td>'+(p2.kind==='line'?'线型':(p2.kind==='fill'?'面填充':'?'))+'</td><td class="fc-opt">'+esc(p2.expo)+'</td><td>'+(p2.kind==='line'?'<canvas class="pat-cv" data-f="'+esc(p2.file)+'" width="240" height="26" style="display:block"></canvas>':'<span class="fc-opt">符号平铺：'+esc(p2.sym||'—')+'</span>')+'</td></tr>';
+      }).join('') || '<tr><td colspan="4" class="not-conv">无匹配</td></tr>';
+      document.getElementById('pc-count').textContent=plist.length;
+      plist.forEach(function(p2){ if(p2.kind==='line' && p2.parsed) drawLinePreview(document.querySelector('.pat-cv[data-f="'+p2.file+'"]'), p2.parsed); });
     } else {
       head.innerHTML=''; body.innerHTML='';
     }
@@ -1520,6 +1533,65 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     applyTab();
   }
   document.getElementById('pc-sample').addEventListener('click', loadSample);
+  var PAT=null;
+  function drawLinePreview(cv, st){
+    if (!cv || !st) return;
+    var ctx = cv.getContext('2d');
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var pal = (CP && CP.pal && CP.pal.Day) || {};
+    var hex = pal[st.color] || '#888888';
+    var y = cv.height/2, W = cv.width, span = st.interval || 32, ppu = W/(span*1.15);
+    ctx.strokeStyle = '#c9c5bb'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,y+9); ctx.lineTo(W,y+9); ctx.stroke();
+    ctx.strokeStyle = hex;
+    ctx.lineWidth = Math.max(1.6, Math.min(5, st.width*2.2));
+    ctx.lineCap = 'butt';
+    var dashes = st.dashes.length ? st.dashes : [{start:0,length:span}];
+    var reps = Math.ceil(W/(span*ppu)) + 1;
+    for (var ri=0; ri<reps; ri++){
+      for (var di=0; di<dashes.length; di++){
+        var d0=dashes[di], x0=(d0.start+ri*span)*ppu, x1=(d0.start+ri*span+d0.length)*ppu;
+        if (x1 < 0 || x0 > W) continue;
+        ctx.beginPath(); ctx.moveTo(Math.max(0,x0), y); ctx.lineTo(Math.min(W,x1), y); ctx.stroke();
+      }
+    }
+  }
+  function parsePatText(txt2){
+    var mh = txt2.match(/S100Meta name="([^"]+)" exposition="([^"]*)"/) || [];
+    var out = { name: mh[1]||'', expo: mh[2]||'' };
+    if (txt2.indexOf('lineStyle')>=0) {
+      out.kind='line';
+      out.interval = parseFloat((txt2.match(/<intervalLength>([0-9.]+)</)||[])[1]||'32') || 32;
+      out.width = parseFloat((txt2.match(/<pen width="([0-9.]+)"/)||[])[1]||'0.3') || 0.3;
+      out.color = (txt2.match(/<color>([A-Z0-9]+)<\\/color>/)||[])[1]||'';
+      out.dashes = [];
+      var dre = /<dash><start>([0-9.]+)<\\/start><length>([0-9.]+)<\\/length><\\/dash>/g, dm;
+      while ((dm = dre.exec(txt2))) out.dashes.push({start:parseFloat(dm[1]), length:parseFloat(dm[2])});
+    } else if (txt2.indexOf('symbolFill')>=0) {
+      out.kind='fill';
+      var sr = txt2.match(/<symbol reference="([^"]+)"/);
+      out.sym = sr ? sr[1] : '';
+    } else out.kind='?';
+    return out;
+  }
+  function loadPat(){
+    document.getElementById('pc-body').innerHTML = '<tr><td class="not-conv">加载 '+PC_FILES.length+' 个线型 / 填充文件中…</td></tr>';
+    var jobs = PC_FILES.map(function(f2){
+      return fetch('assets/s100-pc/'+f2).then(function(r){ return r.text(); }).then(function(t2){
+        var p2 = parsePatText(t2);
+        p2.file = f2;
+        if (f2.indexOf('_LineStyles_')===0) p2.kind='line';
+        else if (f2.indexOf('_AreaFills_')===0) p2.kind='fill';
+        if (p2.kind==='line') p2.parsed = { interval: p2.interval, width: p2.width, color: p2.color, dashes: p2.dashes };
+        return p2;
+      }).catch(function(){ return {file:f2, name:f2.replace('PortrayalCatalog_LineStyles_','').replace('PortrayalCatalog_AreaFills_','').replace('.xml',''), expo:'', kind:'?'}; });
+    });
+    Promise.all(jobs).then(function(rs){
+      rs.sort(function(a2,b2){ return a2.name<b2.name?-1:1; });
+      window.PAT = { list: rs };
+      applyTab();
+    });
+  }
   function loadSample(){
     document.getElementById('pc-status').textContent='加载内置样本中…';
     Promise.all([
