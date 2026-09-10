@@ -536,9 +536,11 @@ if (fs.existsSync(path.join(ROOT, GV_FILE))) {
   fs.copyFileSync(path.join(ROOT, GV_FILE), path.join(OUT_DIR, GV_FILE));
 }
 // IndexNow 密钥文件（Bing/Yandex 实时推送协议的站点所有权验证，update-indexnow.mjs 使用）
-const IN_KEY = 'indexnow-key.txt';
-if (fs.existsSync(path.join(ROOT, IN_KEY))) {
-  fs.copyFileSync(path.join(ROOT, IN_KEY), path.join(OUT_DIR, IN_KEY));
+// 规范要求密钥文件必须以 {密钥}.txt 命名（update-indexnow.mjs 的 keyLocation 指向它）
+const IN_KEY_FILE = 'indexnow-key.txt';
+if (fs.existsSync(path.join(ROOT, IN_KEY_FILE))) {
+  const inKey = fs.readFileSync(path.join(ROOT, IN_KEY_FILE), 'utf8').trim();
+  fs.writeFileSync(path.join(OUT_DIR, `${inKey}.txt`), inKey);
 }
 // 搜索引擎所有权验证文件（如 baidu_verify_*.html），命名匹配即复制
 const verifyFiles = fs.readdirSync(ROOT).filter((f) => /^baidu_verify_.+\.html$/.test(f));
