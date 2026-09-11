@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="300" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="30" y="38" font-size="16" font-weight="bold" fill="#33312c">手点一遍建立直觉，之后交给像素 diff 循环</text>
+
+  <defs>
+    <marker id="a2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#0f6d5f"/>
+    </marker>
+  </defs>
+
+  <g font-size="13">
+    <rect x="34" y="70" width="140" height="64" rx="8" fill="#eef4f2" stroke="#0f6d5f"/>
+    <text x="50" y="95" font-weight="bold" fill="#0f6d5f">① 装底座</text>
+    <text x="50" y="116" fill="#4e6d67" font-size="12">OpenCPN + 数据集</text>
+
+    <rect x="200" y="70" width="140" height="64" rx="8" fill="#eef4f2" stroke="#0f6d5f"/>
+    <text x="216" y="95" font-weight="bold" fill="#0f6d5f">② 逐份应用更新</text>
+    <text x="216" y="116" fill="#4e6d67" font-size="12">看每次画面变化</text>
+
+    <rect x="366" y="70" width="140" height="64" rx="8" fill="#eef4f2" stroke="#0f6d5f"/>
+    <text x="382" y="95" font-weight="bold" fill="#0f6d5f">③ 对照预期</text>
+    <text x="382" y="116" fill="#4e6d67" font-size="12">三大翻车点排查</text>
+
+    <rect x="532" y="70" width="140" height="64" rx="8" fill="#eef4f2" stroke="#0f6d5f"/>
+    <text x="548" y="95" font-weight="bold" fill="#0f6d5f">④ 数据侧核对</text>
+    <text x="548" y="116" fill="#4e6d67" font-size="12">GDAL 分清两类错</text>
+
+    <rect x="698" y="70" width="140" height="64" rx="8" fill="#eef4f2" stroke="#0f6d5f"/>
+    <text x="714" y="95" font-weight="bold" fill="#0f6d5f">⑤ 记错题本</text>
+    <text x="714" y="116" fill="#4e6d67" font-size="12">沉淀为回归用例</text>
+  </g>
+
+  <g stroke="#0f6d5f" stroke-width="1.6" fill="none">
+    <path d="M174 102 H 200" marker-end="url(#a2)"/>
+    <path d="M340 102 H 366" marker-end="url(#a2)"/>
+    <path d="M506 102 H 532" marker-end="url(#a2)"/>
+    <path d="M672 102 H 698" marker-end="url(#a2)"/>
+  </g>
+
+  <!-- 下：自动化循环 -->
+  <rect x="150" y="180" width="560" height="84" rx="10" fill="#ffffff" stroke="#b45309" stroke-width="1.5"/>
+  <text x="180" y="212" font-size="15" font-weight="bold" fill="#b45309">像素 diff 回归（第三遍手点开始就交给它）</text>
+  <g font-size="13" fill="#33312c">
+    <text x="180" y="240">固定输入 + 固定渲染 → 截基准图 → 每次代码变动重画同一帧 →</text>
+    <text x="180" y="258">逐像素差分（容差内忽略）→ 差异区域高亮 = 本次改动的影响清单</text>
+  </g>
+  <g stroke="#b45309" stroke-width="1.4" fill="none" stroke-dasharray="5 4">
+    <path d="M710 180 C 710 150, 430 140, 436 134" marker-end="url(#a2)"/>
+  </g>
+</svg>
