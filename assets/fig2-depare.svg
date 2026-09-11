@@ -26,7 +26,7 @@
   <text x="600" y="132" text-anchor="middle" font-size="13.5" fill="#666666">着色</text>
 
   <rect x="629" y="70" width="180" height="150" rx="8" fill="#ffffff" stroke="#0f6d5f" stroke-width="1.5"/>
-  <polygon points="655,185 668,125 740,115 786,150 768,192 668,198" fill="#aad3f2" stroke="#5a8fbe" stroke-width="1.5"/>
+  <polygon points="655,185 668,125 740,115 786,150 768,192 668,198" fill="#629acb" stroke="#3d6f9f" stroke-width="1.5"/>
   <text x="719" y="245" text-anchor="middle" font-size="14" fill="#444444">浅水色（昼）</text>
 
   <text x="430" y="288" text-anchor="middle" font-size="15.5" fill="#333333">数据里没有颜色：颜色是按 S-52 规则查表得到的</text>
