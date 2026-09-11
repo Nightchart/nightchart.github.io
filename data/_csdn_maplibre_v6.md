@@ -31,8 +31,7 @@ MapLibre 社区在 7 月迎来了一个重要节点：**MapLibre GL JS v6 正式
 
 ---
 
-**相关阅读**：本博客的 MapLibre 系列源码走读文章持续更新中，下一篇是《mbgl 架构总览：线程模型、瓦片调度与渲染管线》。
-
+**相关阅读**：更多 MapLibre / 海图渲染源码走读，见博客「航图笔记」：https://nightchart.cn
 ---
 
 原文：MapLibre Newsletter July 2026（https://maplibre.org/news/2026-08-02-maplibre-newsletter-july-2026/）
