@@ -19,32 +19,32 @@
   <!-- DAY -->
   <rect x="338" y="60" width="150" height="240" rx="8" fill="#ffffff" stroke="#cccccc"/>
   <text x="413" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#333333">DAY 昼</text>
-  <rect x="358" y="108" width="110" height="40" rx="4" fill="#d9cfae"/>
-  <text x="413" y="133" text-anchor="middle" font-size="12.5" fill="#5a5340">陆地</text>
-  <rect x="358" y="158" width="110" height="40" rx="4" fill="#aad3f5"/>
-  <text x="413" y="183" text-anchor="middle" font-size="12.5" fill="#33566b">浅水</text>
-  <rect x="358" y="208" width="110" height="40" rx="4" fill="#1a1a1a"/>
+  <rect x="358" y="108" width="110" height="40" rx="4" fill="#6a7577"/>
+  <text x="413" y="133" text-anchor="middle" font-size="12.5" fill="#f0f2f3">陆地</text>
+  <rect x="358" y="158" width="110" height="40" rx="4" fill="#629acb"/>
+  <text x="413" y="183" text-anchor="middle" font-size="12.5" fill="#f2f7fc">浅水</text>
+  <rect x="358" y="208" width="110" height="40" rx="4" fill="#070707"/>
   <text x="413" y="233" text-anchor="middle" font-size="12.5" fill="#eeeeee">黑</text>
 
   <!-- DUSK -->
   <rect x="508" y="60" width="150" height="240" rx="8" fill="#ffffff" stroke="#cccccc"/>
   <text x="583" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#333333">DUSK 昏</text>
-  <rect x="528" y="108" width="110" height="40" rx="4" fill="#8a8578"/>
+  <rect x="528" y="108" width="110" height="40" rx="4" fill="#363c3d"/>
   <text x="583" y="133" text-anchor="middle" font-size="12.5" fill="#f0efe9">陆地</text>
-  <rect x="528" y="158" width="110" height="40" rx="4" fill="#4a7fae"/>
+  <rect x="528" y="158" width="110" height="40" rx="4" fill="#16232f"/>
   <text x="583" y="183" text-anchor="middle" font-size="12.5" fill="#eaf1f7">浅水</text>
-  <rect x="528" y="208" width="110" height="40" rx="4" fill="#111111"/>
+  <rect x="528" y="208" width="110" height="40" rx="4" fill="#363c3d"/>
   <text x="583" y="233" text-anchor="middle" font-size="12.5" fill="#dddddd">黑</text>
 
   <!-- NIGHT -->
   <rect x="678" y="60" width="150" height="240" rx="8" fill="#26282b" stroke="#444444"/>
   <text x="753" y="90" text-anchor="middle" font-size="16" font-weight="bold" fill="#f0f0f0">NIGHT 夜</text>
-  <rect x="698" y="108" width="110" height="40" rx="4" fill="#5c5e60"/>
+  <rect x="698" y="108" width="110" height="40" rx="4" fill="#1f2223"/>
   <text x="753" y="133" text-anchor="middle" font-size="12.5" fill="#f0f0f0">陆地</text>
-  <rect x="698" y="158" width="110" height="40" rx="4" fill="#2e4a5e"/>
+  <rect x="698" y="158" width="110" height="40" rx="4" fill="#030413"/>
   <text x="753" y="183" text-anchor="middle" font-size="12.5" fill="#d8e4ec">浅水</text>
-  <rect x="698" y="208" width="110" height="40" rx="4" fill="#e8e8e8"/>
-  <text x="753" y="233" text-anchor="middle" font-size="12.5" fill="#333333">黑→白</text>
+  <rect x="698" y="208" width="110" height="40" rx="4" fill="#1f2223"/>
+  <text x="753" y="233" text-anchor="middle" font-size="12.5" fill="#c9d1d5">黑</text>
 
-  <text x="430" y="345" text-anchor="middle" font-size="14.5" fill="#666666">切色盘 = 同一批命名色 token 换一套 RGB（示意色值，非 IHO 标准值；注意 CHBLK 夜间翻白）</text>
+  <text x="430" y="345" text-anchor="middle" font-size="14.5" fill="#666666">切色盘 = 同一批命名色 token 换一套 RGB（图中为 IHO 色表真实色值；注意夜板里 CHBLK 并不翻白，只比水面背景亮一档）</text>
 </svg>
