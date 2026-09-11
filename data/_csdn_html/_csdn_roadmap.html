@@ -6,7 +6,7 @@
 <p><img src="https://nightchart.cn/assets/fig1-standards-map.svg" alt="S-57、S-52、S-100 三者关系示意图" loading="lazy"></p>
 <p><em>图 1：S-57 管数据，S-52 管显示，S-100 是承载新产品族的下一代框架</em></p>
 <p>这篇文章把三者的关系讲清楚，文末给一条可执行的学习路线。</p>
-<h2 id="sec-1">S-57：海图的&quot;数据库表结构&quot;</h2>
+<h2>S-57：海图的&quot;数据库表结构&quot;</h2>
 <p>一句话概括：S-57 规定了海图数据的组织方式和交换格式。</p>
 <p>心智模型很简单——<strong>整张海图就是一堆&quot;要素&quot;（Feature）</strong>，每个要素由三部分组成：</p>
 <ul><li><strong>对象类（OBJL）</strong>：这是一个字典化的枚举，比如 DEPARE（深度区）、SOUNDG（水深点组）、COALNE（海岸线）、WRECKS（沉船）。每个对象类有唯一编码，全世界的 ECDIS 都按同一本字典解析。</li><li><strong>属性（ATTF）</strong>：挂在对对象上的键值对。比如 DEPARE 带 DRVAL1/DRVAL2（这个深度区的最小/最大水深），SOUNDG 带 VALSOU（水深值）。</li><li><strong>几何</strong>：只有点、线、面三种。而且要素之间存在拓扑——相邻两个深度区共享同一条边界。这也解释了为什么 S-57 数据里&quot;边&quot;要单独存，不是每个面各存一份。</li></ul>
@@ -16,7 +16,7 @@
 <p>交换层面，一个 ENC 交换集通常长这样：一个目录文件（CATALOG.031）+ 基础单元（<code>.000</code>）+ 若干增量更新文件（<code>.001</code>、<code>.002</code>……）。注意更新不是重发一张新图，而是&quot;增/删/改&quot;记录的序列，接收端必须按序正确应用——实际工程里相当一部分坑都出在更新机制上。</p>
 <p>另外还有一类 <code>M_</code> 开头的元要素（如 M_COVR 图幅覆盖范围、M_QUAL 数据质量），它们不参与常规渲染，但 ECDIS 必须特殊处理，忽略它们是新手最常见的第一个 bug。</p>
 <p>给开发者的捷径：<strong>先别啃标准的 ISO 8211 封装层</strong>。用 GDAL 的 S-57 驱动把 ENC 转成 GeoJSON 或者塞进数据库，对着真实数据翻对象目录，比干读 PDF 快十倍。</p>
-<h2 id="sec-2">S-52：把数据库&quot;翻译&quot;成屏幕</h2>
+<h2>S-52：把数据库&quot;翻译&quot;成屏幕</h2>
 <p>一句话概括：S-52 规定了每个要素画成什么样，而且细到色值和像素。</p>
 <p>它的核心是三件套：</p>
 <p><strong>1. Look-up 表</strong>：决定&quot;对象类 → 显示模板&quot;的映射。比如 DEPARE 按 DRVAL1/DRVAL2 落进哪个深度档，用哪个填充模板；浮标类按其类别挂哪个符号模板。这张表是标准的一部分，不能自己发明。</p>
@@ -25,21 +25,22 @@
 <p>第三点意味着一个架构级约束：<strong>颜色不能烘死在瓦片里</strong>。阈值一改，相关图层要能重新着色、即时生效。习惯了&quot;瓦片=不可变缓存&quot;的 Web 地图思路，在这里会撞墙。这个约束怎么在矢量瓦片架构下优雅地解决，我后面会单独写一篇。</p>
 <p>顺带一提，S-52 还定义了三级显示模式（Base / Standard / Full），控制哪些要素默认显示——这属于&quot;标准给的免费功能&quot;，实现成本很低，别漏。</p>
 <p><img src="https://nightchart.cn/assets/fig3-palette.svg" alt="命名色 token 与昼/昏/夜三套色盘示意" loading="lazy"></p>
-<p><em>图 3：切色盘 = 同一批命名色换一套 RGB；注意&quot;黑&quot;这个 token 夜间会翻白</em></p>
-<h2 id="sec-3">S-100：正在发生的换代</h2>
+<p><em>图 3：切色盘 = 同一批命名色换一套 RGB；注意夜板里&quot;黑&quot;只是比水面背景亮一档，并不翻白</em></p>
+<h2>S-100：正在发生的换代</h2>
 <p>一句话概括：S-100 是下一代数据框架，S-57/S-52 是它要逐步接替的上一代。</p>
 <p>S-57 的老问题：对象模型是封闭枚举，想加新要素类型就得改标准本身；只能表达矢量点线面；目录版本升级牵一发动全身。</p>
 <p>S-100 的思路完全不同：<strong>注册制 + 要素概念字典</strong>。各产品规范自定义要素类型，注册进框架即可互相组合，还支持栅格、影像乃至三维。在这套框架下冒出来一整个产品家族：</p>
-<table><thead><tr><th>产品</th><th>内容</th></tr></thead><tbody><tr><td>S-101</td><td>下一代电子海图（ENC）</td></tr><tr><td>S-102</td><td>高精度水深表面</td></tr><tr><td>S-104</td><td>动态水位</td></tr><tr><td>S-111</td><td>表层流</td></tr><tr><td>S-124</td><td>航行警告</td></tr><tr><td>S-125</td><td>航标（AtoN）</td></tr><tr><td>S-127</td><td>船舶交通管理</td></tr><tr><td>S-131</td><td>港口设施</td></tr></tbody></table>
+<table><thead><tr><th>产品</th><th>内容</th></tr></thead><tbody><tr><td>S-101</td><td>下一代电子海图（ENC）</td></tr><tr><td>S-102</td><td>高精度水深表面</td></tr><tr><td>S-104</td><td>动态水位</td></tr><tr><td>S-111</td><td>表层流</td></tr><tr><td>S-124</td><td>航行警告</td></tr><tr><td>S-125</td><td>航标（AtoN）</td></tr><tr><td>S-127</td><td>船舶交通管理</td></tr><tr><td>S-129</td><td>船底净空管理（UKCM）</td></tr><tr><td>S-131</td><td>港口设施</td></tr></tbody></table>
+<p>还有 S-122（海洋保护区）、S-128（航海产品目录）等，家族仍在扩员。</p>
 <p>现实判断给两条：其一，监管层面允许双标准长期并存，所以 <strong>S-57 与 S-101 的同屏渲染、数据转换、目录映射，会是未来很多年这个行业的真实工作量</strong>；其二，S-100 系列的中文资料少到可以视为空白——如果你在做技术选型或者转型规划，这是个值得注意的信号，也是本博客选择持续写它的原因。</p>
-<h2 id="sec-4">学习路线（也是本系列的地图）</h2>
+<h2>学习路线（也是本系列的地图）</h2>
 <p><strong>第一步：跑通现成的。</strong> 装 OpenCPN，加载 IHO S-64 官方测试数据，对着屏幕理解&quot;数据 → 显示&quot;的完整链路；再用 GDAL 命令行把同一个 ENC 导出成 GeoJSON，看看对象、属性、几何是怎么落地的。</p>
 <p><strong>第二步：按需读标准。</strong> 不要从头到尾通读。S-57 的 Appendix A（对象目录）当字典查；S-52 先只读显示流程那几张图；S-64 留着——等你写了渲染代码，它是检验对错的考卷。</p>
 <p><strong>第三步：造一个最小渲染器。</strong> ENC → GeoJSON/矢量瓦片 → MapLibre 样式化。别小看这个玩具，look-up 表怎么实现、色盘怎么切换、船员参数怎么做到运行时生效——这些真正没资料的环节都会在路上遇到。本系列接下来的文章就是沿这条路走读。</p>
-<h2 id="sec-5">资源清单</h2>
+<h2>资源清单</h2>
 <ul><li>IHO 官网（iho.int）：S-52、S-57、S-64、S-100 系列标准 PDF 全部免费下载</li><li>IHO S-64 测试数据集：做开发和验证最合规的示例数据来源</li><li>OpenCPN：开源 ECDIS，最快的&quot;所见即所懂&quot;工具</li><li>GDAL：S-57 驱动，数据解析瑞士军刀</li><li>MapLibre：开源地图渲染引擎，本系列实战部分的主力</li></ul>
 <p>（本站不卖课不带货，不会出现&quot;xxx 训练营&quot;链接。）</p>
-<h2 id="sec-6">小结</h2>
+<h2>小结</h2>
 <p>三句话带走：</p>
 <ul><li><strong>S-57 管数据</strong>：要素 = 对象类 + 属性 + 几何，颜色不在数据里</li><li><strong>S-52 管显示</strong>：look-up 表 + 命名色色盘 + 船员参数，一切皆规则</li><li><strong>S-100 管未来</strong>：注册制框架，S-101/124/125 等产品族的底座</li></ul>
 <p>下一篇预告：《S-57 数据解剖：把一个 ENC 文件拆给你看》——拿真实测试数据，从目录文件拆到单个要素。</p>

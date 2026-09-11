@@ -1,11 +1,11 @@
 <blockquote><p><strong>首发于个人博客</strong>：<a href="https://nightchart.cn/s57-enc-anatomy.html" target="_blank" rel="noopener">航图笔记 nightchart.cn</a>（S-57 / S-52 / S-100 / 渲染引擎源码走读，持续更新）。CSDN 同步发布，转载请保留出处。</p></blockquote>
 <p>上一篇我们把 S-57 定性成&quot;海图的数据库表结构&quot;，很多朋友说不过瘾：文件到底是什么样的？这篇就动真刀。我们拿 IHO S-64 官方测试数据里的一个 ENC 单元，从第一层封装一路拆到单个要素的属性和坐标，最后给出一个最小解析器的骨架。</p>
-<h2 id="sec-1">第一刀：文件根本不是文本</h2>
+<h2>第一刀：文件根本不是文本</h2>
 <p>用编辑器打开一个 ENC 文件，你会看到一屏乱码。它不是 JSON，没有花括号，一切信息靠<strong>字节位置和描述符</strong>表达。这套封装叫 <strong>ISO 8211</strong>——一个上世纪定下的自描述交换格式，今天仍然是 S-57 的载体。</p>
 <p>ISO 8211 文件的结构只有两层概念：</p>
 <ul><li>文件第一条记录是 <strong>DDR</strong>（数据描述记录），相当于 schema：它声明了后面所有记录里有哪些字段、每个字段什么格式；</li><li>之后是若干条 <strong>DR</strong>（数据记录），相当于数据行。</li></ul>
 <p>心智模型：<strong>DDR 是表头，DR 是一行行数据</strong>。解析器的第一件事永远是读 DDR，否则后面一个字节都读不懂。</p>
-<h2 id="sec-2">第二刀：交换集的全景</h2>
+<h2>第二刀：交换集的全景</h2>
 <p>单个 ENC 文件不孤立，交付形态是一个<strong>交换集</strong>（Exchange Set）：</p>
 <pre><code>CATALOG.031        ← 目录文件：清单与更新链
 GB500001.000       ← 基础单元（.000）
@@ -13,13 +13,13 @@ GB500001.001       ← 第 1 期更新
 GB500001.002       ← 第 2 期更新</code></pre>
 <p>单元文件名本身有信息量：开头两位是国家码，第三位是<strong>航行用途</strong>（Navigational Purpose，1–6），后面是单元序号；末尾三位是更新号，<code>.000</code> 表示基础版。航行用途 1 到 6 覆盖从大洋概图到靠泊图，数字越大比例尺越大——这也直接决定了你渲染引擎的缩放级别该加载哪些单元。</p>
 <p>目录文件 CATALOG.031 里每个文件一条 <strong>CATD</strong> 记录：文件名、类型（基础还是更新）、更新日期。接收端靠它保证更新链完整——缺一环，后面全作废。</p>
-<h2 id="sec-3">第三刀：记录的&quot;四大家族&quot;</h2>
+<h2>第三刀：记录的&quot;四大家族&quot;</h2>
 <p>剥开 ISO 8211，S-57 的记录就四类。理解了它们的分工，文件在你眼里就从乱码变成了结构：</p>
 <p><strong>1. DSID——数据集说明。</strong> 全局参数都在这：数据集名、深度单位，还有一个关键角色 <strong>COMF</strong>（坐标放大因子）。S-57 里坐标是整数，真实经纬度 = 整数值 ÷ COMF，通常 COMF = 10⁷。也就是说你在文件里看到 <code>43200000</code>，实际是东经 4.32°。所有坐标精度问题都从这条换算开始。</p>
 <p><strong>2. CATD——目录条目。</strong> 上面说过了，只出现在目录文件里。</p>
 <p><strong>3. FRID——要素记录（Feature）。</strong> 回答&quot;这里是什么&quot;。关键字段：</p>
-<ul><li><strong>PRIM</strong>：几何原型，点 / 线 / 面 / 制图面四选一</li><li><strong>OBJL</strong>：对象类编码，整数。比如 DEPARE（深度区）是 42，全世界按同一本字典解码</li><li><strong>FOID</strong>：全局唯一 ID，机构码（AGEN）+ 两个编号构成三元组</li><li><strong>ATTF</strong>：属性键值对。DEPARE 身上一定挂着 DRVAL1 / DRVAL2——这片水域的水深范围</li></ul>
-<p><strong>4. VRID——空间记录（Vector）。</strong> 回答&quot;它在哪里&quot;。VRID 标明自己是节点、边还是面；边的几何是 SG2D 字段里的一串坐标点。</p>
+<ul><li><strong>PRIM</strong>：几何原型，点 / 线 / 面三选一，另有少量无几何的纯属性要素（PRIM=N）</li><li><strong>OBJL</strong>：对象类编码，整数。比如 DEPARE（深度区）是 42，全世界按同一本字典解码</li><li><strong>FOID</strong>：全局唯一 ID，机构码（AGEN）+ 两个编号构成三元组</li><li><strong>ATTF</strong>：属性键值对。DEPARE 身上一定挂着 DRVAL1 / DRVAL2——这片水域的水深范围</li></ul>
+<p><strong>4. VRID——空间记录（Vector）。</strong> 回答&quot;它在哪里&quot;。VRID 标明自己是节点、边还是面；边的端点挂在两端节点上，中间形状点是 SG2D 字段里的一串坐标。注意顺序：S-57 坐标对是 <strong>(X, Y) = (经度, 纬度)</strong>，和日常&quot;先纬后经&quot;的习惯正好相反。</p>
 <p><strong>两条胶水字段</strong>把两张表缝起来：要素记录里的 <strong>FSPT</strong> 指向它引用的空间记录；空间记录之间的 <strong>VRPT</strong> 表达拓扑关系（边的两端节点、面的边界由哪些边组成）。</p>
 <p>来拼一个真实的 DEPARE：</p>
 <pre><code>FRID:  PRIM=A(面)  OBJL=42(DEPARE)
@@ -27,25 +27,25 @@ FOID:  AGEN=550   FIDN=1234  FIDS=1
 ATTF:  DRVAL1=0   DRVAL2=20        ← 0~20 米的水域
 FSPT:  → VRID #88(边)  → #89  → #90  → #91   （面由四条边围成）
 
-VRID #88:  边，SG2D: (315200000, 1206500000) …  ← 一串 1/10⁷ 度坐标
+VRID #88:  边，SG2D: (1206500000, 315200000) …  ← 一串 1/10⁷ 度坐标（X=经度 120.65°，Y=纬度 31.52°）
 VRPT:  起节点 #12 → 终节点 #13                 ← 边知道自己接在哪</code></pre>
-<h2 id="sec-4">为什么边要单独存：共边拓扑</h2>
+<h2>为什么边要单独存：共边拓扑</h2>
 <p>看到这里你可能会问：一个面带自己的边界环不就完了，为什么 S-57 要把&quot;边&quot;提升成独立记录？</p>
 <p>因为 <strong>ENC 要求平面拓扑（planar graph）</strong>：相邻两个深度区，共享物理上同一条边记录，而不是各存一份。</p>
 <p>这件事的直接收益是一致性：边移动，两侧区域同时变形，不可能出现裂缝或重叠。S-58 校验标准里专门有一组检查盯着悬空边和几何缝隙。</p>
 <p>而对你这个写渲染器的人来说，代价是加载逻辑复杂了：<strong>先把 VRID 表读全、把 FSPT/VRPT 关系建好，才能拼出完整的面</strong>。习惯了 GeoJSON 那种&quot;一个 Feature 自带一切&quot;的嵌套模型，转向 S-57 的&quot;两表 + 指针&quot;模型，这是第一个思维弯道。</p>
 <p>顺带一提，SOUNDG（水深点组）是个例外配置：它是一组<strong>三维</strong>点，Z 值直接存水深——这大概是整个 S-57 里离&quot;一个对象一条几何&quot;最近的东西。</p>
-<h2 id="sec-5">渲染器视角的常用对象类</h2>
+<h2>渲染器视角的常用对象类</h2>
 <p>对象目录里 180 多个类，日常打交道的高频的就这十几个：</p>
 <table><thead><tr><th>对象类</th><th>含义</th><th>渲染时的角色</th></tr></thead><tbody><tr><td>DEPARE</td><td>深度区</td><td>按 DRVAL1/DRVAL2 分档填色，浅水蓝、深水白</td></tr><tr><td>DEPCNT</td><td>等深线</td><td>VALDCO 取值，安全等深线加粗加黑</td></tr><tr><td>SOUNDG</td><td>水深点组</td><td>数字注记排版，可按疏密度抽稀</td></tr><tr><td>COALNE</td><td>海岸线</td><td>岸线符号</td></tr><tr><td>LNDARE</td><td>陆地区</td><td>填充底色，上面叠地名注记</td></tr><tr><td>LIGHTS</td><td>灯标</td><td>光弧（SECTR1/2）、节奏（SIGGRP/SIGPER）</td></tr><tr><td>BOYLAT 等</td><td>浮标系列</td><td>按类别/形状挂符号，读颜色属性</td></tr><tr><td>WRECKS / OBSTRN / UWTROC</td><td>危险物</td><td>属性组合决定危险样式</td></tr><tr><td>M_COVR / M_QUAL</td><td>元要素</td><td>不常规渲染，但覆盖范围、数据质量必须特殊处理</td></tr></tbody></table>
 <p><code>M_</code> 开头的元要素再强调一遍：<strong>忽略 M_COVR 和 M_QUAL 是新手最常见的第一个 bug</strong>，它们决定你该加载哪些邻接单元、数据精度声明画在哪。</p>
-<h2 id="sec-6">更新机制：.001 文件里是什么</h2>
+<h2>更新机制：.001 文件里是什么</h2>
 <p>更新文件和基础单元结构完全一样，区别在于每条记录多了更新指令 <strong>RUIN</strong>：</p>
 <ul><li><strong>1 = 插入</strong>：完整的要素+几何，直接并入</li><li><strong>2 = 删除</strong>：只带目标要素的 FOID，接收端按号移除</li><li><strong>3 = 修改</strong>：带新属性或新几何，替换对应记录</li></ul>
 <p>三条工程纪律，每条都对应一类线上事故：</p>
 <ol><li><strong>按序应用</strong>：<code>.001</code> 必须先于 <code>.002</code>，乱序 = 图面错乱</li><li><strong>幂等防重</strong>：同一期更新应用两次，结果不可预期，要做好已应用标记</li><li><strong>累积上限</strong>：更新号编到 999 会发重制版（reissue），文件管理逻辑要能识别</li></ol>
 <p>S-64 测试数据集里有专门的更新用例，验证你的更新逻辑是免费的考卷。</p>
-<h2 id="sec-7">最小解析器骨架</h2>
+<h2>最小解析器骨架</h2>
 <p>把上面所有内容收拢成一个骨架，你会发现 S-57 解析本质上就是&quot;读 schema → 分发表 → 两张表 → 建关联&quot;：</p>
 <pre><code>读 DDR，拿到字段字典
 
@@ -63,7 +63,7 @@ for s in spatials:
 
 渲染时：遍历 features，按 OBJL+属性查 S-52 look-up 表</code></pre>
 <p>实操建议还是上一篇那句：<strong>先用 GDAL 的 S-57 驱动跑通全链路</strong>，把 ENC 转成 GeoJSON 对照着看，建立直觉；等你需要性能或特殊控制时，再下到 ISO 8211 字节层自己写——那时你已经知道每张表该长什么样了。</p>
-<h2 id="sec-8">小结</h2>
+<h2>小结</h2>
 <ul><li>ENC = ISO 8211 封装的记录流：DDR 是 schema，DR 是数据</li><li>记录四大家族：DSID（全局参数）、CATD（目录）、FRID（是什么）、VRID（在哪里），FSPT/VRPT 负责缝合</li><li>坐标是整数 ÷ COMF；平面拓扑要求共边；SOUNDG 三维点是例外</li><li>更新 = RUIN 三指令的有序序列，乱序和重复是事故重灾区</li><li>学习路径：GDAL 先跑通，字节层后下潜</li></ul>
 <p>下一篇按节奏进入 MapLibre 系列：《mbgl 架构总览：线程模型、瓦片调度与渲染管线》——从标准的世界回到代码的世界。</p>
 <hr>
