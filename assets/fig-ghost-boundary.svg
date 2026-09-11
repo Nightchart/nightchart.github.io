@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="400" viewBox="0 0 860 400" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="400" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="30" y="40" font-size="17" font-weight="bold" fill="#33312c">更新前：两张瓦片都是 v41，禁航区完整</text>
+
+  <!-- 左：更新前 -->
+  <g>
+    <rect x="60" y="70" width="170" height="170" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="230" y="70" width="170" height="170" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="60" y="240" width="170" height="110" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="230" y="240" width="170" height="110" fill="#eef4f2" stroke="#c9c6bd"/>
+    <line x1="230" y1="70" x2="230" y2="350" stroke="#9aa39f" stroke-dasharray="4 4"/>
+    <!-- 禁航区：跨越 T-A / T-B 边界 -->
+    <circle cx="230" cy="155" r="62" fill="rgba(15,109,95,0.22)" stroke="#0f6d5f" stroke-width="2"/>
+    <text x="230" y="160" text-anchor="middle" font-size="13" fill="#0f6d5f" font-weight="bold">W-217</text>
+    <text x="310" y="95" font-size="12" fill="#666">T-A · v41</text>
+    <text x="243" y="120" font-size="12" fill="#666">T-B · v41</text>
+    <text x="230" y="380" text-anchor="middle" font-size="14" fill="#33312c">两侧一致，没有问题</text>
+  </g>
+
+  <!-- 右：更新后 -->
+  <text x="470" y="40" font-size="17" font-weight="bold" fill="#33312c">更新后：W-217 撤销，只有 T-A 重画了</text>
+  <g>
+    <rect x="500" y="70" width="170" height="170" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="670" y="70" width="170" height="170" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="500" y="240" width="170" height="110" fill="#eef4f2" stroke="#c9c6bd"/>
+    <rect x="670" y="240" width="170" height="110" fill="#eef4f2" stroke="#c9c6bd"/>
+    <line x1="670" y1="70" x2="670" y2="350" stroke="#9aa39f" stroke-dasharray="4 4"/>
+    <!-- T-A 重画：v42 无禁航区 -->
+    <text x="750" y="95" font-size="12" fill="#0f6d5f" font-weight="bold">T-A · v42（重画）</text>
+    <!-- T-B 仍旧：v41 残留半圆 -->
+    <path d="M 670 93 A 62 62 0 0 1 670 217 Z" fill="rgba(180,83,9,0.25)" stroke="#b45309" stroke-width="2"/>
+    <text x="683" y="120" font-size="12" fill="#b45309" font-weight="bold">T-B · v41（没重画）</text>
+    <text x="755" y="290" font-size="14" fill="#b45309" font-weight="bold">幽灵：半只禁航区</text>
+    <text x="755" y="312" font-size="12" fill="#b45309">钉在边界右侧</text>
+    <text x="755" y="380" text-anchor="middle" font-size="14" fill="#33312c">接缝错位 = 用户看到的"幽灵"</text>
+  </g>
+</svg>

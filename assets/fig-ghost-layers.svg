@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="360" viewBox="0 0 860 360" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="360" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="30" y="38" font-size="17" font-weight="bold" fill="#33312c">每一层派生物，都必须能报出"我是从哪个版本算出来的"</text>
+
+  <!-- 数据层 -->
+  <rect x="70" y="66" width="330" height="56" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="90" y="90" font-size="15" font-weight="bold" fill="#0f6d5f">原始数据</text>
+  <text x="90" y="110" font-size="12.5" fill="#4e6d67">数据更新：W-217 撤销 → 版本 v41 → v42</text>
+
+  <!-- 三层派生物 -->
+  <rect x="70" y="146" width="330" height="52" rx="8" fill="#ffffff" stroke="#b45309" stroke-width="1.5"/>
+  <text x="90" y="168" font-size="14" font-weight="bold" fill="#b45309">要素瓦片缓存</text>
+  <text x="90" y="187" font-size="12" fill="#8a6516">还拿着 v41 的旧画面 → 必须失效</text>
+
+  <rect x="70" y="208" width="330" height="52" rx="8" fill="#ffffff" stroke="#b45309" stroke-width="1.5"/>
+  <text x="90" y="230" font-size="14" font-weight="bold" fill="#b45309">注记避让 / 碰撞缓存</text>
+  <text x="90" y="249" font-size="12" fill="#8a6516">旧避让框还在给已删要素"占座"</text>
+
+  <rect x="70" y="270" width="330" height="52" rx="8" fill="#ffffff" stroke="#b45309" stroke-width="1.5"/>
+  <text x="90" y="292" font-size="14" font-weight="bold" fill="#b45309">负缓存（"这里没东西"的记录）</text>
+  <text x="90" y="311" font-size="12" fill="#8a6516">不一起失效 → 新要素该出现却不出现</text>
+
+  <!-- 右侧：规则 -->
+  <rect x="470" y="66" width="360" height="256" rx="8" fill="#f6f4ee" stroke="#c9c6bd"/>
+  <text x="495" y="98" font-size="15" font-weight="bold" fill="#33312c">失效规则（一句话版）</text>
+  <g font-size="13.5" fill="#33312c">
+    <text x="495" y="132">1. 缓存键 = 瓦片坐标 + 数据版本</text>
+    <text x="495" y="162">2. 版本提交与重建合批放进同一个</text>
+    <text x="510" y="182">临界区，不留"半新半旧"窗口</text>
+    <text x="495" y="212">3. 正缓存失效，负缓存陪葬</text>
+    <text x="495" y="242">4. 抽样"缓存渲染 vs 全量直渲染"</text>
+    <text x="510" y="262">逐像素对账，差异超阈值报警</text>
+  </g>
+  <text x="495" y="300" font-size="12.5" fill="#75736c">任何一层回答不出"我基于哪个版本"，</text>
+  <text x="495" y="318" font-size="12.5" fill="#75736c">那里就是下一只幽灵的藏身处。</text>
+</svg>
