@@ -359,22 +359,71 @@ function commentsHtml() {
 }
 
 function indexPage(articles) {
-  const items = articles.map((p) => {
+  const fmtDate = (d) => d; // 保持 ISO，与全站一致
+  const tagChips = (tags, cls) => (tags || []).map((t) => `<a class="mini-tag" href="archive.html">${esc(t)}</a>`).join('');
+  const readInfo = (p) => {
     const reads = GC[`/${p.slug}.html`];
-    const readsHtml = reads ? ` · ${reads} 阅读` : '';
-    return `<li class="post-item">
-  <a class="post-link" href="${p.slug}.html">${esc(p.title)}</a>
-  <time class="post-date">${esc(p.date)}${readsHtml}</time>
-  ${p.description ? `<p class="post-desc">${esc(p.description)}</p>` : ''}
-</li>`;
-  }).join('\n');
-  return `<section class="intro">
-<h1>${esc(CFG.siteTitle)}</h1>
-<p>${esc(CFG.description)}</p>
+    const bits = [`<time datetime="${esc(p.date)}">${esc(fmtDate(p.date))}</time>`, `约 ${p.mins} 分钟`];
+    if (reads) bits.push(`${reads} 次阅读`);
+    return bits.join('<span class="dot">·</span>');
+  };
+  const items = articles.slice(1).map((p) => `<li class="post-item">
+  <div class="pi-main">
+    <a class="post-link" href="${p.slug}.html">${esc(p.title)}</a>
+    ${p.description ? `<p class="post-desc">${esc(p.description)}</p>` : ''}
+    <p class="pi-meta">${readInfo(p)}${(p.tags || []).length ? `<span class="pi-tags">${tagChips(p.tags)}</span>` : ''}</p>
+  </div>
+</li>`).join('\n');
+  const [feat, ...rest] = articles;
+  const featTags = tagChips(feat.tags);
+  const toolChips = TOOLS.map((t) => `<li><a class="ht-chip" href="${esc(t.href)}" title="${esc(t.desc)}"><span class="ht-icon">${TOOL_ICONS[t.icon] || TOOL_ICONS.table}</span><span class="ht-name">${esc(t.name)}</span></a></li>`).join('\n');
+  // 装饰：等深线 + 水深注记 + 罗经十字（纯内联 SVG，随明暗主题换色）
+  const heroArt = `<svg class="hero-art" viewBox="0 0 340 240" fill="none" aria-hidden="true">
+  <g stroke="currentColor" stroke-width="1.1">
+    <path d="M-20 210 C 60 190, 90 150, 150 142 C 210 134, 238 96, 296 88 C 322 84, 342 74, 360 60" opacity=".55"/>
+    <path d="M-20 232 C 70 214, 108 172, 168 162 C 228 152, 262 116, 318 106 C 344 101, 362 92, 380 80" opacity=".38"/>
+    <path d="M-20 188 C 52 168, 76 130, 134 120 C 192 110, 216 78, 272 70 C 300 66, 322 56, 340 44" opacity=".30"/>
+    <path d="M-20 166 C 46 148, 64 112, 118 100 C 172 88, 196 60, 250 50 C 280 45, 304 36, 322 26" opacity=".20"/>
+    <path d="M118 100 C 150 92, 172 82, 196 66 C 176 60, 152 66, 138 76 C 128 84, 120 92, 118 100 Z" opacity=".22"/>
+  </g>
+  <g fill="currentColor" font-family="Consolas, Menlo, monospace" font-size="11" opacity=".5">
+    <text x="52" y="152">7</text>
+    <text x="150" y="128">11</text>
+    <text x="238" y="86">19</text>
+    <text x="306" y="70">27</text>
+    <text x="96" y="196">5</text>
+  </g>
+  <g stroke="currentColor" stroke-width="1.3" opacity=".75">
+    <circle cx="286" cy="178" r="17"/>
+    <path d="M286 165v26M273 178h26"/>
+    <path d="M286 168l3.5 10h-7Z" fill="currentColor" stroke="none"/>
+  </g>
+</svg>`;
+  return `<section class="hero">
+  <div class="hero-text">
+    <p class="hero-kicker">Night Chart Log · 夜航海图</p>
+    <h1>${esc(CFG.siteTitle)}</h1>
+    <p class="hero-desc">${esc(CFG.description)}</p>
+    <p class="hero-stats"><span>${articles.length} 篇文章</span><span class="dot">·</span><span>${TOOLS.length} 个在线工具</span><span class="dot">·</span><span>每周更新</span><a class="hero-rss" href="rss.xml">RSS 订阅 →</a></p>
+  </div>
+  ${heroArt}
 </section>
-<ul class="post-list">
+<section class="home-sec">
+  <div class="sec-head"><h2>随身工具</h2><a href="tools.html">全部 ${TOOLS.length} 个 →</a></div>
+  <ul class="home-tools">${toolChips}</ul>
+</section>
+<section class="home-sec">
+  <div class="sec-head"><h2>最近文章</h2><a href="archive.html">归档 →</a></div>
+  <article class="post-featured">
+    <p class="feat-badge">最新</p>
+    <h3 class="feat-title"><a href="${feat.slug}.html">${esc(feat.title)}</a></h3>
+    ${feat.description ? `<p class="feat-desc">${esc(feat.description)}</p>` : ''}
+    <p class="pi-meta">${readInfo(feat)}${featTags ? `<span class="pi-tags">${featTags}</span>` : ''}</p>
+  </article>
+  <ul class="post-list">
 ${items}
-</ul>`;
+  </ul>
+</section>`;
 }
 
 function archivePage(articles) {
