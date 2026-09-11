@@ -1,0 +1,26 @@
+<blockquote><p><strong>首发于个人博客</strong>：<a href="https://nightchart.cn/s111-surface-current.html" target="_blank" rel="noopener">航图笔记 nightchart.cn</a>（S-57 / S-52 / S-100 / 渲染引擎源码走读，持续更新）。CSDN 同步发布，转载请保留出处。</p></blockquote>
+<hr>
+<p>title: S-111：让海图知道&quot;水往哪流&quot; slug: s111-surface-current date: 2025-10-28 description: 拆解 NOAA CBOFS 的 S-111 官方样本：54×54 网格 × 48 个整点时刻的潮流场、knots 单位与 -9999 填充值、directionToward 方向约定——顺带把浏览器端解析 HDF5 复合数据集的两个坑讲清楚。 tags: S-111, S-100, 流场, 潮流, IHO</p>
+<hr>
+<p>S-102 解决了&quot;海底长什么样&quot;，S-104 解决了&quot;水位此刻多高&quot;，动态图层家族还差最后一块拼图：<strong>水在往哪流</strong>。同样三节船速，遇上两节横流，航向就得提前偏出去一大块——靠离泊、狭水道过弯、计划航线估算，流场都是拿真金白银结算的输入。把&quot;潮流场&quot;标准化成数据产品，这就是 S-111（表面流）。</p>
+<p>上一篇拆 S-104，这篇拆它的兄弟：NOAA 切萨皮克湾业务化预报系统（CBOFS）产出的 S-111 官方样本。文件不到 700KB，展开是一部两天的潮流纪录片。</p>
+<h2>它长什么样：网格 × 时刻</h2>
+<p>拆开这份样本（2020-02-13T00Z 起报），根属性先把&quot;这是谁&quot;交代清楚：产品规范 <code>INT.IHO.S-111.1.0.0</code>、地理标识 <strong>Chesapeake_Bay</strong>、范围西经 76.2°~75.9°、北纬 36.9°~37.2°——正是切萨皮克湾入海口那段。元数据里的 <code>CBOFS</code> 和 <code>TYP2</code> 说明这是业务化预报系统输出的第 2 类深度层产品，<code>surfaceCurrentDepth = -4.5</code>：<strong>这一批数据描述的是海面以下 4.5 米处的流</strong>。</p>
+<p>数据的组织方式是两个维度相乘：</p>
+<ul><li><strong>空间</strong>：54×54 = 2916 个单元的规则网格</li><li><strong>时间</strong>：<code>SurfaceCurrent.01</code> 下面挂着 48 个 Group，每个 Group 一帧，<code>timePoint</code> 从 13 日 01:00Z 到 15 日 00:00Z 逐整点推进</li></ul>
+<p>每个单元是一个二元组：<strong>流速 + 流向</strong>。字段注册表（<code>Group_F</code>）把单位写死：流速 <strong>knots</strong>（合法区间 ≥0），流向 <strong>arc-degrees</strong>（0 ≤ d &lt; 360）。顺带一提这份样本的现场数字：首帧流速 0.03~1.89 节、均值 0.50 节；逐帧均值在 0.36~1.39 节之间起伏——<strong>涨落潮的节奏直接写在均值曲线里</strong>。全周期峰值 2.89 节出现在第 35 帧（14 日 11:00Z），落在湾口主航道附近。</p>
+<h2>directionToward：渲染前先想清楚箭头朝哪</h2>
+<p>S-111 的流向约定是 <strong>directionToward</strong>：角度表示流&quot;流向&quot;哪个真北方向。这和气象上&quot;风向&quot;（风<strong>从</strong>哪里来）正好相反，两套约定在自然界各管一摊，渲染端一旦凭直觉画箭头，海图上的流场就整体转了 180°——船没动，箭头动了，值班驾驶员会先怀疑自己的罗经。</p>
+<p>这不是抬杠。S-100 动态图层里&quot;方向&quot;这个词产品间含义不一致，是接 S-104 / S-111 / S-124 数据链路时真实的坑：<strong>拿到字段先查 uom 和约定，再动手画</strong>。</p>
+<h2>填充值：2916 个单元里有 513 个是陆地</h2>
+<p>字段注册表同时声明填充值 <strong>-9999.0</strong>。这份样本里 18% 的单元（513/2916）是陆地掩膜，全部用 -9999 填充。解析端不先筛掉它，热力图的色阶会被&quot;负一万节&quot;拉爆，箭头图层会在陆地上画出一堆指向 (-9999°) 的乱箭——规范把约定写死在文件里，下游的防御代码就只需要一行 <code>if (v &lt; 0) skip</code>。</p>
+<h2>在浏览器里放出来</h2>
+<p>两个维度怎么给用户看？我们的做法：流速画热力图、流向画箭头、时间维做成帧选择和连播。<a href="https://nightchart.cn/h5.html" target="_blank" rel="noopener">HDF5 / S-100 网格解析器</a>已内置这份 NOAA 样本，拖一个自己的 .h5 进去也能解析——S-102 / S-111 / S-104 同为 HDF5 家族，一套骨架通吃。</p>
+<p>浏览器端用 h5wasm 解析，有两个值得记录的坑：</p>
+<ul><li><strong>复合数据集被拍平</strong>。<code>(54, 54)</code> 的复合数据集在 h5wasm 里返回的不是 54×54 的二维结构，而是一个长度 2916 的一维数组，每个元素是 <code>[流速, 流向]</code> 的小数组——按二维索引取值会静默拿到错位数据。</li><li><strong>dtype 没有统一形态</strong>。字段名可能挂在对象、数组或字符串三种形态上，注册表解析得写成多形态兼容，不能只测一种。</li></ul>
+<h2>拼图齐了</h2>
+<p>到这里，S-100 动态三件套的样本都拆过了：S-102 给静态水深，S-104 给实时水位，S-111 给潮流场。三者叠加才是真正的计算：</p>
+<blockquote><p>可用富余水深 = S-102 水深 + S-104 水位 − 吃水；流压差 = S-111 流场 × 计划航速</p></blockquote>
+<p>静态海图引擎不补时间轴就接不住这套家族——而时间轴正是 S-101 时代和 S-57 时代最本质的差别之一。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
