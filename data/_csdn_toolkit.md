@@ -16,7 +16,7 @@
 
 **地址：https://nightchart.cn/attr.html**
 
-200 项属性（ATT）速查，60+ 条中文注释。最有用的部分是给高频属性附了**枚举值中文释义**——比如 `WATLEV` 直接告诉你 1=常年干出、2=常年淹没、3=周期性干出、4=漂浮，不用再翻 Appendix A Chapter 2 的表格。
+200 项属性（ATT）速查，中文译名基本全覆盖。最有用的部分是给高频属性附了**枚举值中文释义**——比如 `WATLEV` 直接告诉你 1=常年干出、2=常年淹没、3=周期性干出、4=漂浮，不用再翻 Appendix A Chapter 2 的表格。
 
 顺带提醒一个我记错的坑：顶标属性的缩写是 **TOPSHP**（Topmark/daymark shape），很多人会记成 TOPMAR——S-57 里没有 TOPMAR。
 
