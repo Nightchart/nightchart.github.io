@@ -501,6 +501,82 @@ ${items}
 </channel></rss>`;
 }
 
+/* 站内搜索：构建期生成索引（文章全文 + 工具），纯前端过滤渲染 */
+function searchPage(articles) {
+  const strip = (html) => html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&quot;/g, '"').replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ").trim();
+  const items = [];
+  for (const p of articles) {
+    items.push({ g: "post", t: p.title, u: p.slug + ".html", d: p.description || "", b: strip(p.html), m: p.date, x: (p.tags || []).join(" ") });
+  }
+  for (const t of TOOLS) {
+    items.push({ g: "tool", t: t.name, u: t.href, d: t.desc || "", b: "", m: "", x: (t.tags || []).join(" ") });
+  }
+  const data = JSON.stringify(items).replace(/</g, "\\u003c");
+  return `<section class="intro"><h1>搜索</h1><p>检索全部 ${articles.length} 篇文章与 ${TOOLS.length} 个工具的标题、摘要与正文。</p></section>
+<div class="searchbox-wrap"><input id="q" class="searchbox" type="search" placeholder="输入关键词，例如：品红 / 虚拟航标 / 安全等深线" autocomplete="off" autofocus></div>
+<p class="sr-count" id="sr-count">输入关键词开始搜索</p>
+<ul class="sr-list" id="sr-list"></ul>
+<script>
+var DATA = ${data};
+function esc(s){ return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function hl(text, terms){
+  var escd = esc(text), lower = escd.toLowerCase(), spans = [];
+  for (var i = 0; i < terms.length; i++){
+    var t = terms[i].toLowerCase(), idx = 0;
+    while ((idx = lower.indexOf(t, idx)) !== -1){ spans.push([idx, idx + t.length]); idx += t.length; }
+  }
+  spans.sort(function(a, b){ return a[0] - b[0]; });
+  var out = '', pos = 0;
+  for (var j = 0; j < spans.length; j++){
+    var s = spans[j]; if (s[0] < pos) continue;
+    out += escd.slice(pos, s[0]) + '<mark>' + escd.slice(s[0], s[1]) + '</mark>'; pos = s[1];
+  }
+  return out + escd.slice(pos);
+}
+function snippet(it, terms){
+  var b = it.b || it.d || it.t, lower = b.toLowerCase(), pos = -1;
+  for (var i = 0; i < terms.length && pos < 0; i++) pos = lower.indexOf(terms[i]);
+  if (pos < 0) return esc(it.d || it.t);
+  var start = Math.max(0, pos - 46);
+  return (start > 0 ? '…' : '') + hl(b.slice(start, start + 150), terms) + (start + 150 < b.length ? '…' : '');
+}
+function render(){
+  var q = document.getElementById('q').value.trim().toLowerCase();
+  var terms = q.split(' ').filter(function(w){ return w.length > 0; });
+  var box = document.getElementById('sr-list'), count = document.getElementById('sr-count');
+  if (!terms.length){ box.innerHTML = ''; count.textContent = '输入关键词开始搜索（多个词用空格分开，需全部命中）'; return; }
+  var hits = [];
+  for (var k = 0; k < DATA.length; k++){
+    var it = DATA[k], score = 0, miss = false;
+    var titleL = (it.t + ' ' + it.x).toLowerCase(), descL = (it.d || '').toLowerCase(), bodyL = (it.b || '').toLowerCase();
+    for (var i = 0; i < terms.length; i++){
+      var t = terms[i];
+      if (titleL.indexOf(t) === -1 && descL.indexOf(t) === -1 && bodyL.indexOf(t) === -1){ miss = true; break; }
+      if (titleL.indexOf(t) !== -1) score += 12;
+      if (descL.indexOf(t) !== -1) score += 4;
+      if (bodyL.indexOf(t) !== -1) score += 2;
+    }
+    if (!miss) hits.push({ it: it, score: score });
+  }
+  hits.sort(function(a, b){ return b.score - a.score; });
+  count.textContent = '共 ' + hits.length + ' 条结果';
+  box.innerHTML = hits.map(function(h){
+    var it = h.it;
+    return '<li><span class="sr-type">' + (it.g === 'post' ? '文章' : '工具') + '</span>'
+      + '<a class="sr-title" href="' + it.u + '">' + hl(it.t, terms) + '</a>'
+      + '<p class="sr-snip">' + snippet(it, terms) + '</p>'
+      + (it.m ? '<p class="sr-meta">' + it.m + '</p>' : '') + '</li>';
+  }).join('');
+}
+document.getElementById('q').addEventListener('input', render);
+render();
+</script>`;
+}
+
 function sitemap(entries) {
   const urls = entries.map((u) => `  <url><loc>${esc(u.loc)}</loc><lastmod>${u.lastmod}</lastmod></url>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -561,6 +637,7 @@ for (const p of posts) {
 fs.writeFileSync(path.join(OUT_DIR, 'index.html'), layout('', CFG.description, indexPage(articles)));
 fs.writeFileSync(path.join(OUT_DIR, 'tools.html'), layout('实用工具', '航图笔记在线工具集：S-57 对象类码表等海图 / ECDIS 开发速查工具，随博客持续更新。', toolsPage(), 'website', `${CFG.siteUrl}/tools.html`, true));
 fs.writeFileSync(path.join(OUT_DIR, 'archive.html'), layout('归档', '航图笔记全部文章归档：电子海图标准（S-57 / S-100 系列）、地图渲染与 C++ 工程实践文章目录，按时间排列。', archivePage(articles), 'website', `${CFG.siteUrl}/archive.html`));
+fs.writeFileSync(path.join(OUT_DIR, 'search.html'), layout('搜索', '站内搜索：检索航图笔记全部文章与在线工具——S-57、S-52、S-100、ECDIS、地图渲染。', searchPage(articles), 'website', `${CFG.siteUrl}/search.html`));
 fs.writeFileSync(path.join(OUT_DIR, 'rss.xml'), rss(articles));
 fs.writeFileSync(
   path.join(OUT_DIR, 'sitemap.xml'),
@@ -569,6 +646,7 @@ fs.writeFileSync(
     // 草稿不进 sitemap，避免未发布内容被搜索引擎发现
     ...[...articles, ...pages].map((p) => ({ loc: `${CFG.siteUrl}/${p.slug}.html`, lastmod: p.date || new Date().toISOString().slice(0, 10) })),
     { loc: `${CFG.siteUrl}/tools.html`, lastmod: new Date().toISOString().slice(0, 10) },
+    { loc: `${CFG.siteUrl}/search.html`, lastmod: new Date().toISOString().slice(0, 10) },
     { loc: `${CFG.siteUrl}/archive.html`, lastmod: new Date().toISOString().slice(0, 10) },
     ...TOOLS.map((t) => ({ loc: `${CFG.siteUrl}/${t.href}`, lastmod: t.added || '2026-09-08' })),
   ]),
