@@ -386,3 +386,98 @@ select.input:focus, input.input:focus { outline: none; border-color: var(--accen
 .res-list li { padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14.5px; }
 .res-list a { font-weight: 600; }
 .res-note { color: var(--muted); font-size: 13.5px; margin-top: 14px; }
+
+/* ============ 首页 v2 ============ */
+.hero {
+  position: relative; margin-top: 44px; padding: 34px 34px 30px;
+  border: 1px solid var(--border); border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, var(--tint), transparent 55%),
+    var(--card);
+  overflow: hidden;
+}
+.hero-text { position: relative; z-index: 1; max-width: 34em; }
+.hero-kicker {
+  margin: 0 0 10px; color: var(--accent); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  font-family: Consolas, "JetBrains Mono", Menlo, monospace;
+}
+.hero h1 { font-size: 34px; margin: 0 0 10px; letter-spacing: -0.015em; }
+.hero-desc { margin: 0; color: var(--muted); font-size: 15.5px; }
+.hero-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 18px 0 0; color: var(--muted); font-size: 13.5px; }
+.hero-stats .dot, .pi-meta .dot { opacity: .6; margin: 0 2px; }
+.hero-rss { margin-left: auto; font-weight: 600; white-space: nowrap; }
+.hero-art {
+  position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+  height: 86%; width: auto; color: var(--accent); pointer-events: none;
+}
+@media (max-width: 860px) { .hero-art { display: none; } }
+
+.home-sec { margin-top: 40px; }
+.sec-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 0 0 14px; border-bottom: 1px solid var(--border); padding-bottom: 8px;
+}
+.sec-head h2 {
+  margin: 0; font-size: 13px; font-weight: 700; color: var(--muted);
+  letter-spacing: 0.18em; text-transform: uppercase;
+}
+.sec-head a { font-size: 13.5px; color: var(--muted); }
+.sec-head a:hover { color: var(--accent); text-decoration: none; }
+
+/* 工具速览条 */
+.home-tools {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(216px, 1fr)); gap: 8px;
+}
+.ht-chip {
+  display: flex; align-items: center; gap: 9px; height: 100%;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--card);
+  padding: 8px 12px; color: var(--fg); font-size: 14px; font-weight: 500;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.ht-chip:hover { border-color: var(--accent); background: var(--hover); color: var(--accent); text-decoration: none; }
+.ht-icon { display: inline-flex; color: var(--accent); }
+.ht-icon svg { width: 17px; height: 17px; }
+
+/* 最新一篇 */
+.post-featured {
+  position: relative; border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius); background: var(--card);
+  padding: 18px 20px 16px; margin: 0 0 6px;
+}
+.feat-badge {
+  position: absolute; top: -9px; left: 16px; margin: 0;
+  background: var(--accent); color: #fff; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.12em; padding: 1px 9px; border-radius: 999px;
+}
+.feat-title { margin: 2px 0 8px; font-size: 20px; line-height: 1.45; }
+.feat-title a { color: var(--fg); }
+.feat-title a:hover { color: var(--accent); text-decoration: none; }
+.feat-desc { margin: 0 0 10px; color: var(--muted); font-size: 14.5px; }
+
+/* 文章列表（第 2 篇起） */
+.home-sec .post-list { list-style: none; margin: 6px 0 0; padding: 0; }
+.home-sec .post-item { padding: 16px 2px; border-bottom: 1px solid var(--border); margin: 0; }
+.home-sec .post-item:last-child { border-bottom: none; }
+.post-link { font-size: 17px; }
+.post-desc { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+.pi-meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 7px;
+  margin: 7px 0 0; color: var(--muted); font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.pi-tags { display: inline-flex; flex-wrap: wrap; gap: 5px; margin-left: 6px; }
+.mini-tag {
+  display: inline-block; border: 1px solid var(--border); background: var(--code-bg);
+  color: var(--muted); border-radius: 999px; padding: 0 8px; font-size: 11.5px; line-height: 1.7;
+}
+.mini-tag:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+
+@media (max-width: 640px) {
+  .hero { margin-top: 28px; padding: 24px 18px 22px; border-radius: 13px; }
+  .hero h1 { font-size: 27px; }
+  .hero-rss { margin-left: 0; }
+  .home-tools { grid-template-columns: repeat(2, 1fr); }
+  .feat-title { font-size: 18px; }
+}
