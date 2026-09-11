@@ -1,35 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
   <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
-  <text x="30" y="38" font-size="16" font-weight="bold" fill="#33312c">S-124 警告区的标准画法：品红虚线边界 + "NW" 标签框</text>
-  <text x="30" y="62" font-size="12.5" fill="#75736c">按 OpenS100 对 S-124 数据的实际渲染重绘（示意）</text>
+  <text x="30" y="36" font-size="16" font-weight="bold" fill="#33312c">航警叠加在海图上的真实效果（按 Portrayal Catalogue Ed 2.0.0 重绘）</text>
 
-  <!-- 警告区：长条形多边形，三段，品红虚线 -->
-  <g stroke="#c848c8" stroke-width="2.2" stroke-dasharray="10 6" fill="none" stroke-linejoin="round">
-    <path d="M 282 296 L 482 221 L 622 171 L 762 116 L 798 184 L 658 239 L 518 289 L 318 364 Z"/>
-    <!-- 分段内边界 -->
-    <path d="M 482 221 L 518 289"/>
-    <path d="M 622 171 L 658 239"/>
+  <!-- 海图底图 -->
+  <rect x="24" y="52" width="812" height="330" rx="6" fill="#a8c8e0"/>
+  <!-- 陆地 -->
+  <path d="M24 52 H 300 C 288 96, 236 128, 168 140 C 110 150, 60 144, 24 138 Z" fill="#d9c9a3" stroke="#8f9aa5"/>
+  <path d="M690 52 H 836 V 120 C 780 132, 736 118, 716 96 C 704 82, 694 66, 690 52 Z" fill="#d9c9a3" stroke="#8f9aa5"/>
+  <!-- 等深线 -->
+  <path d="M24 268 C 150 250, 300 258, 470 238 C 620 220, 740 232, 836 214" stroke="#5b87ad" stroke-width="1.4" stroke-dasharray="8 4" fill="none"/>
+  <!-- 水深注记 -->
+  <g fill="#2c4a63" font-family="Consolas,Menlo,monospace" font-size="12">
+    <text x="120" y="200">14</text>
+    <text x="420" y="180">21</text>
+    <text x="700" y="188">9</text>
+    <text x="540" y="300">31</text>
   </g>
 
-  <!-- NW 标签框：品红圆角矩形 -->
-  <g font-family="Consolas,Menlo,monospace" font-weight="bold" font-size="17">
-    <rect x="368" y="245" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
-    <text x="400" y="268" text-anchor="middle" fill="#c848c8">NW</text>
-
-    <rect x="538" y="190" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
-    <text x="570" y="213" text-anchor="middle" fill="#c848c8">NW</text>
-
-    <rect x="676" y="132" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
-    <text x="708" y="155" text-anchor="middle" fill="#c848c8">NW</text>
+  <!-- 警告区：三段长条多边形，CHMGD #C045D1 虚线边界 -->
+  <g stroke="#C045D1" stroke-width="2.6" stroke-dasharray="13 6" fill="none" stroke-linejoin="round">
+    <path d="M 292 296 L 482 221 L 622 171 L 752 121 L 786 183 L 652 235 L 518 287 L 326 358 Z"/>
+    <path d="M 482 221 L 518 287"/>
+    <path d="M 622 171 L 656 233"/>
   </g>
 
-  <!-- 右下角说明块 -->
-  <g font-size="12.5" fill="#75736c">
-    <text x="62" y="90" font-weight="bold" fill="#33312c">三个要点：</text>
-    <text x="62" y="114">① 边界用品红虚线（pecked line），不填充区域</text>
-    <text x="62" y="138">② 每段区域中央放一个品红 "NW" 标签框</text>
-    <text x="62" y="162">③ 画法与确认状态无关：撤销前照常显示</text>
+  <!-- NW 圆形符号：骑在边界上，沿边界重复 -->
+  <g font-family="Consolas,Menlo,monospace" font-weight="bold" font-size="14" text-anchor="middle">
+    <circle cx="580" cy="200" r="17" fill="#fdfdfb" stroke="#C045D1" stroke-width="2.8"/>
+    <text x="580" y="206" fill="#C045D1">NW</text>
+    <circle cx="390" cy="272" r="17" fill="#fdfdfb" stroke="#C045D1" stroke-width="2.8"/>
+    <text x="390" y="278" fill="#C045D1">NW</text>
+    <circle cx="718" cy="154" r="17" fill="#fdfdfb" stroke="#C045D1" stroke-width="2.8"/>
+    <text x="718" y="160" fill="#C045D1">NW</text>
   </g>
 
-  <text x="430" y="414" text-anchor="middle" font-size="13" fill="#75736c">警告文本（正文/参考/撤销链）不在图面上呈现，通过警告列表或弹层查看</text>
+  <!-- 同一位置多条警告：计数标注 -->
+  <circle cx="718" cy="154" r="26" fill="none" stroke="#C045D1" stroke-width="1.4" stroke-dasharray="3 3"/>
+  <text x="748" y="150" font-size="14" fill="#C045D1" font-weight="bold">×2</text>
+
+  <!-- 注释块 -->
+  <rect x="44" y="292" width="238" height="76" rx="6" fill="#f4f2ec" stroke="#c9c6bd"/>
+  <g font-size="12" fill="#33312c">
+    <text x="58" y="314">边界：CHMGD 色虚线（笔宽 0.64mm，</text>
+    <text x="58" y="331">周期 40.18mm，NW 符号沿线重复）</text>
+    <text x="58" y="352">日间板色值：CHMGD = #C045D1</text>
+  </g>
+
+  <text x="430" y="414" text-anchor="middle" font-size="13" fill="#75736c">要素模型：一条警告 = 若干 NavwarnPart（分段带几何）+ NavwarnAreaAffected（受影响区域）+ TextPlacement（文字摆放也是要素）</text>
 </svg>
