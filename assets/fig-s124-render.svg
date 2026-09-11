@@ -1,55 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
   <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
-  <text x="30" y="36" font-size="16" font-weight="bold" fill="#33312c">符合 S-124 / S-100 portrayal 惯例的显示效果（示意）</text>
+  <text x="30" y="38" font-size="16" font-weight="bold" fill="#33312c">S-124 警告区的标准画法：品红虚线边界 + "NW" 标签框</text>
+  <text x="30" y="62" font-size="12.5" fill="#75736c">按 OpenS100 对 S-124 数据的实际渲染重绘（示意）</text>
 
-  <!-- ============ 左面板：出现 ============ -->
-  <g>
-    <rect x="24" y="52" width="396" height="310" rx="6" stroke="#8f9aa5" fill="#a8c8e0"/>
-    <!-- 陆地 -->
-    <path d="M24 52 H 200 C 190 90, 150 110, 100 118 C 60 124, 30 120, 24 116 Z" fill="#d9c9a3" stroke="#8f9aa5"/>
-    <!-- 等深线 -->
-    <path d="M24 250 C 120 236, 250 240, 420 224" stroke="#5b87ad" stroke-width="1.4" stroke-dasharray="8 4" fill="none"/>
-    <!-- 浮标本体 -->
-    <g transform="translate(196,178)">
-      <path d="M0 10 L7 -8 L14 10 Z" fill="#c848c8" stroke="#5c1e5c" stroke-width="1"/>
-      <circle cx="7" cy="-12" r="3.2" fill="#c848c8"/>
-      <text x="20" y="2" font-size="11.5" fill="#1e2a38">Fairway buoy No.7</text>
-    </g>
-    <!-- 品红条纹警告区 -->
-    <circle cx="203" cy="172" r="86" fill="none" stroke="#c848c8" stroke-width="3" stroke-dasharray="12 6"/>
-    <!-- 注意级提醒条 -->
-    <rect x="150" y="62" width="262" height="40" rx="6" fill="#fff8e6" stroke="#c8a419"/>
-    <text x="166" y="80" font-size="13" font-weight="bold" fill="#7a5c00">⚠ Navigational Warning</text>
-    <text x="166" y="96" font-size="11.5" fill="#7a5c00">NAVAREA XI 085/25 · buoy unlit</text>
-    <!-- 警告列表 -->
-    <rect x="256" y="236" width="152" height="70" rx="6" fill="#f4f2ec" stroke="#c9c6bd"/>
-    <text x="268" y="258" font-size="11.5" fill="#33312c">航行警告</text>
-    <rect x="262" y="266" width="136" height="30" rx="4" fill="#fbe9f6" stroke="#c848c8"/>
-    <text x="270" y="278" font-size="10.5" fill="#8a1f8a" font-weight="bold">085/25</text>
-    <text x="270" y="291" font-size="10.5" fill="#8a1f8a">buoy unlit</text>
-    <text x="222" y="382" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#0f6d5f">出现：品红条纹 + 注意级提醒</text>
+  <!-- 警告区：长条形多边形，三段，品红虚线 -->
+  <g stroke="#c848c8" stroke-width="2.2" stroke-dasharray="10 6" fill="none" stroke-linejoin="round">
+    <path d="M 282 296 L 482 221 L 622 171 L 762 116 L 798 184 L 658 239 L 518 289 L 318 364 Z"/>
+    <!-- 分段内边界 -->
+    <path d="M 482 221 L 518 289"/>
+    <path d="M 622 171 L 658 239"/>
   </g>
 
-  <!-- ============ 右面板：确认后 ============ -->
-  <g>
-    <rect x="440" y="52" width="396" height="310" rx="6" stroke="#8f9aa5" fill="#a8c8e0"/>
-    <path d="M440 52 H 616 C 606 90, 566 110, 516 118 C 476 124, 446 120, 440 116 Z" fill="#d9c9a3" stroke="#8f9aa5"/>
-    <path d="M440 250 C 536 236, 666 240, 836 224" stroke="#5b87ad" stroke-width="1.4" stroke-dasharray="8 4" fill="none"/>
-    <!-- 浮标仍在（正常绘制，无品红条纹圈） -->
-    <g transform="translate(612,178)">
-      <path d="M0 10 L7 -8 L14 10 Z" fill="#c848c8" stroke="#5c1e5c" stroke-width="1"/>
-      <circle cx="7" cy="-12" r="3.2" fill="#c848c8"/>
-      <text x="20" y="2" font-size="11.5" fill="#1e2a38">Fairway buoy No.7</text>
-    </g>
-    <!-- 已确认标记：小徽标，不再铺条纹 -->
-    <rect x="608" y="120" width="52" height="20" rx="10" fill="#f4f2ec" stroke="#c9c6bd"/>
-    <text x="634" y="134" text-anchor="middle" font-size="10.5" fill="#75736c">已确认</text>
-    <!-- 警告列表：条目仍在 -->
-    <rect x="672" y="236" width="152" height="70" rx="6" fill="#f4f2ec" stroke="#c9c6bd"/>
-    <text x="684" y="258" font-size="11.5" fill="#33312c">航行警告</text>
-    <rect x="678" y="266" width="136" height="30" rx="4" fill="#ffffff" stroke="#c9c6bd"/>
-    <text x="686" y="278" font-size="10.5" fill="#75736c">085/25</text>
-    <text x="686" y="291" font-size="10.5" fill="#75736c">buoy unlit · ack</text>
-    <text x="638" y="382" text-anchor="middle" font-size="13.5" font-weight="bold" fill="#0f6d5f">确认后：条纹收起，列表仍在（确认 ≠ 删除）</text>
+  <!-- NW 标签框：品红圆角矩形 -->
+  <g font-family="Consolas,Menlo,monospace" font-weight="bold" font-size="17">
+    <rect x="368" y="245" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
+    <text x="400" y="268" text-anchor="middle" fill="#c848c8">NW</text>
+
+    <rect x="538" y="190" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
+    <text x="570" y="213" text-anchor="middle" fill="#c848c8">NW</text>
+
+    <rect x="676" y="132" width="64" height="34" rx="8" fill="#fdfdfb" stroke="#c848c8" stroke-width="2.6"/>
+    <text x="708" y="155" text-anchor="middle" fill="#c848c8">NW</text>
   </g>
+
+  <!-- 右下角说明块 -->
+  <g font-size="12.5" fill="#75736c">
+    <text x="62" y="90" font-weight="bold" fill="#33312c">三个要点：</text>
+    <text x="62" y="114">① 边界用品红虚线（pecked line），不填充区域</text>
+    <text x="62" y="138">② 每段区域中央放一个品红 "NW" 标签框</text>
+    <text x="62" y="162">③ 画法与确认状态无关：撤销前照常显示</text>
+  </g>
+
+  <text x="430" y="414" text-anchor="middle" font-size="13" fill="#75736c">警告文本（正文/参考/撤销链）不在图面上呈现，通过警告列表或弹层查看</text>
 </svg>
