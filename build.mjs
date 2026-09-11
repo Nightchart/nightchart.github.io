@@ -2377,3 +2377,24 @@ const GEN_PAGE = `<section class="post tool-page">
 
 console.log(`✔ 构建完成 → ${OUT_DIR}`);
 console.log(`  已发布 ${articles.length} 篇 · 草稿 ${drafts.length} 篇（已生成页面但不进目录/RSS） · 独立页面 ${pages.length} 个 · 工具 ${TOOLS.length} 个`);
+
+/* 敏感词扫描：词库 sensitive-words.txt 不入库（gitignore）；发布产物命中任何一条即构建失败
+   —— 防真实数据来源标识（机构/项目/文件名/船名等）混入公开站点 */
+const SW_FILE = path.join(ROOT, 'sensitive-words.txt');
+if (fs.existsSync(SW_FILE)) {
+  const words = fs.readFileSync(SW_FILE, 'utf8').replace(/\r\n/g, '\n').split('\n')
+    .map((w) => w.trim()).filter((w) => w && !w.startsWith('#'));
+  const offenders = [];
+  for (const f of fs.readdirSync(OUT_DIR)) {
+    if (!f.endsWith('.html')) continue;
+    const txt = fs.readFileSync(path.join(OUT_DIR, f), 'utf8');
+    for (const w of words) if (txt.includes(w)) offenders.push(`  ${f} ← ${w}`);
+  }
+  if (offenders.length) {
+    console.error(`✗ 敏感词命中 ${offenders.length} 处，构建失败（处理或更新 sensitive-words.txt 后重试）：`);
+    offenders.forEach((o) => console.error(o));
+    process.exitCode = 1;
+  } else {
+    console.log(`  敏感词扫描通过（词库 ${words.length} 条）`);
+  }
+}
