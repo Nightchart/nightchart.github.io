@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+
+  <!-- 左：电文 -->
+  <rect x="40" y="60" width="340" height="330" rx="8" fill="#ffffff" stroke="#c9c6bd"/>
+  <text x="60" y="92" font-size="15" font-weight="bold" fill="#75736c">人读的：NAVTEX 电文</text>
+  <g font-family="Consolas,Menlo,monospace" font-size="12.5" fill="#33312c">
+    <text x="60" y="126">NAVAREA XI 085/25</text>
+    <text x="60" y="150">Chaozhou Harbor Approach.</text>
+    <text x="60" y="174">1. GENERAL AREA —</text>
+    <text x="74" y="192">Fairway buoy No.7 unlit.</text>
+    <text x="60" y="216">2. POSITION — 3 mi 067° from</text>
+    <text x="74" y="234">Ganu Point lighthouse.</text>
+    <text x="60" y="258">3. DETAILS — Buoy adrift</text>
+    <text x="74" y="276">from station. Keep clear.</text>
+    <text x="60" y="300">CANCEL THIS MESSAGE</text>
+    <text x="74" y="318">ON RESTORATION.</text>
+  </g>
+  <!-- 行编号圈 -->
+  <g fill="#0f6d5f" font-size="12" font-weight="bold">
+    <text x="352" y="126">①</text>
+    <text x="352" y="216">②</text>
+    <text x="352" y="258">③</text>
+    <text x="352" y="300">④</text>
+  </g>
+
+  <!-- 中间箭头 -->
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#0f6d5f"/>
+    </marker>
+  </defs>
+  <g stroke="#0f6d5f" stroke-width="1.6" fill="none">
+    <path d="M375 122 C 420 122, 430 122, 470 122" marker-end="url(#arr)"/>
+    <path d="M375 216 C 420 216, 430 216, 470 216" marker-end="url(#arr)"/>
+    <path d="M375 258 C 420 258, 430 258, 470 258" marker-end="url(#arr)"/>
+    <path d="M375 300 C 420 300, 430 300, 470 300" marker-end="url(#arr)"/>
+  </g>
+
+  <!-- 右：数据 -->
+  <rect x="480" y="60" width="340" height="330" rx="8" fill="#eef4f2" stroke="#0f6d5f" stroke-width="1.5"/>
+  <text x="500" y="92" font-size="15" font-weight="bold" fill="#0f6d5f">机读的：S-124 数据字段</text>
+  <g font-size="13" fill="#33312c">
+    <text x="500" y="126" font-family="Consolas,Menlo,monospace" font-weight="bold">identity: XI / 085 / 25</text>
+    <text x="516" y="144" fill="#75736c" font-size="12">全世界唯一的"钥匙"，撤销时引用</text>
+
+    <text x="500" y="216" font-family="Consolas,Menlo,monospace" font-weight="bold">geometry: 圆（半径≈3 nmi）</text>
+    <text x="516" y="234" fill="#75736c" font-size="12">圆心由参考点方位距离推算，可直接绘制</text>
+
+    <text x="500" y="258" font-family="Consolas,Menlo,monospace" font-weight="bold">narrative: 多语言正文</text>
+    <text x="516" y="276" fill="#75736c" font-size="12">屏幕提示框显示"怎么回事"</text>
+
+    <text x="500" y="300" font-family="Consolas,Menlo,monospace" font-weight="bold">cancellation: 恢复时自撤</text>
+    <text x="516" y="318" fill="#75736c" font-size="12">渲染器据此自动下线，不靠人记</text>
+  </g>
+
+  <text x="430" y="418" text-anchor="middle" font-size="13" fill="#75736c">同一条警告的两种形态：上面是给人看的行，下面是给机器读的字段</text>
+</svg>
