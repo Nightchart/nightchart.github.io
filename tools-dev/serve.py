@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # 本地预览服务：修正 Windows 注册表导致的 .svg MIME 错误（image/svg → image/svg+xml）
 # 用法：python tools-dev/serve.py [目录] [端口]，默认 serve publish/ 于 8899
+# 注意：不能用 os.chdir 进目标目录——CWD 停在 publish/ 里会让 build.mjs 的 rmSync 报 EPERM
+import functools
 import http.server
 import mimetypes
 import os
@@ -19,8 +21,8 @@ serve_dir = os.path.join(ROOT, 'publish')
 if len(sys.argv) > 1:
     serve_dir = sys.argv[1]
 port = int(sys.argv[2]) if len(sys.argv) > 2 else 8899
-os.chdir(serve_dir)
+serve_dir = os.path.abspath(serve_dir)
 
-with http.server.ThreadingHTTPServer(('0.0.0.0', port), Handler) as httpd:
+with http.server.ThreadingHTTPServer(('0.0.0.0', port), functools.partial(Handler, directory=serve_dir)) as httpd:
     print(f'serving {serve_dir} at http://127.0.0.1:{port}/ (svg mime fixed, no-cache)')
     httpd.serve_forever()
