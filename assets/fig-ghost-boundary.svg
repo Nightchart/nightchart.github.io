@@ -12,8 +12,8 @@
     <!-- 禁航区：跨越 T-A / T-B 边界 -->
     <circle cx="230" cy="155" r="62" fill="rgba(15,109,95,0.22)" stroke="#0f6d5f" stroke-width="2"/>
     <text x="230" y="160" text-anchor="middle" font-size="13" fill="#0f6d5f" font-weight="bold">W-217</text>
-    <text x="310" y="95" font-size="12" fill="#666">T-A · v41</text>
-    <text x="243" y="120" font-size="12" fill="#666">T-B · v41</text>
+    <text x="110" y="95" font-size="12" fill="#666">T-A · v41</text>
+    <text x="330" y="95" font-size="12" fill="#666">T-B · v41</text>
     <text x="230" y="380" text-anchor="middle" font-size="14" fill="#33312c">两侧一致，没有问题</text>
   </g>
 
@@ -26,7 +26,7 @@
     <rect x="670" y="240" width="170" height="110" fill="#eef4f2" stroke="#c9c6bd"/>
     <line x1="670" y1="70" x2="670" y2="350" stroke="#9aa39f" stroke-dasharray="4 4"/>
     <!-- T-A 重画：v42 无禁航区 -->
-    <text x="750" y="95" font-size="12" fill="#0f6d5f" font-weight="bold">T-A · v42（重画）</text>
+    <text x="515" y="95" font-size="12" fill="#0f6d5f" font-weight="bold">T-A · v42（重画）</text>
     <!-- T-B 仍旧：v41 残留半圆 -->
     <path d="M 670 93 A 62 62 0 0 1 670 217 Z" fill="rgba(180,83,9,0.25)" stroke="#b45309" stroke-width="2"/>
     <text x="683" y="120" font-size="12" fill="#b45309" font-weight="bold">T-B · v41（没重画）</text>
