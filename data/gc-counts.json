@@ -1,10 +1,10 @@
 {
-  "_updated": "2026-09-11",
-  "/": 30,
-  "/ecdis-standards-roadmap.html": 14,
+  "_updated": "2026-09-12",
+  "/": 42,
+  "/ecdis-standards-roadmap.html": 16,
   "/singleton-reentrant-deadlock.html": 4,
-  "/index.html": 13,
-  "/about.html": 10,
+  "/index.html": 14,
+  "/about.html": 11,
   "/tools.html": 8,
   "/objl.html": 2,
   "/geo-calc.html": 2,
@@ -21,5 +21,8 @@
   "/archive.html": 3,
   "/s104-waterlevel.html": 2,
   "/gen.html": 1,
-  "/pc.html": 1
+  "/pc.html": 1,
+  "/search.html": 1,
+  "/s52-portrayal.html": 1,
+  "/s111-surface-current.html": 1
 }
