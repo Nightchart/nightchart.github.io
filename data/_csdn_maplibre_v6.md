@@ -1,5 +1,3 @@
-# MapLibre GL JS v6 正式发布：v5 之后八个月的第一个大版本，迁移前必读（编译）
-
 > 本文编译自 MapLibre 官方Newsletter《MapLibre Newsletter July 2026》（2026-08-02，作者：Bart Louwers、Frank Elsinga、Harel Mazor、Ramya Ragupathy 等 MapLibre 团队）。原文链接：https://maplibre.org/news/2026-08-02-maplibre-newsletter-july-2026/ 。编译过程中有删减与整理，文末附笔者点评。
 
 MapLibre 社区在 7 月迎来了一个重要节点：**MapLibre GL JS v6 正式发布**。距离 v5（2025 年 12 月）落地仅过去八个月——但官方特别说明，上一个 major 版本距今其实已有一年半以上，积累的 breaking changes 已经多到必须单独发一个"破坏性大版本"来清理。同时官方明确表态：**短期内不打算再来一次这样的破坏性发布**（他们知道迁移有多痛苦）。
