@@ -64,3 +64,26 @@
 
 - **下一篇候选**：S-111 流场 → `data/_juejin_s111.md`（标题：S-111：让海图知道"水往哪流"；标签建议：后端、GIS、地图；摘要用主站 description）
 - 已含首发声明与绝对化链接。若 S-111 已在掘金发过，下一篇顺延为 S-124（`posts/2025-11-11-s124-navwarning.md`，需同款转换，说一声即生成）。
+
+
+---
+
+# Day 5 清单（09-15，同上流程）
+
+## 第 5 篇 · S-104 水位
+
+- **标题**：S-104：让海图知道"现在水位几米"
+- **标签**：GIS、地图、c++
+- **摘要**：拆解 NOAA 官方 S-104 水位预报样本：25 个站点 × 4 个时刻的潮位时序、趋势码与填充值约定——水深是相对基准面的，而基准面本身在动。
+- **正文文件**：data/_csdn_html/_csdn_s104.html
+- 对应主站：https://nightchart.cn/s104-waterlevel.html
+
+## 第 6 篇 · S-111 流场
+
+- **标题**：S-111：让海图知道"水往哪流"
+- **标签**：GIS、地图、c++
+- **摘要**：拆解 NOAA CBOFS 的 S-111 官方样本：54×54 网格 × 48 个整点时刻的潮流场、knots 单位与 -9999 填充值、directionToward 方向约定——顺带把浏览器端解析 HDF5 复合数据集的两个坑讲清楚。
+- **正文文件**：data/_csdn_html/_csdn_s111.html
+- 对应主站：https://nightchart.cn/s111-surface-current.html
+
+> 至此 CSDN 迁移包 7 篇全部排完（roadmap/s57anatomy/deadlock/s100map 已发 + toolkit/maplibre/s101dm/s102/s104/s111 待发）。
