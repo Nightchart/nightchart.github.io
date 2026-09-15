@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>知乎发布助手 · 航图笔记</title>
+<style>
+  body{font-family:"Microsoft YaHei",system-ui,sans-serif;background:#f4f5f7;margin:0;padding:24px;color:#1a1a1a}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:#666;font-size:13px;margin-bottom:20px}
+  .card{background:#fff;border:1px solid #e3e5e8;border-radius:10px;padding:18px 20px;margin-bottom:18px;max-width:760px}
+  .card h2{font-size:16px;margin:0 0 6px}
+  .meta{color:#888;font-size:12px;margin-bottom:12px}
+  .btn{display:inline-block;border:none;border-radius:6px;padding:9px 18px;font-size:14px;cursor:pointer;margin-right:10px;margin-top:4px}
+  .btn-main{background:#0066ff;color:#fff}
+  .btn-main:hover{background:#0052cc}
+  .btn-sub{background:#eef1f5;color:#333}
+  .btn-link{color:#0066ff;text-decoration:none;font-size:14px}
+  .status{display:inline-block;margin-left:10px;font-size:13px;color:#0a0;color;opacity:0;transition:opacity .3s}
+  .status.show{opacity:1}
+  .hidden{display:none}
+  .tips{font-size:12px;color:#999;margin-top:10px;line-height:1.7}
+  textarea{width:100%;height:120px}
+</style>
+</head>
+<body>
+<h1>知乎发布助手</h1>
+<div class="sub">每篇回答三步：点「打开问题页」→ 点「写回答」→ 回来点「复制全文」，到编辑器 Ctrl+V 后发布。</div>
+
+<!-- ============ 回答 1 ============ -->
+<div class="card">
+  <h2>回答 1｜哪里可以免费下载到国内标准s57的电子海图？</h2>
+  <div class="meta">question/397156806 · 现有回答仅 1 条（实验室自推广告）· 干货清单型，长尾流量</div>
+  <a class="btn btn-sub" href="https://www.zhihu.com/question/397156806" target="_blank">① 打开问题页 ↗</a>
+  <button class="btn btn-main" onclick="copyRich('rich1','text1','st1')">② 复制全文（富文本）</button><span class="status" id="st1">✓ 已复制，去编辑器 Ctrl+V</span>
+  <div class="tips">粘贴后检查：文末「nightchart.cn」链接应可点击；如富文本粘贴异常，点下面按钮复制纯文本手动加粗。</div>
+  <button class="btn btn-sub" onclick="copyText('text1','st1b')" style="font-size:12px">复制纯文本（备用）</button><span class="status" id="st1b">✓ 已复制</span>
+</div>
+
+<!-- ============ 回答 2 ============ -->
+<div class="card">
+  <h2>回答 2｜什么是电子海图？有哪些作用？</h2>
+  <div class="meta">question/578592549 · 已有 2 条科普长文 · 本文走工程师差异化视角（三层标准）</div>
+  <a class="btn btn-sub" href="https://www.zhihu.com/question/578592549" target="_blank">① 打开问题页 ↗</a>
+  <button class="btn btn-main" onclick="copyRich('rich2','text2','st2')">② 复制全文（富文本）</button><span class="status" id="st2">✓ 已复制，去编辑器 Ctrl+V</span>
+  <div class="tips">粘贴后检查：三层小标题是加粗而非标题样式（知乎回答规范）；文末链接可点击。</div>
+  <button class="btn btn-sub" onclick="copyText('text2','st2b')" style="font-size:12px">复制纯文本（备用）</button><span class="status" id="st2b">✓ 已复制</span>
+</div>
+
+<!-- ============ 富文本载荷（隐藏） ============ -->
+<div id="rich1" class="hidden"><p>先说清一个现实：<strong>中国海区的官方 ENC（S-57 格式电子航海图）没有免费公开下载渠道</strong>。官方电子海图由海军海道测量局制作发布（2011 年起对外发布中国海区国际标准电子海图），获取走官方授权渠道，需要付费申请；网上流传的“国内 ENC 打包”要么来源不明、要么是旧数据，航海用途千万别用，做开发也要注意数据合规问题。</p><p>如果是<strong>开发/学习用途</strong>，下面这些是可以免费、合法拿到手的 S-57 数据，按推荐顺序：</p><ol><li><strong>IHO S-64 官方测试数据集</strong>（最推荐）。IHO 官网免费下载，专为检验 ECDIS 的显示和更新逻辑设计，覆盖浅水、狭水道、灯标、分道通航等典型场景，还配套“你应该看到什么”的用例说明——相当于自带标准答案的考卷。写渲染器拿它当回归测试数据是行业惯例。</li><li><strong>NOAA 免费 ENC</strong>。美国官方 ENC 全量免费下载（注册即可），是真实生产数据，量大从近海到进港都有；顺带 NOAA 也公开了 S-102 水深网格和 S-111 流场的官方样本，做 S-100 开发很值得看。</li><li><strong>OpenCPN 及其社区测试图</strong>。开源 ECDIS，安装包自带示例数据，装完就能对照“数据→显示”全链路。</li><li><strong>天津大学 AIMIP 实验室的 TjuES57MapViewer</strong>（楼上官方号介绍的那个），安装包内含四份测试海图，还带开源 VS 工程，适合 Windows 二开起步。</li></ol><p>另外一个新手常踩的坑提前说：官方 ENC 分发普遍走 <strong>S-63 加密</strong>（数据保护方案），拿到数据文件没有密钥也解不开——所以别费劲找“解密包”，开发显示端直接用 S-64 这种明文测试数据最省事，等对接官方数据时密钥自然由渠道方提供。</p><p>这些数据怎么解析、怎么按 S-52 规则渲染，我在博客「航图笔记」（<a href="https://nightchart.cn">nightchart.cn</a>）里写了完整拆解系列，感兴趣可以来看。</p></div>
+
+<textarea id="text1" class="hidden">先说清一个现实：中国海区的官方 ENC（S-57 格式电子航海图）没有免费公开下载渠道。官方电子海图由海军海道测量局制作发布（2011 年起对外发布中国海区国际标准电子海图），获取走官方授权渠道，需要付费申请；网上流传的"国内 ENC 打包"要么来源不明、要么是旧数据，航海用途千万别用，做开发也要注意数据合规问题。
+
+如果是开发/学习用途，下面这些是可以免费、合法拿到手的 S-57 数据，按推荐顺序：
+
+1. IHO S-64 官方测试数据集（最推荐）。IHO 官网免费下载，专为检验 ECDIS 的显示和更新逻辑设计，覆盖浅水、狭水道、灯标、分道通航等典型场景，还配套"你应该看到什么"的用例说明——相当于自带标准答案的考卷。写渲染器拿它当回归测试数据是行业惯例。
+2. NOAA 免费 ENC。美国官方 ENC 全量免费下载（注册即可），是真实生产数据，量大从近海到进港都有；顺带 NOAA 也公开了 S-102 水深网格和 S-111 流场的官方样本，做 S-100 开发很值得看。
+3. OpenCPN 及其社区测试图。开源 ECDIS，安装包自带示例数据，装完就能对照"数据→显示"全链路。
+4. 天津大学 AIMIP 实验室的 TjuES57MapViewer（楼上官方号介绍的那个），安装包内含四份测试海图，还带开源 VS 工程，适合 Windows 二开起步。
+
+另外一个新手常踩的坑提前说：官方 ENC 分发普遍走 S-63 加密（数据保护方案），拿到数据文件没有密钥也解不开——所以别费劲找"解密包"，开发显示端直接用 S-64 这种明文测试数据最省事，等对接官方数据时密钥自然由渠道方提供。
+
+这些数据怎么解析、怎么按 S-52 规则渲染，我在博客「航图笔记」（nightchart.cn）里写了完整拆解系列，感兴趣可以来看。</textarea>
+
+<div id="rich2" class="hidden"><p>楼上已经有很全的科普了，我换一个<strong>工程师视角</strong>补充三层结构，理解了这个，电子海图领域 90% 的名词都能挂上去：</p><p><strong>第一层：数据标准 S-57 —— 海图的“数据库表结构”。</strong>一张电子海图（ENC）本质是一堆要素（feature）：深度区 DEPARE、水深点 SOUNDG、灯标 LIGHTS、沉船 WRECKS……每个要素 = 对象类 + 属性 + 几何。关键的反直觉点是：<strong>数据里没有任何颜色信息</strong>。哪片水域是蓝是白，数据不说。</p><p><strong>第二层：显示标准 S-52 —— 画法是查表查出来的。</strong>渲染 ECDIS 不是“画点线面”，而是拿要素的属性去查 look-up 表：深度区按水深范围落档填色（所以海图浅水是深蓝、深水反而发白——这是安全设计，不是审美）、浮标按类别挂符号、安全等深线由船员按本船吃水设定实时重算。连昼夜模式都是同一批命名色 token 换三套色值表。</p><p><strong>第三层：显示系统 ECDIS / ECS。</strong>按国际标准（IMO 性能标准 + IEC 61174）全项认证、可取代纸海图的是 ECDIS；达不到全套标准的商用系统叫 ECS，只能助航不能替代纸图。船上看到的大屏基本是 ECDIS。</p><p><strong>作用</strong>一句话版：把船位、水深、危险物、航线、雷达回波叠在一张“活的图”上，自动报警偏航和误入危险区，把驾驶员从海图作业里解放出来做决策。</p><p><strong>最后补一个正在发生的大事</strong>：S-57/S-52 这对组合正在被新一代框架 S-100 接替——S-101（新 ENC）、S-102（高精度水深）、S-104（动态水位）、S-111（表层流）、S-124（航行警告数字化）。时间表是 2026 年起双标准并行生产、2029 年起新装 ECDIS 必须支持 S-101。未来十年这个行业最大的工作量，就是新旧两套标准的并存与转换。</p><p>我是做海图渲染开发的，这个方向的标准拆解和渲染实践在博客「航图笔记」（<a href="https://nightchart.cn">nightchart.cn</a>）持续在写，欢迎交流。</p></div>
+
+<textarea id="text2" class="hidden">楼上已经有很全的科普了，我换一个工程师视角补充三层结构，理解了这个，电子海图领域 90% 的名词都能挂上去：
+
+第一层：数据标准 S-57 —— 海图的"数据库表结构"。一张电子海图（ENC）本质是一堆要素（feature）：深度区 DEPARE、水深点 SOUNDG、灯标 LIGHTS、沉船 WRECKS……每个要素 = 对象类 + 属性 + 几何。关键的反直觉点是：数据里没有任何颜色信息。哪片水域是蓝是白，数据不说。
+
+第二层：显示标准 S-52 —— 画法是查表查出来的。渲染 ECDIS 不是"画点线面"，而是拿要素的属性去查 look-up 表：深度区按水深范围落档填色（所以海图浅水是深蓝、深水反而发白——这是安全设计，不是审美）、浮标按类别挂符号、安全等深线由船员按本船吃水设定实时重算。连昼夜模式都是同一批命名色 token 换三套色值表。
+
+第三层：显示系统 ECDIS / ECS。按国际标准（IMO 性能标准 + IEC 61174）全项认证、可取代纸海图的是 ECDIS；达不到全套标准的商用系统叫 ECS，只能助航不能替代纸图。船上看到的大屏基本是 ECDIS。
+
+作用一句话版：把船位、水深、危险物、航线、雷达回波叠在一张"活的图"上，自动报警偏航和误入危险区，把驾驶员从海图作业里解放出来做决策。
+
+最后补一个正在发生的大事：S-57/S-52 这对组合正在被新一代框架 S-100 接替——S-101（新 ENC）、S-102（高精度水深）、S-104（动态水位）、S-111（表层流）、S-124（航行警告数字化）。时间表是 2026 年起双标准并行生产、2029 年起新装 ECDIS 必须支持 S-101。未来十年这个行业最大的工作量，就是新旧两套标准的并存与转换。
+
+我是做海图渲染开发的，这个方向的标准拆解和渲染实践在博客「航图笔记」（nightchart.cn）持续在写，欢迎交流。</textarea>
+
+<script>
+function copyRich(richId, textId, stId) {
+  const rich = document.getElementById(richId).innerHTML;
+  const text = document.getElementById(textId).value;
+  navigator.clipboard.write([
+    new ClipboardItem({
+      'text/html': new Blob([rich], {type: 'text/html'}),
+      'text/plain': new Blob([text], {type: 'text/plain'})
+    })
+  ]).then(() => flash(stId, '✓ 已复制，去编辑器 Ctrl+V'))
+    .catch(() => copyText(textId, stId));
+}
+function copyText(textId, stId) {
+  const t = document.getElementById(textId);
+  t.classList.remove('hidden'); t.select();
+  document.execCommand('copy'); t.classList.add('hidden');
+  flash(stId, '✓ 已复制纯文本');
+}
+function flash(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
