@@ -33,6 +33,8 @@ const YEAR = new Date().getFullYear();
 // GoatCounter 阅读数快照（data/gc-counts.json，由定时更新或手动写入；缺省时页面不显示阅读数）
 let GC = {};
 try { GC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'gc-counts.json'), 'utf8')); } catch {}
+// 工具页路径集合：这些页面在 layout 尾部追加「累计使用」计数器（/api/views Cloudflare Worker，POST 自增 / GET 只读）
+const TOOL_USE_PATHS = new Set(['/objl.html', '/attr.html', '/s57-s101.html', '/geo-calc.html', '/s52.html', '/fc.html', '/pc.html', '/h5.html', '/gen.html']);
 // 工具注册表（data/tools.json）：工具主页与 sitemap 由它生成，新增工具加一条即可
 let TOOLS = [];
 try { TOOLS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tools.json'), 'utf8')); } catch {}
@@ -249,6 +251,12 @@ function mdToHtml(md, toc) {
 /* ---------------- 页面模板 ---------------- */
 
 function layout(pageTitle, metaDesc, content, ogType = "website", ogUrl = CFG.siteUrl, wide = false) {
+  // 工具页「累计使用」计数器：POST /api/views 自增并回显（GoatCounter 快照作为初始值兜底）
+  const pagePath = ogUrl && ogUrl.startsWith(CFG.siteUrl) ? ogUrl.slice(CFG.siteUrl.length) : '';
+  if (TOOL_USE_PATHS.has(pagePath)) {
+    const init = GC[pagePath] || 0;
+    content += `\n<div class="tool-views" style="text-align:center;color:var(--muted);font-size:12.5px;margin:16px 0 4px;">本页累计使用 <span id="gc-views">${init}</span> 次<script>(function(){var p="${pagePath}";var el=document.getElementById("gc-views");if(!el||!window.fetch)return;fetch("/api/views?path="+encodeURIComponent(p),{method:"POST"}).then(function(r){return r.json()}).then(function(j){if(j&&typeof j.views==="number"){el.textContent=j.views}}).catch(function(){})})();</script></div>`;
+  }
   const fullTitle = !pageTitle || pageTitle === CFG.siteTitle
     ? CFG.siteTitle
     : `${pageTitle} · ${CFG.siteTitle}`;
@@ -455,18 +463,25 @@ const TOOL_ICONS = {
   palette: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.6 0 2.2-.9 2.2-1.9 0-.9-.7-1.4-.7-2.2 0-1 .8-1.9 2.2-1.9h1.6c2 0 3.2-1.5 3.2-3.4C20.5 6.7 16.7 3.5 12 3.5Z"></path><path d="M7.5 10.5h.01M11 7.5h.01M15.5 8.5h.01M8 15h.01" stroke-width="2.4"></path></svg>',
 };
 function toolsPage() {
-  const cards = TOOLS.map((t) => `<li class="tool-card">
+  const cards = TOOLS.map((t) => {
+    const p = '/' + String(t.href || '').replace(/^\//, '');
+    const n = GC[p] || 0;
+    return `<li class="tool-card">
   <div class="tool-head"><span class="tool-icon">${TOOL_ICONS[t.icon] || TOOL_ICONS.table}</span><h2><a href="${esc(t.href)}">${esc(t.name)}</a></h2></div>
   <p>${esc(t.desc)}</p>
   ${t.tags && t.tags.length ? `<div class="tool-tags">${t.tags.map((x) => `<span class="tag">${esc(x)}</span>`).join('')}</div>` : ''}
-</li>`).join('\n');
+  <div class="tool-uses" style="margin-top:10px;color:var(--muted);font-size:12.5px;">累计使用 <span class="tool-uses-n" data-path="${p}">${n}</span> 次</div>
+</li>`;
+  }).join('\n');
+  const usesScript = `<script>(function(){var els=document.querySelectorAll(".tool-uses-n");if(!window.fetch||!els.length)return;els.forEach(function(el){fetch("/api/views?path="+encodeURIComponent(el.getAttribute("data-path"))).then(function(r){return r.json()}).then(function(j){if(j&&typeof j.views==="number"){el.textContent=j.views}}).catch(function(){})});})();</script>`;
   return `<section class="intro">
 <h1>实用工具</h1>
-<p>做海图 / ECDIS 开发时自己反复要查的东西，顺手做成在线工具放在这里，随博客持续更新。缺什么工具欢迎邮件 hi@nightchart.cn 提议。</p>
+<p>做海图 / ECDIS 开发时自己反复要查的东西，顺手做成在线工具放在这里，随博客持续更新。缺什么工具欢迎邮件 hi@nightchart.cn 提议。<span style="color:var(--muted);font-size:13px;">各卡片下的「累计使用」是工具页的实时访问计数。</span></p>
 </section>
 <ul class="tool-list">
 ${cards}
 </ul>
+${usesScript}
 <section class="res">
 <h2>推荐资源</h2>
 <p>做海图 / 地图开发反复要去的官方站点，放在这里一并收藏：</p>
