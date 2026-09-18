@@ -34,7 +34,7 @@ const YEAR = new Date().getFullYear();
 let GC = {};
 try { GC = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'gc-counts.json'), 'utf8')); } catch {}
 // 工具页路径集合：这些页面在 layout 尾部追加「累计使用」计数器（/api/views Cloudflare Worker，POST 自增 / GET 只读）
-const TOOL_USE_PATHS = new Set(['/objl.html', '/attr.html', '/s57-s101.html', '/geo-calc.html', '/s52.html', '/fc.html', '/pc.html', '/h5.html', '/gen.html']);
+const TOOL_USE_PATHS = new Set(['/objl.html', '/attr.html', '/s57-s101.html', '/geo-calc.html', '/s52.html', '/fc.html', '/pc.html', '/h5.html', '/gen.html', '/s52-sim.html']);
 // 工具注册表（data/tools.json）：工具主页与 sitemap 由它生成，新增工具加一条即可
 let TOOLS = [];
 try { TOOLS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tools.json'), 'utf8')); } catch {}
@@ -1731,6 +1731,228 @@ ${palRows}
 })();
 </script>`;
   fs.writeFileSync(path.join(OUT_DIR, 's52.html'), layout('S-52 颜色与符号速查', 'S-52 在线速查：五套标准调色板（白昼/黄昏/夜间）63 个颜色令牌屏显值，166 个 INT 1 图式常用海图符号中文图库，支持实时过滤。', s52Body, 'website', `${CFG.siteUrl}/s52.html`, true));
+// S-52 昼夜模拟器：合成海图按 look-up 表实时渲染，等深线滑块 + 三套色板切换（真实 token 数据注入）
+const SIM_PAGE = `<section class="intro">
+<h1>S-52 昼夜模拟器</h1>
+<p>一块示例海图，按 S-52 规则实时渲染：<strong>颜色是 look-up 表查出来的</strong>（水深落在哪个档，就填哪个命名色 token），<strong>安全等深线是船员的设置、不是图的属性</strong>。拖动滑块、切换色板，亲眼看这两件事怎么改变屏幕。海图为合成示例，色值为 S-52 真实 token。</p>
+</section>
+<style>
+.sim-bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:0 0 12px;font-size:13.5px}
+.sim-bar label{display:inline-flex;align-items:center;gap:6px}
+.sim-btn{border:1px solid var(--border);background:var(--card);color:var(--fg);border-radius:8px;padding:7px 16px;cursor:pointer;font-size:14px}
+.sim-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.sim-cvbox{border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:960px}
+.sim-cvbox canvas{width:100%;display:block}
+</style>
+<div style="max-width:960px;margin:0 auto;">
+<div class="sim-bar">
+<span style="color:var(--muted);">色板</span>
+<button type="button" class="sim-btn" data-m="DAY_WHITEBACK">白昼</button>
+<button type="button" class="sim-btn" data-m="DUSK">黄昏</button>
+<button type="button" class="sim-btn" data-m="NIGHT">夜间</button>
+<label>浅水等深线 <input id="r-sh" type="range" min="2" max="10" step="1" value="5"> <b id="v-sh">5m</b></label>
+<label>安全等深线 <input id="r-sa" type="range" min="4" max="30" step="1" value="15"> <b id="v-sa">15m</b></label>
+<label>深水等深线 <input id="r-de" type="range" min="10" max="50" step="1" value="25"> <b id="v-de">25m</b></label>
+<label><input id="c-snd" type="checkbox" checked> 水深注记</label>
+</div>
+<div class="sim-cvbox"><canvas id="sim-cv" width="864" height="464"></canvas></div>
+<div id="sim-info" style="margin:12px 0 0;color:var(--fg);font-size:14px;line-height:1.8;"></div>
+<div id="tok-strip" style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 8px;"></div>
+</div>
+<section class="res">
+<h2>你在看什么</h2>
+<ul class="res-list">
+<li><strong>颜色是查表查出来的</strong>：每个网格的水深数值按档位落入 look-up 表，命中命名色 token（DEPVS / DEPMS / DEPMD / DEPDW）。切色板 = 同一批 token 换一套 RGB——颜色从头到尾不存在于"数据"里。</li>
+<li><strong>等深线是船员的设置</strong>：浅水 / 安全 / 深水三条线是本船的设定值。改一个数，整片水域的填色立即重排——同一张 ENC，不同设置显示完全不同，这就是"颜色不能烘死在瓦片里"的原因。</li>
+<li><strong>夜板的取舍</strong>：切到夜间，浅水层次主动放弃（DEPVS 与 DEPMS 几乎同色），信息转移到灯浮光晕与等深线上——保护暗适应优先于层次丰富。沉船的品红危险圈在夜里反而更醒目。</li>
+</ul>
+<p>全部 63 个 token 的五套色值可在 <a href="s52.html">S-52 颜色与符号速查</a> 中查看导出；规则详解见文章 <a href="s52-portrayal.html">S-52：把数据库"翻译"成屏幕</a>。</p>
+</section>
+<script>
+(function(){
+var PAL = __PAL_JSON__;
+var cur = 'DAY_WHITEBACK';
+var P = { sh: 5, sa: 15, de: 25 };
+var showSnd = true;
+var cv = document.getElementById('sim-cv');
+var ctx = cv.getContext('2d');
+var W = cv.width, H = cv.height, G = 4;
+var CX = Math.ceil(W / G), CY = Math.ceil(H / G);
+var WRECK = { x: 560, y: 150, d: 6.5 };
+var SNDPTS = [[260,80],[350,170],[430,60],[300,300],[420,350],[510,180],[585,205],[700,120],[760,230],[640,410],[300,420],[180,300],[520,60],[820,150]];
+function coast(y){ return 150 + 55*Math.sin(y/95) + 20*Math.sin(y/41 + 1.7); }
+function depthAt(x, y){
+  var c = coast(y), off = x - c;
+  if (off < 0) return -1;
+  var d = off * 0.085;
+  d -= 13 * Math.exp(-((x-560)*(x-560) + (y-150)*(y-150)) / 7688);
+  d += 9 * Math.exp(-((x-640)*(x-640) + (y-330)*(y-330)) / 9800);
+  d += 1.6*Math.sin(x/57) + 1.2*Math.cos(y/63);
+  return Math.max(0.4, d);
+}
+var CASES = {1:[0,3],2:[3,2],3:[0,2],4:[1,2],5:[0,1,2,3],6:[1,3],7:[0,1],8:[0,1],9:[1,3],10:[1,2,0,3],11:[1,2],12:[0,2],13:[3,2],14:[0,3]};
+function ip(v1, v2, t){ var d = v2 - v1; return (d < 0 ? -d : d) < 1e-9 ? 0.5 : (t - v1) / d; }
+function contour(t, style, width){
+  var corners = [[0,0],[G,0],[G,G],[0,G]];
+  var dcorner = function(x, y){ return depthAt(x, y); };
+  ctx.strokeStyle = style; ctx.lineWidth = width;
+  ctx.beginPath();
+  for (var j = 0; j < CY; j++){
+    for (var i = 0; i < CX; i++){
+      var x0 = i*G, y0 = j*G;
+      var xs = [x0, x0+G, x0+G, x0];
+      var ys = [y0, y0, y0+G, y0+G];
+      var dv = [];
+      for (var c = 0; c < 4; c++) dv.push(depthAt(xs[c], ys[c]));
+      var idx = (dv[0]>t?8:0)|(dv[1]>t?4:0)|(dv[2]>t?2:0)|(dv[3]>t?1:0);
+      if (idx === 0 || idx === 15) continue;
+      var pts = [[xs[0], ys[0] + G*ip(dv[0], dv[3], t)],
+                 [xs[0] + G*ip(dv[0], dv[1], t), ys[0]],
+                 [xs[1], ys[1] + G*ip(dv[1], dv[2], t)],
+                 [xs[3] + G*ip(dv[3], dv[2], t), ys[3]]];
+      var segs = CASES[idx];
+      for (var s = 0; s < segs.length; s += 2){
+        var p1 = pts[segs[s]], p2 = pts[segs[s+1]];
+        ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]);
+      }
+    }
+  }
+  ctx.stroke();
+}
+function halo(x, y, color, alpha, r){
+  var g = ctx.createRadialGradient(x, y, 2, x, y, r);
+  g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.save(); ctx.globalAlpha = alpha;
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+  ctx.restore();
+}
+function buoy(x, y, kind, pal){
+  ctx.lineWidth = 1.5;
+  if (kind === 'red'){
+    ctx.fillStyle = pal.CHRED; ctx.strokeStyle = pal.CHBLK;
+    ctx.beginPath(); ctx.moveTo(x-9, y+9); ctx.lineTo(x+9, y+9); ctx.lineTo(x, y-12); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y-12); ctx.lineTo(x, y-18); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y-21, 3, 0, 6.2832); ctx.fillStyle = pal.CHRED; ctx.fill(); ctx.stroke();
+  } else if (kind === 'green'){
+    ctx.fillStyle = pal.CHGRN; ctx.strokeStyle = pal.CHBLK;
+    ctx.fillRect(x-7, y-10, 14, 19); ctx.strokeRect(x-7, y-10, 14, 19);
+    ctx.fillStyle = pal.CHGRN; ctx.fillRect(x-4, y-16, 8, 6); ctx.strokeRect(x-4, y-16, 8, 6);
+  } else {
+    ctx.fillStyle = pal.CHWHT; ctx.strokeStyle = pal.CHBLK;
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, 6.2832); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = pal.CHRED; ctx.fillRect(x-2.5, y-11, 5, 22);
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, 6.2832); ctx.stroke();
+  }
+}
+function wreckDanger(){ return WRECK.d < P.sa; }
+function render(){
+  var pal = PAL[cur];
+  var glowA = cur === 'NIGHT' ? 0.4 : (cur === 'DUSK' ? 0.15 : 0);
+  ctx.fillStyle = pal.LANDF; ctx.fillRect(0, 0, W, H);
+  for (var j = 0; j < CY; j++){
+    for (var i = 0; i < CX; i++){
+      var x = i*G + G/2, y = j*G + G/2;
+      var d = depthAt(x, y);
+      if (d < 0) continue;
+      var tk = (d < P.sh) ? 'DEPVS' : (d < P.sa) ? 'DEPMS' : (d < P.de) ? 'DEPMD' : 'DEPDW';
+      ctx.fillStyle = pal[tk];
+      ctx.fillRect(i*G, j*G, G, G);
+    }
+  }
+  contour(0, pal.CSTLN, 2);
+  contour(P.sh, pal.DEPCN, 1);
+  contour(P.sa, pal.DEPCN, 2);
+  contour(P.de, pal.DEPCN, 1);
+  if (showSnd){
+    ctx.font = '10px "Microsoft YaHei", sans-serif'; ctx.textAlign = 'center';
+    for (var s = 0; s < SNDPTS.length; s++){
+      var d2 = depthAt(SNDPTS[s][0], SNDPTS[s][1]);
+      if (d2 < 0) continue;
+      ctx.fillStyle = (d2 < P.sa) ? pal.SNDG1 : pal.SNDG2;
+      ctx.fillText(d2.toFixed(1), SNDPTS[s][0], SNDPTS[s][1]);
+    }
+  }
+  if (wreckDanger()){
+    ctx.strokeStyle = pal.CHMGD; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.arc(WRECK.x, WRECK.y, 30, 0, 6.2832); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.save(); ctx.translate(WRECK.x, WRECK.y); ctx.rotate(-0.35);
+  ctx.fillStyle = pal.CHBLK;
+  ctx.beginPath(); ctx.moveTo(-14, 2); ctx.quadraticCurveTo(-6, -7, 6, -6); ctx.lineTo(14, 0);
+  ctx.quadraticCurveTo(6, 7, -6, 7); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  ctx.font = '11px "Microsoft YaHei", sans-serif'; ctx.fillStyle = pal.CHMGD; ctx.textAlign = 'left';
+  ctx.fillText('沉船 6.5m', WRECK.x + 36, WRECK.y + 4);
+  buoy(497, 105, 'red', pal);
+  buoy(652, 105, 'green', pal);
+  buoy(795, 60, 'safe', pal);
+  if (glowA > 0){
+    halo(497, 95, pal.CHRED, glowA, 34);
+    halo(652, 95, pal.CHGRN, glowA, 34);
+    halo(795, 52, pal.CHWHT, glowA * 0.8, 30);
+  }
+  ctx.font = '11px "Microsoft YaHei", sans-serif'; ctx.fillStyle = pal.CHGRD; ctx.textAlign = 'left';
+  ctx.fillText('示例图 E1 · 合成数据 · 非航行用途', 14, H - 12);
+  var info = '浅水 ' + P.sh + 'm · 安全 ' + P.sa + 'm · 深水 ' + P.de + 'm —— ';
+  info += wreckDanger() ? '沉船（6.5m）位于安全水域之外，按规范标示危险区' : '沉船（6.5m）已处于安全水域一侧，危险标示撤除';
+  if (cur === 'NIGHT') info += ' · 夜板：浅水层次让位给灯浮光晕';
+  document.getElementById('sim-info').textContent = info;
+  var toks = ['DEPVS', 'DEPMS', 'DEPMD', 'DEPDW', 'CHBLK', 'LANDF', 'CHMGD'];
+  var strip = '';
+  for (var i = 0; i < toks.length; i++){
+    var hex = pal[toks[i]];
+    strip += '<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;">'
+      + '<span style="width:14px;height:14px;border-radius:3px;display:inline-block;border:1px solid var(--border);background:' + hex + '"></span>'
+      + toks[i] + ' ' + hex + '</span>';
+  }
+  document.getElementById('tok-strip').innerHTML = strip;
+}
+function clampParams(){
+  if (P.sa <= P.sh) P.sa = P.sh + 1;
+  if (P.de <= P.sa) P.de = P.sa + 1;
+  if (P.sa >= P.de) P.sa = P.de - 1;
+}
+function syncControls(){
+  document.getElementById('v-sh').textContent = P.sh + 'm';
+  document.getElementById('v-sa').textContent = P.sa + 'm';
+  document.getElementById('v-de').textContent = P.de + 'm';
+  document.getElementById('r-sh').value = P.sh;
+  document.getElementById('r-sa').value = P.sa;
+  document.getElementById('r-de').value = P.de;
+  var bs = document.querySelectorAll('.sim-btn');
+  for (var i = 0; i < bs.length; i++){
+    bs[i].className = 'sim-btn' + (bs[i].getAttribute('data-m') === cur ? ' active' : '');
+  }
+}
+var pending = false;
+function rerender(){
+  if (pending) return;
+  pending = true;
+  requestAnimationFrame(function(){ render(); pending = false; });
+}
+var shEl = document.getElementById('r-sh');
+var saEl = document.getElementById('r-sa');
+var deEl = document.getElementById('r-de');
+shEl.addEventListener('input', function(){ P.sh = +shEl.value; clampParams(); syncControls(); rerender(); });
+saEl.addEventListener('input', function(){ P.sa = +saEl.value; clampParams(); syncControls(); rerender(); });
+deEl.addEventListener('input', function(){ P.de = +deEl.value; clampParams(); syncControls(); rerender(); });
+document.getElementById('c-snd').addEventListener('change', function(e){ showSnd = e.target.checked; rerender(); });
+var bts = document.querySelectorAll('.sim-btn');
+for (var i = 0; i < bts.length; i++){
+  bts[i].addEventListener('click', function(e){
+    cur = e.currentTarget.getAttribute('data-m');
+    syncControls(); rerender();
+  });
+}
+syncControls(); render();
+})();
+</script>`;
+
+fs.writeFileSync(path.join(OUT_DIR, 's52-sim.html'), layout('S-52 昼夜模拟器', '交互式 S-52 昼夜模拟器：拖动安全等深线滑块看水深填色实时重排，切换白昼/黄昏/夜间三套标准色板——look-up 表、命名色与船员参数的可玩演示，色值为 S-52 真实 token。', SIM_PAGE.replace('__PAL_JSON__', JSON.stringify((function(){
+  var c = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 's52', 'colors.json'), 'utf8'));
+  return { DAY_WHITEBACK: c.DAY_WHITEBACK, DUSK: c.DUSK, NIGHT: c.NIGHT };
+})())), 'website', `${CFG.siteUrl}/s52-sim.html`, true));
 }
 
 /* ---------------- S-100 要素目录解析器 ---------------- */
