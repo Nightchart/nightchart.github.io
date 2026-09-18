@@ -95,3 +95,12 @@
 - 对应主站：https://nightchart.cn/s111-surface-current.html
 
 > 至此 CSDN 迁移包 7 篇全部排完（roadmap/s57anatomy/deadlock/s100map 已发 + toolkit/maplibre/s101dm/s102/s104/s111 待发）。
+
+
+## 迁移第二波（2026-09-18 起）
+
+- 今日额度剩 1 篇，选定：《S-64：IHO 官方测试数据集，渲染器的陪练》（主站 09-17 刚发布并优化）
+- 源 md：data/_s64_csdn_src.md（已加首发声明/图改文字注/签名带链接）→ 正文 HTML：data/_csdn_html/_s64_csdn_src.html
+- 复制页：data/_csdn_copier_s64.html（自动化通道断开时的桥接）
+- 标题：S-64：IHO 官方测试数据集，渲染器的陪练 | 摘要用主站 description | 标签：测试/ECDIS/IHO（不存在则用 开源 替代）
+- 后续队列：s101-portrayal-lookup → s52-portrayal（可带昼夜模拟器链接）→ s124；每篇需先跑 md2csdn 转换
