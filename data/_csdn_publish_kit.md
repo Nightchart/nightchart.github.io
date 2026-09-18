@@ -107,3 +107,6 @@
 
 - 2026-09-18（第二波第 1 篇）：《S-64：IHO 官方测试数据集，渲染器的陪练》✅ 已发布（标签 测试工具/开源）https://blog.csdn.net/nightchart/article/details/165875206
 - 发布流程升级：tools-dev/_publish_loop.py 自动循环弹二维码+探测扫码结果（人只负责扫码）；扫码是当日首篇后随机触发的风控
+
+- 2026-09-19：《S-125：让海图知道"航标还正常吗"》✅ 主站+CSDN 同步发布（CSDN：https://blog.csdn.net/nightchart/article/details/165892485 ，标签 船舶（自定义标签通道验证成功：原生键入+Enter））
+- 自定义标签经验：搜索无候选时，type 原生键入 + press Enter（可信事件）可添加自定义标签；合成 KeyboardEvent 无效
