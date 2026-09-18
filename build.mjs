@@ -709,6 +709,46 @@ fs.writeFileSync(
 
 // 静态资源
 fs.copyFileSync(path.join(ROOT, 'style.css'), path.join(OUT_DIR, 'style.css'));
+// PWA：manifest 与 service worker（全站工具纯前端，可安装、断网可用；V 随构建变化以刷新缓存）
+const SW_SRC = `const V='v${ASSET_V}';const CORE=['index.html','tools.html','datasets.html','search.html','archive.html','about.html','style.css','favicon.svg','manifest.webmanifest'];
+self.addEventListener('install',function(e){e.waitUntil(caches.open(V).then(function(c){return c.addAll(CORE)}).then(function(){return self.skipWaiting()}))});
+self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==V}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
+self.addEventListener('fetch',function(e){
+  if(e.request.method!=='GET')return;
+  var u=new URL(e.request.url);
+  if(u.origin===location.origin){
+    e.respondWith((async function(){
+      var c=await caches.open(V);
+      var hit=await c.match(e.request);
+      var net=fetch(e.request).then(function(r){if(r.ok)c.put(e.request,r.clone());return r}).catch(function(){return null});
+      return hit||await net||c.match('index.html');
+    })());
+    return;
+  }
+  if(/goatcounter|zgo\\.at/.test(u.hostname))return;
+  e.respondWith((async function(){
+    var c=await caches.open(V+'-x');
+    var hit=await c.match(e.request);
+    var net=fetch(e.request).then(function(r){try{c.put(e.request,r.clone())}catch(_){ }return r}).catch(function(){return null});
+    return hit||await net;
+  })());
+});`;
+fs.writeFileSync(path.join(OUT_DIR, 'sw.js'), SW_SRC);
+const MANIFEST = {
+  name: '航图笔记 · 夜航海图',
+  short_name: '航图笔记',
+  description: 'S-57 / S-52 / S-100 海图标准解读与在线工具',
+  start_url: 'index.html',
+  scope: '.',
+  display: 'standalone',
+  background_color: '#f9f8f5',
+  theme_color: '#0e6b5c',
+  icons: [
+    { src: 'assets/icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: 'assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+  ]
+};
+fs.writeFileSync(path.join(OUT_DIR, 'manifest.webmanifest'), JSON.stringify(MANIFEST, null, 2));
 if (fs.existsSync(path.join(ROOT, 'robots.txt'))) {
   fs.copyFileSync(path.join(ROOT, 'robots.txt'), path.join(OUT_DIR, 'robots.txt'));
 }
