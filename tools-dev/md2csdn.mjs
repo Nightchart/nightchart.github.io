@@ -7,8 +7,11 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const buildSrc = fs.readFileSync(path.join(ROOT, "build.mjs"), "utf8").split("\n");
-// build.mjs 第 42 行 const esc 起，至 mdToHtml 结束（第 247 行），含全部依赖
-const core = buildSrc.slice(41, 247).join("\n");
+// 取 <md-engine> … </md-engine> 标记之间的 mdToHtml 引擎及全部依赖（行号免疫）
+var m0 = buildSrc.findIndex(function (l) { return l.indexOf("<md-engine>") >= 0; });
+var m1 = buildSrc.findIndex(function (l) { return l.indexOf("</md-engine>") >= 0; });
+if (m0 < 0 || m1 < 0) throw new Error("build.mjs missing md-engine markers");
+var core = buildSrc.slice(m0 + 1, m1).join("\n");
 const { mdToHtml } = new Function(core + "\nreturn { mdToHtml };")();
 
 const mdPath = path.resolve(ROOT, process.argv[2]);
