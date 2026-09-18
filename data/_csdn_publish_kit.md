@@ -104,3 +104,6 @@
 - 复制页：data/_csdn_copier_s64.html（自动化通道断开时的桥接）
 - 标题：S-64：IHO 官方测试数据集，渲染器的陪练 | 摘要用主站 description | 标签：测试/ECDIS/IHO（不存在则用 开源 替代）
 - 后续队列：s101-portrayal-lookup → s52-portrayal（可带昼夜模拟器链接）→ s124；每篇需先跑 md2csdn 转换
+
+- 2026-09-18（第二波第 1 篇）：《S-64：IHO 官方测试数据集，渲染器的陪练》✅ 已发布（标签 测试工具/开源）https://blog.csdn.net/nightchart/article/details/165875206
+- 发布流程升级：tools-dev/_publish_loop.py 自动循环弹二维码+探测扫码结果（人只负责扫码）；扫码是当日首篇后随机触发的风控
