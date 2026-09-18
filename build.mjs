@@ -476,7 +476,7 @@ function toolsPage() {
   const usesScript = `<script>(function(){var els=document.querySelectorAll(".tool-uses-n");if(!window.fetch||!els.length)return;els.forEach(function(el){fetch("/api/views?path="+encodeURIComponent(el.getAttribute("data-path"))).then(function(r){return r.json()}).then(function(j){if(j&&typeof j.views==="number"){el.textContent=j.views}}).catch(function(){})});})();</script>`;
   return `<section class="intro">
 <h1>实用工具</h1>
-<p>做海图 / ECDIS 开发时自己反复要查的东西，顺手做成在线工具放在这里，随博客持续更新。缺什么工具欢迎邮件 hi@nightchart.cn 提议。<span style="color:var(--muted);font-size:13px;">各卡片下的「累计使用」是工具页的实时访问计数。</span></p>
+<p>做海图 / ECDIS 开发时自己反复要查的东西，顺手做成在线工具放在这里，随博客持续更新。缺什么工具欢迎邮件 hi@nightchart.cn 提议。<span style="color:var(--muted);font-size:13px;">各卡片下的「累计使用」是工具页的实时访问计数。找练手数据？见 <a href="datasets.html">练手数据集</a> 页。</span></p>
 </section>
 <ul class="tool-list">
 ${cards}
@@ -650,7 +650,46 @@ for (const p of posts) {
 }
 
 fs.writeFileSync(path.join(OUT_DIR, 'index.html'), layout('', CFG.description, indexPage(articles)));
+// 练手数据集页：免费、公开、合法的 ENC / S-100 样本数据导航（链接均经核实）
+function datasetsPage() {
+  return `<section class="intro">
+<h1>练手数据集</h1>
+<p>做海图 / ECDIS 开发最麻烦的第一步往往是"手里没有一份合法、能打开的数据"。这一页把免费、公开、可放心使用的官方测试数据与样例收在一起，按用途分类，持续更新。航海用途请务必使用官方授权渠道取得的最新海图。</p>
+</section>
+<section class="res">
+<h2>官方测试数据集（从这里开始）</h2>
+<ul class="res-list">
+<li><a href="https://iho.int/en/standards-and-specifications" target="_blank" rel="noopener">IHO S-64 测试数据集</a> —— ECDIS 显示与更新的"标准答案"数据：浅水、狭水道、浮标、沉船、分道通航等典型场景配套预期显示用例，型式认可测试（IEC 61174）的核心输入。IHO 标准页免费下载（现行 Ed 3.0 一线）</li>
+<li><a href="https://github.com/iho-ohi/S-164-Sub-Group" target="_blank" rel="noopener">IHO S-164 测试数据集（GitHub 开源）</a> —— S-100 / S-101 时代的接棒者：S-64 的 S-101 等价数据 + TIM 使用手册，可直接下载、比对、提 issue</li>
+<li><a href="https://github.com/iho-ohi/S-101-Test-Datasets" target="_blank" rel="noopener">S-101 官方测试数据仓库</a> —— 新一代 ENC 开发阶段可用的官方数据集</li>
+</ul>
+</section>
+<section class="res">
+<h2>真实生产数据（免费官方渠道）</h2>
+<ul class="res-list">
+<li><a href="https://charts.noaa.gov/ENCs/ENCs.shtml" target="_blank" rel="noopener">NOAA 全量 ENC</a> —— 美国官方电子海图免费下载，S-57 格式的真实生产数据，从近海到进港全覆盖</li>
+<li><a href="https://www.opencpn.org" target="_blank" rel="noopener">OpenCPN 示例海图</a> —— 开源 ECDIS 安装即带示例数据，最快建立"数据 → 显示"全链路直觉</li>
+</ul>
+</section>
+<section class="res">
+<h2>本站在线直接玩（免下载）</h2>
+<ul class="res-list">
+<li><a href="h5.html">S-102 / S-111 网格解析器</a> —— 内置 NOAA CBOFS 切萨皮克湾 S-111 潮流场官方样本（54×54 网格 × 48 个整点时刻），打开即播放流场热力图</li>
+<li><a href="gen.html">S-100 测试数据生成器</a> —— 基于要素目录批量生成带合法枚举值的合成实例，一键导出 JSON / GeoJSON</li>
+<li><a href="tools.html">全部工具</a> —— 码表 / 对照 / 色板 / 坐标磁差速算等 9 个在线工具</li>
+</ul>
+</section>
+<section class="res">
+<h2>合规与加密提醒</h2>
+<ul class="res-list">
+<li>航海用途必须使用官方授权渠道取得的最新海图，来源不明的打包 ENC 勿用于航行</li>
+<li>生产 ENC 普遍采用 S-63 加密保护，开发测试请直接使用上方的开放数据集，无需寻找"解密包"</li>
+</ul>
+</section>`;
+}
+
 fs.writeFileSync(path.join(OUT_DIR, 'tools.html'), layout('实用工具', '航图笔记在线工具集：S-57 对象类码表等海图 / ECDIS 开发速查工具，随博客持续更新。', toolsPage(), 'website', `${CFG.siteUrl}/tools.html`, true));
+fs.writeFileSync(path.join(OUT_DIR, 'datasets.html'), layout('练手数据集', '免费合法的海图开发练手数据集导航：IHO S-64 / S-164 官方测试数据、NOAA 免费 ENC 与 S-102 / S-111 样本、OpenCPN 示例海图，附合规与 S-63 加密提醒。', datasetsPage(), 'website', `${CFG.siteUrl}/datasets.html`, true));
 fs.writeFileSync(path.join(OUT_DIR, 'archive.html'), layout('归档', '航图笔记全部文章归档：电子海图标准（S-57 / S-100 系列）、地图渲染与 C++ 工程实践文章目录，按时间排列。', archivePage(articles), 'website', `${CFG.siteUrl}/archive.html`));
 fs.writeFileSync(path.join(OUT_DIR, 'search.html'), layout('搜索', '站内搜索：检索航图笔记全部文章与在线工具——S-57、S-52、S-100、ECDIS、地图渲染。', searchPage(articles), 'website', `${CFG.siteUrl}/search.html`));
 fs.writeFileSync(path.join(OUT_DIR, 'rss.xml'), rss(articles));
@@ -661,6 +700,7 @@ fs.writeFileSync(
     // 草稿不进 sitemap，避免未发布内容被搜索引擎发现
     ...[...articles, ...pages].map((p) => ({ loc: `${CFG.siteUrl}/${p.slug}.html`, lastmod: p.date || new Date().toISOString().slice(0, 10) })),
     { loc: `${CFG.siteUrl}/tools.html`, lastmod: new Date().toISOString().slice(0, 10) },
+    { loc: `${CFG.siteUrl}/datasets.html`, lastmod: new Date().toISOString().slice(0, 10) },
     { loc: `${CFG.siteUrl}/search.html`, lastmod: new Date().toISOString().slice(0, 10) },
     { loc: `${CFG.siteUrl}/archive.html`, lastmod: new Date().toISOString().slice(0, 10) },
     ...TOOLS.map((t) => ({ loc: `${CFG.siteUrl}/${t.href}`, lastmod: t.added || '2026-09-08' })),
