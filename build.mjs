@@ -2249,11 +2249,18 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       if (psw) { psw.classList.remove('hidden'); psw.innerHTML = ['Day','Dusk','Night'].map(function(pn){ return '<button class="pill'+(PATPAL===pn?' on':'')+'" data-pal="'+pn+'" type="button">'+pn+'</button>'; }).join(''); }
       var plist = window.PAT.list.filter(function(p2){ return !q || (p2.name+' '+p2.expo).toLowerCase().indexOf(q)>=0; });
       head.innerHTML='<tr><th>名称</th><th>类型</th><th>说明</th><th style="min-width:240px">预览</th></tr>';
+      var typeName = function(k){ return k==='line'?'线型':(k==='fill'?'面填充·符号平铺':(k==='fill-color'?'面填充·纯色':(k==='fill-color-depth'?'面填充·深浅色':'?'))); };
       body.innerHTML=plist.map(function(p2){
-        return '<tr><td class="c-code"><strong>'+esc(p2.name)+'</strong></td><td>'+(p2.kind==='line'?'线型':(p2.kind==='fill'?'面填充':'?'))+'</td><td class="fc-opt">'+esc(p2.expo)+'</td><td>'+(p2.kind==='line'?'<canvas class="pat-cv" data-f="'+esc(p2.file)+'" width="240" height="26" style="display:block"></canvas>':'<span class="fc-opt">符号平铺：'+esc(p2.sym||'—')+'</span>')+'</td></tr>';
+        var prev = '';
+        if (p2.kind==='line') prev = '<canvas class="pat-cv" data-f="'+esc(p2.file)+'" width="240" height="26" style="display:block"></canvas>';
+        else if (p2.kind==='fill') prev = '<div class="fill-tile" data-sym="'+esc(p2.sym||'')+'" style="width:220px;height:40px;border:1px solid var(--border);border-radius:4px;overflow:hidden"></div>';
+        else if (p2.kind==='fill-color') prev = '<span class="fill-sw" data-c="'+esc(p2.color||'')+'" style="display:inline-block;width:120px;height:24px;border:1px solid var(--border);border-radius:4px;background:'+((CP&&CP.pal&&CP.pal[PATPAL]&&CP.pal[PATPAL][p2.color])||'transparent')+'"></span><span class="fc-opt" style="margin-left:6px">'+esc(p2.color||'')+'</span>';
+        else if (p2.kind==='fill-color-depth') prev = '<span class="fc-opt">深浅色填充（两档色令牌）</span>';
+        return '<tr><td class="c-code"><strong>'+esc(p2.name)+'</strong></td><td>'+typeName(p2.kind)+'</td><td class="fc-opt">'+esc(p2.expo)+'</td><td>'+prev+'</td></tr>';
       }).join('') || '<tr><td colspan="4" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=plist.length;
       plist.forEach(function(p2){ if(p2.kind==='line' && p2.parsed) drawLinePreview(document.querySelector('.pat-cv[data-f="'+p2.file+'"]'), p2.parsed); });
+      plist.forEach(function(p2){ if(p2.kind==='fill' && p2.sym) tileFill(document.querySelector('.fill-tile[data-sym="'+p2.sym+'"]'), p2.sym, PATPAL); });
     } else if (TAB==='lua') {
       var names = Object.keys(DIRLUA).filter(function(n){return !q || (n + ' ' + DIRLUA[n]).toLowerCase().indexOf(q)>=0});
       head.innerHTML='<tr><th style="width:220px">规则文件</th><th>源码（Look-up 规则，Lua）</th></tr>';
@@ -2474,6 +2481,21 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       for (var x = 2; x < cv.width; x += 16){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(Math.min(cv.width, x+9), y); ctx.stroke(); }
     } else { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cv.width,y); ctx.stroke(); }
   }
+  function tileFill(tv, symId, palName){
+    if (!tv) return;
+    var svgText = DIRSVGS[(symId||'').toLowerCase()+'.svg'] || '';
+    if (!svgText) { tv.innerHTML = '<span class="fc-opt" style="padding:4px">符号库未含 '+esc(symId)+'</span>'; return; }
+    var cssText = '';
+    DIRCSS.forEach(function(c){
+      var want = palName === 'Dusk' ? 'dusk' : (palName === 'Night' ? 'night' : 'day');
+      if (c.name.indexOf(want) >= 0) cssText = c.text.replace(/\\/\\*[^*]*\\*\\//g, '');
+    });
+    var patched = svgText.replace(/width="[^"]*"/i, 'width="40"').replace(/height="[^"]*"/i, 'height="40"');
+    if (cssText) patched = patched.replace(/<svg([^>]*)>/i, '<svg$1><defs><style>' + cssText + '</style></defs>');
+    tv.innerHTML = patched;
+    var sv = tv.querySelector('svg');
+    if (sv) { sv.style.width = '40px'; sv.style.height = '40px'; sv.style.display = 'block'; }
+  }
   function drawLinePreview(cv, st){
     if (!cv || !st) return;
     var ctx = cv.getContext('2d');
@@ -2511,6 +2533,9 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       out.kind='fill';
       var sr = txt2.match(/<symbol reference="([^"]+)"/);
       out.sym = sr ? sr[1] : '';
+    } else if (txt2.indexOf('colorFill')>=0) {
+      out.kind='fill-color';
+      out.color = (txt2.match(/<color>([A-Z0-9]+)</)||[])[1]||'';
     } else out.kind='?';
     return out;
   }
@@ -2556,7 +2581,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       if (f.endsWith('.svg')) pcSvg[f.toLowerCase()] = fs.readFileSync(fp, 'utf8');
       else if (f.endsWith('.css')) pcCssL.push({ name: f.toLowerCase(), text: fs.readFileSync(fp, 'utf8') });
     });
-    const pcData = 'window.__PC_SAMPLE_DATA = ' + JSON.stringify({ lua: pcLua, svg: pcSvg, css: pcCssL }).replace(/<\//g, '<\/') + ';';
+    const pcData = 'window.__PC_SAMPLE_DATA = ' + JSON.stringify({ lua: pcLua, svg: pcSvg, css: pcCssL }).replace(/<\//g, '<\/') + ';if (window.__pcAttachBundle) window.__pcAttachBundle(window.__PC_SAMPLE_DATA);';
     fs.writeFileSync(path.join(OUT_DIR, 'pc-sample-data.js'), pcData);
   }
 }
