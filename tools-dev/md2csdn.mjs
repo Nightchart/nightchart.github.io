@@ -15,7 +15,9 @@ var core = buildSrc.slice(m0 + 1, m1).join("\n");
 const { mdToHtml } = new Function(core + "\nreturn { mdToHtml };")();
 
 const mdPath = path.resolve(ROOT, process.argv[2]);
-const md = fs.readFileSync(mdPath, "utf8").replace(/\r\n/g, "\n");
+var md = fs.readFileSync(mdPath, "utf8").replace(/\r\n/g, "\n");
+// 剥离 front matter（--- 开头的 YAML 头），否则会作为正文段落出现在 CSDN 文章开头
+md = md.replace(/^---\n[\s\S]*?\n---\n/, "");
 const html = mdToHtml(md);
 // 不追加任何公众号引导：2026-09-20 实测 CSDN 机审对文末公众号导流（含纯文字）稳定判「广告-公众号」拒绝
 // （S-64/S-104/S-102 三篇三连拒）。CSDN 端放弃文末推广，主站/知乎端照常。
