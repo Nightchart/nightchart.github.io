@@ -41,6 +41,7 @@ try { TOOLS = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'tools.json'), 
 
 /* ---------------- 工具 ---------------- */
 
+// <md-engine>
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -247,6 +248,8 @@ function mdToHtml(md, toc) {
   }
   return out.join('\n');
 }
+
+// </md-engine>
 
 /* ---------------- 页面模板 ---------------- */
 
@@ -1961,7 +1964,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-fc', 's101-fc-2.0.0.xml'))) {
 <h1 class="post-title">S-100 要素目录解析器</h1>
 <div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Feature Catalogue 2.0.0 · 支持上传任意 S-100 产品的 FC XML</div>
 <p>把 S-100 要素目录（FC）XML 拖进来或上传，即刻得到可搜索的要素类型 / 信息类型 / 属性 / 枚举值 / 关联全景。做 S-101 解析器和 ECDIS 校验时，这就是你的离线字典。</p>
-<p class="toolbar"><span class="btn file-btn">上传目录 XML<input type="file" id="fc-file" accept=".xml,text/xml" hidden></span><button id="fc-sample" class="btn" type="button">加载内置 S-101 样本</button><span id="fc-status" class="panel-desc">正在加载内置样本…</span></p>
+<p class="toolbar"><span class="btn file-btn">上传目录 XML<input type="file" id="fc-file" accept=".xml,text/xml"></span><button id="fc-sample" class="btn" type="button">加载内置 S-101 样本</button><span id="fc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="fc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="fc-tabs">
 <button class="pill on" data-tab="ft" type="button">要素类型</button><button class="pill" data-tab="it" type="button">信息类型</button><button class="pill" data-tab="attr" type="button">属性</button><button class="pill" data-tab="assoc" type="button">关联</button>
@@ -2134,7 +2137,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <h1 class="post-title">S-100 图示表达解析器</h1>
 <div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Portrayal Catalogue 2.0.0（符号注册表 + 颜色配置）· 支持上传目录/颜色配置/告警目录 XML</div>
 <p>解析 S-100 图示表达目录（PC）分发件：符号注册表、视图组图层、样式表清单一览，颜色配置直接渲染成 Day / Dusk / Night 三栏对照色表。做 S-101 显示端时对着它查符号与颜色。</p>
-<p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml" hidden></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
+<p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml"></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
 <button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button>
@@ -2347,7 +2350,7 @@ const H5_PAGE = `<section class="post tool-page">
 <h1 class="post-title">HDF5 / S-100 网格解析器</h1>
 <div class="post-meta">纯浏览器解析（h5wasm，NIST）· 文件不出本机 · 内置样本：NOAA S-102 官方测试数据集（公有领域）</div>
 <p>S-100 系列网格产品（S-102 水深 / S-111 表层流场）是 HDF5 格式。把 .h5 文件拖进来：除结构树、属性与数值统计外，识别到标准结构时会自动渲染<strong>热力图</strong>——S-102 按水深着色（区分干出与填充值），S-111 按流速着色并叠加流向箭头，多时序帧可下拉切换，点选网格任意位置读取单元数值。</p>
-<p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5" hidden></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><button id="h5-sample111" class="btn" type="button">加载内置 S-111 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
+<p class="toolbar"><span class="btn file-btn">上传 .h5 文件<input type="file" id="h5-file" accept=".h5,.hdf5"></span><button id="h5-sample" class="btn" type="button">加载内置 S-102 样本</button><button id="h5-sample111" class="btn" type="button">加载内置 S-111 样本</button><span id="h5-status" class="panel-desc">引擎加载中…</span></p>
 <div id="h5-out" class="hidden"><div id="h5-stats" class="fc-stats"></div><div id="h5-s102"></div><div id="h5-tree" class="h5-tree"></div></div>
 <p class="panel-desc hidden" id="h5-foot">解析由 WebAssembly 版 HDF5（h5wasm，NIST 出品）在你的浏览器本地完成，文件不会上传。超大数据集（元素数超 400 万）只显示形状与属性，不展开数值。也可把 .h5 文件直接拖到页面任意位置上传。</p>
 </section>
