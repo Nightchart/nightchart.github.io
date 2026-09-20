@@ -2271,7 +2271,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含规则文件的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
       document.getElementById('pc-count').textContent=names.length;
     } else if (TAB==='feat') {
-      if ((!window.LUARULES || !window.LUARULES.length) && window.__pcAttachBundle && window.__PC_SAMPLE_DATA) {
+      if ((!window.LUARULES || !window.LUARULES.length) && !window.__dirLoaded && window.__pcAttachBundle && window.__PC_SAMPLE_DATA) {
         try { window.__pcAttachBundle(window.__PC_SAMPLE_DATA); } catch(e) {}
       }
       if (!window.LUARULES || !window.LUARULES.length) {
@@ -2448,7 +2448,11 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   function processFiles(list){
     var files = [].slice.call(list);
     var xmls = [], svgs = 0, luas = 0, status = document.getElementById('pc-status');
-    DIRURLS = {}; DIRLUA = {}; DIRSVGS = {}; DIRCSS = [];
+    DIRURLS = {}; DIRLUA = {}; DIRXSL = {}; DIRSVGS = {}; DIRCSS = [];
+    window.LUARULES = []; window.PAT = null; window.__featSimples = [];
+    window.__dirLoaded = true;
+    var staleStyle = document.getElementById('pc-svg-css');
+    if (staleStyle) staleStyle.remove();
     files.forEach(function(f){
       var rel = f.webkitRelativePath || f.name;
       var base = rel.split('/').pop().toLowerCase();
@@ -2591,7 +2595,13 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   }
   function loadSample(){
     window.PC_LOADED = [];
+    DIRLUA = {}; DIRXSL = {}; DIRSVGS = {}; DIRCSS = []; DIRURLS = {};
+    window.LUARULES = []; window.PAT = null; window.__featSimples = [];
+    window.__dirLoaded = false;
+    var staleStyle = document.getElementById('pc-svg-css');
+    if (staleStyle) staleStyle.remove();
     document.getElementById('pc-status').textContent='加载内置样本中…';
+    if (window.__pcAttachBundle && window.__PC_SAMPLE_DATA) window.__pcAttachBundle(window.__PC_SAMPLE_DATA);
     Promise.all([
       fetch('assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml').then(function(r){return r.text()}),
       fetch('assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml').then(function(r){return r.text()}),
