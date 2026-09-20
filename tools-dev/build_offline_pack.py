@@ -46,6 +46,9 @@ def strip_web(html):
     return html
 
 EMBED_MAP = {
+    'pc.html': ['assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml',
+                'assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml',
+                'assets/s100-pc/PortrayalCatalog_AlertCatalog-S101.xml'],
     'fc.html': ['assets/s100-fc/s101-fc-2.0.0.xml'],
     'pc.html': ['assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml',
                 'assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml',
