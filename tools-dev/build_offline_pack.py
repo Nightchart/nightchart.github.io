@@ -49,21 +49,27 @@ def strip_web(html):
 EMBED_MAP = {
     'pc.html': ['assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml',
                 'assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml',
-                'assets/s100-pc/PortrayalCatalog_AlertCatalog-S101.xml'],
+                'assets/s100-pc/PortrayalCatalog_AlertCatalog-S101.xml',
+                'assets/s100-pc/*.xml'],
     'fc.html': ['assets/s100-fc/s101-fc-2.0.0.xml'],
-    'pc.html': ['assets/s100-pc/PortrayalCatalog_portrayal_catalogue.xml',
-                'assets/s100-pc/PortrayalCatalog_ColorProfiles_colorProfile.xml',
-                'assets/s100-pc/PortrayalCatalog_AlertCatalog-S101.xml'],
     'h5.html': ['assets/h5wasm/sample-s102.h5', 'assets/h5wasm/sample-s111.h5'],
 }
 
 def embed_assets(html, tool, used):
-    paths = EMBED_MAP.get(tool, [])
+    import glob as _glob
+    raw = EMBED_MAP.get(tool, [])
+    paths = []
+    for pat in raw:
+        if '*' in pat:
+            for fp in sorted(_glob.glob(os.path.join(PUB, pat.replace('/', os.sep)))):
+                paths.append(os.path.relpath(fp, PUB).replace(os.sep, '/'))
+        else:
+            paths.append(pat)
     if not paths:
         return html
     blocks = ['<script>window.__OFFLINE_ASSETS = window.__OFFLINE_ASSETS || {};</script>']
     for p in paths:
-        fp = os.path.join(PUB, p.replace('/', os.sep))
+        fp = p if os.path.isabs(p) else os.path.join(PUB, p.replace('/', os.sep))
         ext = os.path.splitext(p)[1]
         mime = MIME.get(ext, 'application/octet-stream')
         b64 = base64.b64encode(open(fp, 'rb').read()).decode()
