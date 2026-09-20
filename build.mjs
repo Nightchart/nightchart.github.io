@@ -2136,11 +2136,11 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   const pcBody = `<section class="post tool-page">
 <h1 class="post-title">S-100 图示表达解析器</h1>
 <div class="post-meta">纯浏览器解析，文件不出本机 · 内置样本：IHO S-101 Portrayal Catalogue 2.0.0（符号注册表 + 颜色配置）· 支持上传目录/颜色配置/告警目录 XML</div>
-<p>解析 S-100 图示表达目录（PC）分发件：符号注册表、视图组图层、样式表清单一览，颜色配置直接渲染成 Day / Dusk / Night 三栏对照色表。做 S-101 显示端时对着它查符号与颜色。</p>
-<p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml"></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
+<p>解析 S-100 图示表达目录（PC）分发件：符号注册表（目录内含 SVG 时直接渲染符号实图）、视图组图层、样式表清单一览，颜色配置渲染成 Day / Dusk / Night 三栏对照色表，线型 / 面填充自动识别并画预览。支持<strong>上传整个 PC 目录</strong>（如 S-131 的 131_Portrayal_Catalogue 文件夹）：一次解析其中全部 XML 并匹配目录内的 SVG 文件。做 S-101 / S-131 显示端时对着它查符号与颜色。</p>
+<p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml"></span><span class="btn file-btn">上传整个 PC 目录<input type="file" id="pc-dir" webkitdirectory></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
-<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button>
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button><button class="pill" data-tab="lua" type="button">Lua 规则</button>
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span><span id="pat-palsw" class="hidden" style="margin-left:6px"></span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
@@ -2150,6 +2150,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <script>
 (function(){
   var IDX=null, CP=null, AL=null;
+  var DIRURLS = {}, INLINE_SVG = {}, DIRLUA = {};
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function kids(el,name){var o=[];for(var i=0;i<el.children.length;i++){var c=el.children[i];if(c.localName===name)o.push(c)}return o}
   function kid(el,name){var a=kids(el,name);return a.length?a[0]:null}
@@ -2165,7 +2166,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     throw new Error('未知根元素：'+root+'（支持 portrayalCatalog / colorProfile / 告警目录）');
   }
   function parseIdx(doc){
-    var sym={}; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='symbol'){ var d=el.getElementsByTagName('*'); var desc=''; for(var i=0;i<d.length;i++){ if(d[i].localName==='description'){desc=d[i].textContent.trim();break} } sym[el.getAttribute('id')||'']=desc; } });
+    var sym={}; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='symbol'){ var d=el.getElementsByTagName('*'); var desc=''; for(var i=0;i<d.length;i++){ if(d[i].localName==='description'){desc=d[i].textContent.trim();break} } var id=el.getAttribute('id')||''; var fn=''; for(var fi=0;fi<d.length;fi++){ if(d[fi].localName==='fileName'){ fn=d[fi].textContent.trim().toLowerCase(); break } } sym[id]={d:desc, f:fn}; var b64m = el.textContent.match(/[A-Za-z0-9+\/=]{512,}/g); if (b64m && b64m.length){ var best = b64m.sort(function(a,b){return b.length-a.length})[0]; INLINE_SVG[id] = 'data:image/svg+xml;base64,' + best; } } });
     var vgl=[]; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='viewingGroupLayer'){ vgl.push({id:el.getAttribute('id')||'', name:txt(el,'name'), groups:deep(el,'viewingGroup').map(function(g){return g.textContent.trim()})}); } });
     var ss=[]; [].slice.call(doc.getElementsByTagName('*')).forEach(function(el){ if(el.localName==='styleSheet'){ ss.push({name:txt(el,'name')||el.getAttribute('id')||'', files:[].slice.call(el.children).filter(function(c){return c.localName==='fileName'||c.localName==='file'}).map(function(c){return c.textContent.trim()})}); } });
     return {symbols:sym, vgl:vgl, ss:ss};
@@ -2187,9 +2188,19 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     if (TAB==='idx') {
       var files=[['符号注册表',Object.keys(IDX.symbols).length],['视图组图层',IDX.vgl.length],['样式表',IDX.ss.length]];
       document.getElementById('pc-stats').innerHTML=files.map(function(c){return '<div class="pal-card fc-stat"><div class="fc-num">'+c[1]+'</div><div class="pal-zh">'+c[0]+'</div></div>'}).join('');
-      var syms=Object.keys(IDX.symbols).filter(function(k){return !q || (k+' '+IDX.symbols[k]).toLowerCase().indexOf(q)>=0});
-      head.innerHTML='<tr><th>符号 ID</th><th>描述</th></tr>';
-      body.innerHTML=syms.map(function(k){return '<tr><td class="c-code"><strong>'+esc(k)+'</strong></td><td>'+esc(IDX.symbols[k])+'</td></tr>'}).join('') || '<tr><td colspan="2" class="not-conv">无匹配</td></tr>';
+      var syms=Object.keys(IDX.symbols).filter(function(k){return !q || (k+' '+(IDX.symbols[k].d||'')).toLowerCase().indexOf(q)>=0});
+      var hasSvg = Object.keys(DIRURLS).length > 0 || Object.keys(INLINE_SVG).length > 0;
+      head.innerHTML='<tr><th>符号 ID</th>'+(hasSvg?'<th style="min-width:64px">图形</th>':'')+'<th>描述</th></tr>';
+      function symSvg(k){
+        var fn = IDX.symbols[k] && IDX.symbols[k].f;
+        if (fn && DIRURLS[fn]) return '<img src="'+DIRURLS[fn]+'" style="height:34px;display:block" alt="'+esc(k)+'">';
+        if (DIRURLS[k.toLowerCase()+'.svg']) return '<img src="'+DIRURLS[k.toLowerCase()+'.svg']+'" style="height:34px;display:block" alt="'+esc(k)+'">';
+        var kl = k.toLowerCase();
+        for (var u in DIRURLS){ if (u.indexOf(kl) >= 0 || kl.indexOf(u.replace('.svg','')) >= 0) return '<img src="'+DIRURLS[u]+'" style="height:34px;display:block" alt="'+esc(k)+'">'; }
+        if (INLINE_SVG[k]) return '<img src="'+INLINE_SVG[k]+'" style="height:34px;display:block" alt="'+esc(k)+'">';
+        return '<span class="not-conv">未随附</span>';
+      }
+      body.innerHTML=syms.map(function(k){return '<tr><td class="c-code"><strong>'+esc(k)+'</strong></td>'+(hasSvg?'<td>'+symSvg(k)+'</td>':'')+'<td>'+esc(IDX.symbols[k].d||'')+'</td></tr>'}).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=syms.length;
     } else if (TAB==='vgl' && IDX) {
       var list=IDX.vgl.filter(function(v){return !q || (v.id+' '+v.name+' '+v.groups.join(' ')).toLowerCase().indexOf(q)>=0});
@@ -2223,6 +2234,13 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       }).join('') || '<tr><td colspan="4" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=plist.length;
       plist.forEach(function(p2){ if(p2.kind==='line' && p2.parsed) drawLinePreview(document.querySelector('.pat-cv[data-f="'+p2.file+'"]'), p2.parsed); });
+    } else if (TAB==='lua') {
+      var names = Object.keys(DIRLUA).filter(function(n){return !q || (n + ' ' + DIRLUA[n]).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th style="width:220px">规则文件</th><th>源码（Look-up 规则，Lua）</th></tr>';
+      body.innerHTML=names.map(function(n){
+        return '<tr><td class="c-code"><strong>'+esc(n)+'</strong></td><td><details><summary class="fc-opt">查看源码（'+DIRLUA[n].length+' 字符）</summary><pre style="white-space:pre-wrap;font-size:12px;margin:.4rem 0 0">'+esc(DIRLUA[n])+'</pre></details></td></tr>';
+      }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含 Lua 规则的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
+      document.getElementById('pc-count').textContent=names.length;
     } else {
       head.innerHTML=''; body.innerHTML='';
     }
@@ -2257,8 +2275,10 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   ['dragover','dragenter'].forEach(function(t){ document.body.addEventListener(t, function(e){ e.preventDefault(); }); });
   document.body.addEventListener('drop', function(e){
     e.preventDefault();
-    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (!f) return;
+    var fl = e.dataTransfer && e.dataTransfer.files;
+    if (!fl || !fl.length) return;
+    if (fl.length > 1) { processFiles(fl); return; }
+    var f = fl[0];
     var rd = new FileReader();
     document.getElementById('pc-status').textContent = '解析中…';
     rd.onload = function(){ try { var kind = parseAny(rd.result); document.getElementById('pc-status').textContent = '已加载：' + f.name + '（' + kind + '）'; showLoaded(kind); } catch(err){ document.getElementById('pc-status').textContent = err.message; } };
@@ -2270,6 +2290,52 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     TAB=map[kind]||'idx';
     [].slice.call(document.querySelectorAll('#pc-tabs .pill')).forEach(function(x){x.classList.toggle('on', x.dataset.tab===TAB)});
     applyTab();
+  }
+  document.getElementById('pc-dir').addEventListener('change', function(){ if (this.files && this.files.length) processFiles(this.files); });
+  function readFileText(f){
+    return new Promise(function(res, rej){ var rd = new FileReader(); rd.onload = function(){ res(rd.result) }; rd.onerror = function(){ rej(new Error('读取失败：' + f.name)) }; rd.readAsText(f); });
+  }
+  function processFiles(list){
+    var files = [].slice.call(list);
+    var xmls = [], svgs = 0, luas = 0, status = document.getElementById('pc-status');
+    DIRURLS = {}; DIRLUA = {};
+    files.forEach(function(f){
+      var base = (f.webkitRelativePath || f.name).split('/').pop().toLowerCase();
+      if (/\.xml$/i.test(base)) xmls.push(f);
+      else if (/\.svg$/i.test(base)) { DIRURLS[base] = URL.createObjectURL(f); svgs++; }
+      else if (/\.lua$/i.test(base)) { DIRLUA[(f.webkitRelativePath || f.name).split('/').pop()] = ''; luas++; }
+    });
+    status.textContent = '读取目录中：' + xmls.length + ' 个 XML，' + svgs + ' 个 SVG…';
+    var kinds = {}, dirPat = [], errs = [];
+    var jobs = xmls.map(function(f){
+      return readFileText(f).then(function(text){
+        try { var kind = parseAny(text); kinds[kind] = (kinds[kind]||0)+1; return; }
+        catch(e1){
+          var p2 = parsePatText(text);
+          if (p2.kind !== '?'){
+            p2.file = f.name;
+            if (!p2.name) p2.name = f.name.replace(/\.xml$/i, '');
+            if (p2.kind === 'line') p2.parsed = { interval: p2.interval, width: p2.width, color: p2.color, dashes: p2.dashes };
+            dirPat.push(p2); var kk = p2.kind==='line'?'线型':'面填充'; kinds[kk] = (kinds[kk]||0)+1;
+            return;
+          }
+          errs.push(f.name + '（' + e1.message + '）');
+        }
+      }).catch(function(e){ errs.push(f.name + '（' + e.message + '）'); });
+    });
+    var luaJobs = Object.keys(DIRLUA).map(function(n){
+      var f = files.filter(function(x){ return (x.webkitRelativePath || x.name).split('/').pop().toLowerCase() === n.toLowerCase() })[0];
+      if (!f) return Promise.resolve();
+      return readFileText(f).then(function(t){ DIRLUA[n] = t; });
+    });
+    Promise.all(jobs).then(function(){
+      return Promise.all(luaJobs).then(function(){
+      if (dirPat.length) { window.PAT = { list: dirPat }; }
+      var kindsStr = Object.keys(kinds).map(function(k){ return k + '×' + kinds[k] }).join('、');
+      status.textContent = '已加载目录：' + xmls.length + ' 个 XML（' + kindsStr + '），' + svgs + ' 个 SVG 已匹配符号' + (luas ? '，' + luas + ' 个 Lua 规则' : '') + (errs.length ? '；跳过：' + errs.slice(0,3).join('、') : '');
+      showLoaded('index');
+      });
+    });
   }
   document.getElementById('pc-sample').addEventListener('click', loadSample);
   var PAT=null, PATPAL='Day';
@@ -2342,7 +2408,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   loadSample();
 })();
 </script>`;
-  fs.writeFileSync(path.join(OUT_DIR, 'pc.html'), layout('S-100 图示表达解析器', 'S-100 图示表达目录（PC）XML 在线解析器：符号注册表、视图组图层、样式表清单与 S-101 颜色配置 Day/Dusk/Night 三栏对照色表，纯浏览器本地解析。', pcBody, 'website', `${CFG.siteUrl}/pc.html`, true));
+  fs.writeFileSync(path.join(OUT_DIR, 'pc.html'), layout('S-100 图示表达解析器', 'S-100 图示表达目录（PC）解析器：上传整个 PC 目录即解析全部 XML，符号注册表渲染 SVG 实图，线型/面填充画预览，颜色配置 Day/Dusk/Night 对照色表，支持 S-101/S-131 等产品规范，纯浏览器本地解析。', pcBody, 'website', `${CFG.siteUrl}/pc.html`, true));
 }
 
 /* ---------------- HDF5 / S-102 数据解析器 ---------------- */
