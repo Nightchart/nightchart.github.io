@@ -24,9 +24,11 @@ ASSET_FILES = [
 ]
 MIME = {'.xml': 'text/xml', '.h5': 'application/octet-stream', '.js': 'text/javascript'}
 
-if os.path.exists(DIST):
-    shutil.rmtree(DIST)
-os.makedirs(OUT)
+os.makedirs(DIST, exist_ok=True)
+BUILD = os.path.join(DIST, '_build', NAME)   # 避开被浏览器/资源管理器锁住的输出目录
+if os.path.exists(BUILD):
+    shutil.rmtree(BUILD)
+OUT = BUILD
 
 def strip_web(html):
     # GoatCounter
