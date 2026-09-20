@@ -17,8 +17,8 @@ const { mdToHtml } = new Function(core + "\nreturn { mdToHtml };")();
 const mdPath = path.resolve(ROOT, process.argv[2]);
 const md = fs.readFileSync(mdPath, "utf8").replace(/\r\n/g, "\n");
 const html = mdToHtml(md);
-// 文末统一追加公众号引导（CSDN 编辑器粘贴时会把外链图转存到 CSDN 图床）
-const wechatTail = `\n<hr>\n<p><strong>微信扫码关注公众号「夜航海图」</strong>：新文章与工具更新第一时间推送，微信搜索「夜航海图」也可找到。</p>\n<p><img src="https://nightchart.cn/assets/wechat-qrcode.png" alt="微信公众号夜航海图二维码" width="240"></p>\n`;
+// 不追加任何公众号引导：2026-09-20 实测 CSDN 机审对文末公众号导流（含纯文字）稳定判「广告-公众号」拒绝
+// （S-64/S-104/S-102 三篇三连拒）。CSDN 端放弃文末推广，主站/知乎端照常。
 const outPath = path.join(ROOT, "data", "_csdn_html", path.basename(mdPath).replace(/\.md$/, ".html"));
-fs.writeFileSync(outPath, html + wechatTail + "\n");
-console.log("written:", outPath, (html + wechatTail).length, "chars (含公众号文末引导)");
+fs.writeFileSync(outPath, html + "\n");
+console.log("written:", outPath, html.length, "chars");
