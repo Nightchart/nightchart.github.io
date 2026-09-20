@@ -14,6 +14,7 @@ OUT = os.path.join(DIST, NAME)
 TOOLS = ['tools.html', 'objl.html', 'attr.html', 's57-s101.html', 'geo-calc.html',
          's52.html', 's52-sim.html', 'fc.html', 'pc.html', 'h5.html', 'gen.html']
 ASSET_FILES = [
+    'pc-sample-data.js',
     'assets/h5wasm/h5wasm.js',
     'assets/h5wasm/sample-s102.h5',
     'assets/h5wasm/sample-s111.h5',

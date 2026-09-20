@@ -2262,6 +2262,9 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含 Lua 规则的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
       document.getElementById('pc-count').textContent=names.length;
     } else if (TAB==='feat') {
+      if ((!window.LUARULES || !window.LUARULES.length) && window.__pcAttachBundle && window.__PC_SAMPLE_DATA) {
+        try { window.__pcAttachBundle(window.__PC_SAMPLE_DATA); } catch(e) {}
+      }
       if (!window.LUARULES || !window.LUARULES.length) {
         head.innerHTML='<tr><th>物标</th></tr>'; body.innerHTML='<tr><td colspan="1" class="not-conv">当前未加载含 Lua 规则的 PC 目录（S-131 等分发包含 Rules/*.lua）</td></tr>';
         document.getElementById('pc-count').textContent=0; return;
@@ -2270,6 +2273,8 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       if (psw2) { psw2.classList.remove('hidden'); psw2.innerHTML = ['Day','Dusk','Night'].map(function(pn){ return '<button class="pill'+(PATPAL===pn?' on':'')+'" data-pal="'+pn+'" type="button">'+pn+'</button>'; }).join(''); }
       var rules = window.LUARULES.filter(function(r){ return !q || r.feature.toLowerCase().indexOf(q) >= 0; });
       head.innerHTML='<tr><th style="width:150px">物标（Lua 规则函数）</th><th>点符号</th><th>线样式</th></tr>';
+      window.__featSimples = [];
+      var fi = 0;
       body.innerHTML = rules.map(function(r){
         var syms = r.points.map(function(pid){
           var fn = pid.toLowerCase()+'.svg';
@@ -2279,17 +2284,19 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
         }).join(' ');
         var lines = [];
         r.simples.forEach(function(sl){
-          lines.push('<canvas class="feat-cv" data-w="'+sl.w+'" data-c="'+sl.c+'" width="220" height="22" style="display:block"></canvas><span class="fc-opt">'+esc(sl.kind)+' 线 · 宽 '+esc(sl.w)+' · 色 '+esc(sl.c)+'</span>');
+          fi++;
+          window.__featSimples[fi] = sl;
+          lines.push('<canvas class="feat-cv" data-fi="'+fi+'" width="220" height="22" style="display:block"></canvas><span class="fc-opt">'+esc(sl.kind)+' 线 · 宽 '+esc(sl.w)+' · 色 '+esc(sl.c)+'</span>');
         });
         r.complex.forEach(function(cid){ lines.push('<span class="fc-opt">复杂线型：'+esc(cid)+'</span>'); });
         if (!lines.length) lines.push('<span class="fc-opt">纯点要素</span>');
         return '<tr><td class="c-code"><strong>'+esc(r.feature)+'</strong></td><td>'+syms+'</td><td>'+lines.join('<br>')+'</td></tr>';
       }).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=rules.length;
-      rules.forEach(function(r){ r.simples.forEach(function(sl){
-        var cv = document.querySelector('.feat-cv[data-c="'+sl.c+'"][data-w="'+sl.w+'"]');
-        drawSimpleLine(cv, sl, PATPAL, CP);
-      }); });
+      document.querySelectorAll('#pc-body .feat-cv').forEach(function(cv){
+        var sl = window.__featSimples[+cv.dataset.fi];
+        if (sl) drawSimpleLine(cv, sl, PATPAL, CP);
+      });
     } else {
       head.innerHTML=''; body.innerHTML='';
     }
@@ -2310,8 +2317,9 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     rules_feat_rerender();
   });
   function rules_feat_rerender(){
-    document.querySelectorAll('.feat-cv[data-c][data-w]').forEach(function(cv2){
-      drawSimpleLine(cv2, { kind: cv2.dataset.kind || 'solid', w: +cv2.dataset.w, c: cv2.dataset.c }, PATPAL, CP);
+    document.querySelectorAll('#pc-body .feat-cv').forEach(function(cv2){
+      var sl = window.__featSimples && window.__featSimples[+cv2.dataset.fi];
+      if (sl) drawSimpleLine(cv2, sl, PATPAL, CP);
     });
   }
   document.getElementById('pc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
@@ -2351,6 +2359,55 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   function readFileText(f){
     return new Promise(function(res, rej){ var rd = new FileReader(); rd.onload = function(){ res(rd.result) }; rd.onerror = function(){ rej(new Error('读取失败：' + f.name)) }; rd.readAsText(f); });
   }
+  function applyLuaAndCss(){
+      var oldStyle = document.getElementById('pc-svg-css');
+      if (oldStyle) oldStyle.remove();
+      // 三套调色板 CSS 各自作用域化（.pal-Day 等），符号按当前调色板着色
+      var scopeName = function(n){ if (n.indexOf('dusk') >= 0) return 'pal-Dusk'; if (n.indexOf('night') >= 0) return 'pal-Night'; return 'pal-Day'; };
+      if (DIRCSS.length) {
+        var scoped = DIRCSS.map(function(c){
+          var txt = c.text.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');
+          var cls = scopeName(c.name);
+          txt = txt.replace(/(^|\\n|\\})\\s*([^\\n{}@]+)\\{/g, function(m, pre, sel){
+            var scoped2 = sel.split(',').map(function(x){ return '.' + cls + ' ' + x.trim() }).join(', ');
+            return pre + ' ' + scoped2 + ' {';
+          });
+          return txt;
+        }).join(String.fromCharCode(10));
+        var st = document.createElement('style');
+        st.id = 'pc-svg-css';
+        st.textContent = scoped;
+        document.head.appendChild(st);
+      }
+      // Lua 规则静态提取：每个物标 → 点符号 / 简单线 / 复杂线
+      window.LUARULES = [];
+      Object.keys(DIRLUA).forEach(function(n){
+        var src = DIRLUA[n];
+        var fm = src.match(/^function ([A-Za-z0-9_]+)\\(/m);
+        if (!fm) return;
+        var rule = { feature: fm[1], points: [], simples: [], complex: [], src: src };
+        var pm = /PointInstruction:([A-Za-z0-9_]+)/g, m2;
+        while ((m2 = pm.exec(src))) { if (rule.points.indexOf(m2[1]) < 0) rule.points.push(m2[1]); }
+        var sm = /SimpleLineStyle\\(\\s*'([^']+)',\\s*([0-9.]+),\\s*'([A-Z]+)'\\s*\\)/g;
+        while ((m2 = sm.exec(src))) {
+          var dup = rule.simples.filter(function(x){ return x.kind === m2[1] && x.w === m2[2] && x.c === m2[3] })[0];
+          if (!dup) rule.simples.push({ kind: m2[1], w: m2[2], c: m2[3] });
+        }
+        var cm = /LineInstruction:(?!_simple_)([A-Za-z0-9_]+)/g;
+        while ((m2 = cm.exec(src))) { if (rule.complex.indexOf(m2[1]) < 0) rule.complex.push(m2[1]); }
+        if (rule.points.length || rule.simples.length || rule.complex.length) window.LUARULES.push(rule);
+      });
+  }
+  window.__pcAttachBundle = function(data){
+    if (!data) return;
+    Object.keys(data.svg).forEach(function(k){ DIRSVGS[k] = data.svg[k]; });
+    data.css.forEach(function(c){ var ex = DIRCSS.filter(function(x){ return x.name === c.name })[0]; if (!ex) DIRCSS.push({ name: c.name, text: c.text }); });
+    Object.keys(data.lua).forEach(function(k){ DIRLUA[k] = data.lua[k]; });
+    applyLuaAndCss();
+    var st = document.getElementById('pc-status');
+    if (st) st.textContent += ' · 物标渲染数据就绪（' + window.LUARULES.length + ' 规则 / ' + Object.keys(DIRSVGS).length + ' 符号）';
+  };
+  if (window.__PC_SAMPLE_DATA) window.__pcAttachBundle(window.__PC_SAMPLE_DATA);
   function processFiles(list){
     var files = [].slice.call(list);
     var xmls = [], svgs = 0, luas = 0, status = document.getElementById('pc-status');
@@ -2395,43 +2452,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     Promise.all(jobs).then(function(){
       return Promise.all(luaJobs.concat(svgJobs).concat(cssJobs)).then(function(){
       if (dirPat.length) { window.PAT = { list: dirPat }; }
-      var oldStyle = document.getElementById('pc-svg-css');
-      if (oldStyle) oldStyle.remove();
-      // 三套调色板 CSS 各自作用域化（.pal-Day 等），符号按当前调色板着色
-      var scopeName = function(n){ if (n.indexOf('dusk') >= 0) return 'pal-Dusk'; if (n.indexOf('night') >= 0) return 'pal-Night'; return 'pal-Day'; };
-      if (DIRCSS.length) {
-        var scoped = DIRCSS.map(function(c){
-          var txt = c.text.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');
-          var cls = scopeName(c.name);
-          txt = txt.replace(/(^|\\n|\\})\\s*([^\\n{}@]+)\\{/g, function(m, pre, sel){
-            var scoped2 = sel.split(',').map(function(x){ return '.' + cls + ' ' + x.trim() }).join(', ');
-            return pre + ' ' + scoped2 + ' {';
-          });
-          return txt;
-        }).join(String.fromCharCode(10));
-        var st = document.createElement('style');
-        st.id = 'pc-svg-css';
-        st.textContent = scoped;
-        document.head.appendChild(st);
-      }
-      // Lua 规则静态提取：每个物标 → 点符号 / 简单线 / 复杂线
-      window.LUARULES = [];
-      Object.keys(DIRLUA).forEach(function(n){
-        var src = DIRLUA[n];
-        var fm = src.match(/^function ([A-Za-z0-9_]+)\\(/m);
-        if (!fm) return;
-        var rule = { feature: fm[1], points: [], simples: [], complex: [], src: src };
-        var pm = /PointInstruction:([A-Za-z0-9_]+)/g, m2;
-        while ((m2 = pm.exec(src))) { if (rule.points.indexOf(m2[1]) < 0) rule.points.push(m2[1]); }
-        var sm = /SimpleLineStyle\\(\\s*'([^']+)',\\s*([0-9.]+),\\s*'([A-Z]+)'\\s*\\)/g;
-        while ((m2 = sm.exec(src))) {
-          var dup = rule.simples.filter(function(x){ return x.kind === m2[1] && x.w === m2[2] && x.c === m2[3] })[0];
-          if (!dup) rule.simples.push({ kind: m2[1], w: m2[2], c: m2[3] });
-        }
-        var cm = /LineInstruction:(?!_simple_)([A-Za-z0-9_]+)/g;
-        while ((m2 = cm.exec(src))) { if (rule.complex.indexOf(m2[1]) < 0) rule.complex.push(m2[1]); }
-        if (rule.points.length || rule.simples.length || rule.complex.length) window.LUARULES.push(rule);
-      });
+      applyLuaAndCss();
       var kindsStr = Object.keys(kinds).map(function(k){ return k + '×' + kinds[k] }).join('、');
       status.textContent = '已加载目录：' + xmls.length + ' 个 XML（' + kindsStr + '），' + svgs + ' 个 SVG 已匹配符号' + (luas ? '，' + luas + ' 个 Lua 规则' : '') + (errs.length ? '；跳过：' + errs.slice(0,3).join('、') : '');
       showLoaded('index');
@@ -2522,8 +2543,22 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   }
   loadSample();
 })();
-</script>`;
+</script>
+<script src="pc-sample-data.js"></script>`;
   fs.writeFileSync(path.join(OUT_DIR, 'pc.html'), layout('S-100 图示表达解析器', 'S-100 图示表达目录（PC）解析器：上传整个 PC 目录即解析全部 XML，符号注册表渲染 SVG 实图，线型/面填充画预览，颜色配置 Day/Dusk/Night 对照色表，支持 S-101/S-131 等产品规范，纯浏览器本地解析。', pcBody, 'website', `${CFG.siteUrl}/pc.html`, true));
+  const pcRulesDir = path.join(ROOT, 'assets', 's100-pc', 'Rules');
+  const pcSymDir = path.join(ROOT, 'assets', 's100-pc', 'Symbols');
+  if (fs.existsSync(pcRulesDir) && fs.existsSync(pcSymDir)) {
+    const pcLua = {}, pcSvg = {}, pcCssL = [];
+    fs.readdirSync(pcRulesDir).filter(function(f){ return f.endsWith('.lua') }).forEach(function(f){ pcLua[f] = fs.readFileSync(path.join(pcRulesDir, f), 'utf8'); });
+    fs.readdirSync(pcSymDir).forEach(function(f){
+      const fp = path.join(pcSymDir, f);
+      if (f.endsWith('.svg')) pcSvg[f.toLowerCase()] = fs.readFileSync(fp, 'utf8');
+      else if (f.endsWith('.css')) pcCssL.push({ name: f.toLowerCase(), text: fs.readFileSync(fp, 'utf8') });
+    });
+    const pcData = 'window.__PC_SAMPLE_DATA = ' + JSON.stringify({ lua: pcLua, svg: pcSvg, css: pcCssL }).replace(/<\//g, '<\/') + ';';
+    fs.writeFileSync(path.join(OUT_DIR, 'pc-sample-data.js'), pcData);
+  }
 }
 
 /* ---------------- HDF5 / S-102 数据解析器 ---------------- */
