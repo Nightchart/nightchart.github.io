@@ -323,19 +323,19 @@ ${items}
 </section>`;
 }
 
-// 微信公众号关注卡片：扫码引导（二维码 assets/wechat-qrcode.png，公众号「航图笔记」）
+// 微信公众号关注卡片：扫码引导（二维码 assets/wechat-qrcode.png，公众号「夜航海图」）
 function wechatPromoHtml(compact = false) {
   if (compact) {
     return `<aside class="wechat-inline">
-<img src="assets/wechat-qrcode.png" alt="微信公众号「航图笔记」二维码" width="72" height="72" loading="lazy">
-<span>工具更新与新文章会第一时间推送在微信公众号「航图笔记」，微信扫码或搜索即可关注。</span>
+<img src="assets/wechat-qrcode.png" alt="微信公众号「夜航海图」二维码" width="72" height="72" loading="lazy">
+<span>工具更新与新文章会第一时间推送在微信公众号「夜航海图」，微信扫码或搜索即可关注。</span>
 </aside>`;
   }
   return `<aside class="wechat-promo">
-<img src="assets/wechat-qrcode.png" alt="微信公众号「航图笔记」二维码" width="104" height="104" loading="lazy">
+<img src="assets/wechat-qrcode.png" alt="微信公众号「夜航海图」二维码" width="104" height="104" loading="lazy">
 <div class="wp-text">
-<strong>微信扫码关注「航图笔记」</strong>
-<p>新文章与工具更新第一时间推送，不依赖平台算法推荐。微信内搜索公众号「航图笔记」也可以找到我。</p>
+<strong>微信扫码关注「夜航海图」</strong>
+<p>新文章与工具更新第一时间推送，不依赖平台算法推荐。微信内搜索公众号「夜航海图」也可以找到我。</p>
 </div>
 </aside>`;
 }
