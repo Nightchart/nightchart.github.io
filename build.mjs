@@ -2137,6 +2137,8 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 .sym-wrap{display:inline-block;height:40px;width:48px;overflow:visible;text-align:center;background:#dbe6ee;border-radius:4px;vertical-align:middle}
 .sym-wrap svg{height:36px;width:36px}
 .pc-luapre{white-space:pre-wrap;font-size:12px;margin:.4rem 0 0;text-align:left}
+.feat-cv{background:rgba(255,255,255,.03);border-radius:3px}
+.pal-Day .f0{fill:none}.pal-Dusk .f0{fill:none}.pal-Night .f0{fill:none}
 </style>
 <section class="post tool-page">
 <h1 class="post-title">S-100 图示表达解析器</h1>
@@ -2145,7 +2147,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml"></span><span class="btn file-btn">上传整个 PC 目录<input type="file" id="pc-dir" webkitdirectory></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
-<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button><button class="pill" data-tab="lua" type="button">Lua 规则</button>
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button><button class="pill" data-tab="lua" type="button">Lua 规则</button><button class="pill" data-tab="feat" type="button">物标渲染</button>
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span><span id="pat-palsw" class="hidden" style="margin-left:6px"></span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
@@ -2259,6 +2261,35 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
         return '<tr><td class="c-code"><strong>'+esc(n)+'</strong></td><td><details><summary class="fc-opt">查看源码（'+DIRLUA[n].length+' 字符）</summary><pre style="white-space:pre-wrap;font-size:12px;margin:.4rem 0 0">'+esc(DIRLUA[n])+'</pre></details></td></tr>';
       }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含 Lua 规则的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
       document.getElementById('pc-count').textContent=names.length;
+    } else if (TAB==='feat') {
+      if (!window.LUARULES || !window.LUARULES.length) {
+        head.innerHTML='<tr><th>物标</th></tr>'; body.innerHTML='<tr><td colspan="1" class="not-conv">当前未加载含 Lua 规则的 PC 目录（S-131 等分发包含 Rules/*.lua）</td></tr>';
+        document.getElementById('pc-count').textContent=0; return;
+      }
+      var psw2 = document.getElementById('pat-palsw');
+      if (psw2) { psw2.classList.remove('hidden'); psw2.innerHTML = ['Day','Dusk','Night'].map(function(pn){ return '<button class="pill'+(PATPAL===pn?' on':'')+'" data-pal="'+pn+'" type="button">'+pn+'</button>'; }).join(''); }
+      var rules = window.LUARULES.filter(function(r){ return !q || r.feature.toLowerCase().indexOf(q) >= 0; });
+      head.innerHTML='<tr><th style="width:150px">物标（Lua 规则函数）</th><th>点符号</th><th>线样式</th></tr>';
+      body.innerHTML = rules.map(function(r){
+        var syms = r.points.map(function(pid){
+          var fn = pid.toLowerCase()+'.svg';
+          var svgText = DIRSVGS[fn] || '';
+          if (svgText) return '<span class="sym-wrap pal-'+PATPAL+'" title="'+esc(pid)+'">'+svgText.replace(/<svg([^>]*?)style="/i, '<svg$1style="height:40px;width:40px;').replace(/<svg([^>]*)>/i, '<svg$1 style="height:40px;width:40px">')+'</span>';
+          return '<span class="not-conv">'+esc(pid)+'</span>';
+        }).join(' ');
+        var lines = [];
+        r.simples.forEach(function(sl){
+          lines.push('<canvas class="feat-cv" data-w="'+sl.w+'" data-c="'+sl.c+'" width="220" height="22" style="display:block"></canvas><span class="fc-opt">'+esc(sl.kind)+' 线 · 宽 '+esc(sl.w)+' · 色 '+esc(sl.c)+'</span>');
+        });
+        r.complex.forEach(function(cid){ lines.push('<span class="fc-opt">复杂线型：'+esc(cid)+'</span>'); });
+        if (!lines.length) lines.push('<span class="fc-opt">纯点要素</span>');
+        return '<tr><td class="c-code"><strong>'+esc(r.feature)+'</strong></td><td>'+syms+'</td><td>'+lines.join('<br>')+'</td></tr>';
+      }).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
+      document.getElementById('pc-count').textContent=rules.length;
+      rules.forEach(function(r){ r.simples.forEach(function(sl){
+        var cv = document.querySelector('.feat-cv[data-c="'+sl.c+'"][data-w="'+sl.w+'"]');
+        drawSimpleLine(cv, sl, PATPAL, CP);
+      }); });
     } else {
       head.innerHTML=''; body.innerHTML='';
     }
@@ -2276,7 +2307,13 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       var item = window.PAT && window.PAT.list.filter(function(p2){ return p2.file === cv2.dataset.f; })[0];
       if (item && item.parsed) drawLinePreview(cv2, item.parsed);
     });
+    rules_feat_rerender();
   });
+  function rules_feat_rerender(){
+    document.querySelectorAll('.feat-cv[data-c][data-w]').forEach(function(cv2){
+      drawSimpleLine(cv2, { kind: cv2.dataset.kind || 'solid', w: +cv2.dataset.w, c: cv2.dataset.c }, PATPAL, CP);
+    });
+  }
   document.getElementById('pc-q').addEventListener('input', function(){ Q=this.value; applyTab(); });
   document.getElementById('pc-tablewrap').addEventListener('click', function(ev){
     var sw = ev.target.closest('.pal-swatch'); if (!sw) return;
@@ -2356,17 +2393,45 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
     var svgJobs = readInto(DIRSVGS);
     var cssJobs = DIRCSS.map(function(c){ return readFileText(c.file).then(function(t){ c.text = t; }); });
     Promise.all(jobs).then(function(){
-      return Promise.all(luaJobs).then(function(){
+      return Promise.all(luaJobs.concat(svgJobs).concat(cssJobs)).then(function(){
       if (dirPat.length) { window.PAT = { list: dirPat }; }
       var oldStyle = document.getElementById('pc-svg-css');
       if (oldStyle) oldStyle.remove();
+      // 三套调色板 CSS 各自作用域化（.pal-Day 等），符号按当前调色板着色
+      var scopeName = function(n){ if (n.indexOf('dusk') >= 0) return 'pal-Dusk'; if (n.indexOf('night') >= 0) return 'pal-Night'; return 'pal-Day'; };
       if (DIRCSS.length) {
-        var chosen = DIRCSS.filter(function(c){ return c.name.indexOf('day') >= 0 })[0] || DIRCSS[0];
+        var scoped = DIRCSS.map(function(c){
+          var txt = c.text.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');
+          var cls = scopeName(c.name);
+          txt = txt.replace(/(^|\\n|\\})\\s*([^\\n{}@]+)\\{/g, function(m, pre, sel){
+            var scoped2 = sel.split(',').map(function(x){ return '.' + cls + ' ' + x.trim() }).join(', ');
+            return pre + ' ' + scoped2 + ' {';
+          });
+          return txt;
+        }).join(String.fromCharCode(10));
         var st = document.createElement('style');
         st.id = 'pc-svg-css';
-        st.textContent = chosen.text;
+        st.textContent = scoped;
         document.head.appendChild(st);
       }
+      // Lua 规则静态提取：每个物标 → 点符号 / 简单线 / 复杂线
+      window.LUARULES = [];
+      Object.keys(DIRLUA).forEach(function(n){
+        var src = DIRLUA[n];
+        var fm = src.match(/^function ([A-Za-z0-9_]+)\\(/m);
+        if (!fm) return;
+        var rule = { feature: fm[1], points: [], simples: [], complex: [], src: src };
+        var pm = /PointInstruction:([A-Za-z0-9_]+)/g, m2;
+        while ((m2 = pm.exec(src))) { if (rule.points.indexOf(m2[1]) < 0) rule.points.push(m2[1]); }
+        var sm = /SimpleLineStyle\\(\\s*'([^']+)',\\s*([0-9.]+),\\s*'([A-Z]+)'\\s*\\)/g;
+        while ((m2 = sm.exec(src))) {
+          var dup = rule.simples.filter(function(x){ return x.kind === m2[1] && x.w === m2[2] && x.c === m2[3] })[0];
+          if (!dup) rule.simples.push({ kind: m2[1], w: m2[2], c: m2[3] });
+        }
+        var cm = /LineInstruction:(?!_simple_)([A-Za-z0-9_]+)/g;
+        while ((m2 = cm.exec(src))) { if (rule.complex.indexOf(m2[1]) < 0) rule.complex.push(m2[1]); }
+        if (rule.points.length || rule.simples.length || rule.complex.length) window.LUARULES.push(rule);
+      });
       var kindsStr = Object.keys(kinds).map(function(k){ return k + '×' + kinds[k] }).join('、');
       status.textContent = '已加载目录：' + xmls.length + ' 个 XML（' + kindsStr + '），' + svgs + ' 个 SVG 已匹配符号' + (luas ? '，' + luas + ' 个 Lua 规则' : '') + (errs.length ? '；跳过：' + errs.slice(0,3).join('、') : '');
       showLoaded('index');
@@ -2375,6 +2440,19 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
   }
   document.getElementById('pc-sample').addEventListener('click', loadSample);
   var PAT=null, PATPAL='Day';
+  function drawSimpleLine(cv, sl, palName, cp){
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var hex = (cp && cp.pal && cp.pal[palName] && cp.pal[palName][sl.c]) || '#888888';
+    var y = cv.height/2;
+    ctx.strokeStyle = '#c9c5bb'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,y+8); ctx.lineTo(cv.width,y+8); ctx.stroke();
+    ctx.strokeStyle = hex; ctx.lineWidth = Math.max(1.5, Math.min(5, sl.w*2.2));
+    if (sl.kind === 'dash'){
+      for (var x = 2; x < cv.width; x += 16){ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(Math.min(cv.width, x+9), y); ctx.stroke(); }
+    } else { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cv.width,y); ctx.stroke(); }
+  }
   function drawLinePreview(cv, st){
     if (!cv || !st) return;
     var ctx = cv.getContext('2d');
