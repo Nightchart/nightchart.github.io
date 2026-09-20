@@ -32,3 +32,9 @@ description: 航图笔记——电子海图与地图渲染的匿名技术博客�
 - **其他平台**：部分文章同步发布于 CSDN、掘金、知乎，站内搜索文章标题即可找到；主站始终是首发和最新版本
 
 技术勘误优先处理：发现文章里有错，欢迎评论区或 Issue 指出，确认后我会修正并在文中说明。
+
+## 赞赏支持
+
+如果这些文章或工具帮到了你，欢迎在爱发电请我喝杯咖啡——工具箱离线版等数字内容也在那里：
+
+[![在爱发电赞助我](https://pic1.afdiancdn.com/static/img/welcome/button-sponsorme.png)](https://afdian.com/a/nightchart)
