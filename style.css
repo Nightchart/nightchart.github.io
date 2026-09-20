@@ -502,3 +502,12 @@ select.input:focus, input.input:focus { outline: none; border-color: var(--accen
 .sr-snip { margin: 5px 0 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
 .sr-meta { margin: 5px 0 0; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 mark { background: rgba(217, 164, 16, 0.4); color: inherit; padding: 0 1px; border-radius: 2px; }
+
+/* 微信公众号关注卡片（文章页 / 工具页文末） */
+.wechat-promo { display: flex; gap: 18px; align-items: center; margin-top: 40px; padding: 16px 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); }
+.wechat-promo img { width: 104px; height: 104px; border-radius: 6px; flex: none; display: block; }
+.wechat-promo strong { display: block; margin-bottom: 6px; font-size: 15.5px; }
+.wechat-promo p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.75; }
+.wechat-inline { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); color: var(--muted); font-size: 13.5px; }
+.wechat-inline img { width: 72px; height: 72px; border-radius: 6px; flex: none; display: block; }
+.post-body img[alt*="二维码"] { width: 200px; height: auto; }

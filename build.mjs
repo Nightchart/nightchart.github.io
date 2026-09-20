@@ -323,6 +323,23 @@ ${items}
 </section>`;
 }
 
+// 微信公众号关注卡片：扫码引导（二维码 assets/wechat-qrcode.png，公众号「航图笔记」）
+function wechatPromoHtml(compact = false) {
+  if (compact) {
+    return `<aside class="wechat-inline">
+<img src="assets/wechat-qrcode.png" alt="微信公众号「航图笔记」二维码" width="72" height="72" loading="lazy">
+<span>工具更新与新文章会第一时间推送在微信公众号「航图笔记」，微信扫码或搜索即可关注。</span>
+</aside>`;
+  }
+  return `<aside class="wechat-promo">
+<img src="assets/wechat-qrcode.png" alt="微信公众号「航图笔记」二维码" width="104" height="104" loading="lazy">
+<div class="wp-text">
+<strong>微信扫码关注「航图笔记」</strong>
+<p>新文章与工具更新第一时间推送，不依赖平台算法推荐。微信内搜索公众号「航图笔记」也可以找到我。</p>
+</div>
+</aside>`;
+}
+
 function articlePage(p, articles) {
   const draftBadge = p.draft ? '<p><span class="draft-badge">草稿</span> <span style="color:var(--muted);font-size:13px;">仅本地预览，未出现在首页目录与 RSS</span></p>' : '';
   const tags = p.tags.length ? ' · ' + p.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('') : '';
@@ -339,6 +356,7 @@ ${p.html}
 </div>
 ${prevNextHtml(p, articles)}
 ${relatedHtml(p, articles)}
+${wechatPromoHtml()}
 <p class="back"><a href="index.html">← 返回目录</a></p>
 </article>
 ${viewsScript}
@@ -497,7 +515,8 @@ ${usesScript}
 <li><a href="https://www.hdfgroup.org" target="_blank" rel="noopener">The HDF Group</a> —— HDF5 格式官方，S-102 / S-104 数据的封装载体</li>
 </ul>
 <p class="res-note">缺什么工具、或想推荐补充的资源，欢迎来信 hi@nightchart.cn。</p>
-</section>`;
+</section>
+${wechatPromoHtml(true)}`;
 }
 
 function rss(articles) {
@@ -713,7 +732,7 @@ fs.writeFileSync(
 // 静态资源
 fs.copyFileSync(path.join(ROOT, 'style.css'), path.join(OUT_DIR, 'style.css'));
 // PWA：manifest 与 service worker（全站工具纯前端，可安装、断网可用；V 随构建变化以刷新缓存）
-const SW_SRC = `const V='v${ASSET_V}';const CORE=['index.html','tools.html','datasets.html','search.html','archive.html','about.html','style.css','favicon.svg','manifest.webmanifest'];
+const SW_SRC = `const V='v${ASSET_V}';const CORE=['index.html','tools.html','datasets.html','search.html','archive.html','about.html','style.css','favicon.svg','manifest.webmanifest','assets/wechat-qrcode.png'];
 self.addEventListener('install',function(e){e.waitUntil(caches.open(V).then(function(c){return c.addAll(CORE)}).then(function(){return self.skipWaiting()}))});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==V}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener('fetch',function(e){
