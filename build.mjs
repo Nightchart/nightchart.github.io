@@ -2195,9 +2195,8 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       var fn = IDX.symbols[k] && IDX.symbols[k].f;
       var svgText = (fn && DIRSVGS[fn]) || DIRSVGS[k.toLowerCase()+'.svg'] || '';
       if (svgText) {
-        var patched = svgText.replace(/<svg([^>]*?)>/i, '$1');
-        patched = svgText.replace(/<svg([^>]*?)style="/i, '<svg$1style="height:34px;width:34px;').replace(/<svg([^>]*)>/i, '<svg$1 style="height:34px;width:34px">');
-        return '<span class="sym-wrap" title="'+esc(k)+'">'+patched+'</span>';
+        var patched = svgText.replace(/<svg([^>]*?)style="/i, '<svg$1style="height:34px;width:34px;').replace(/<svg([^>]*)>/i, '<svg$1 style="height:34px;width:34px">');
+        return '<span class="sym-wrap pal-'+PATPAL+'" title="'+esc(k)+'">'+patched+'</span>';
       }
       if (INLINE_SVG[k]) return '<img src="'+INLINE_SVG[k]+'" style="height:34px;display:block" alt="'+esc(k)+'">';
       return '<span class="not-conv">未随附</span>';
@@ -2322,6 +2321,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       if (item && item.parsed) drawLinePreview(cv2, item.parsed);
     });
     rules_feat_rerender();
+    if (TAB === 'sym' && IDX) renderSym();
   });
   function rules_feat_rerender(){
     document.querySelectorAll('#pc-body .feat-cv').forEach(function(cv2){
