@@ -2147,7 +2147,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <p class="toolbar"><span class="btn file-btn">上传表达目录 XML<input type="file" id="pc-file" accept=".xml,text/xml"></span><span class="btn file-btn">上传整个 PC 目录<input type="file" id="pc-dir" webkitdirectory></span><button id="pc-sample" class="btn" type="button">重新加载内置样本</button><span id="pc-status" class="panel-desc">正在加载内置样本…</span></p>
 <div id="pc-stats" class="fc-stats hidden"></div>
 <p class="toolbar cat-pills hidden" id="pc-tabs">
-<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button><button class="pill" data-tab="lua" type="button">Lua 规则</button><button class="pill" data-tab="feat" type="button">物标渲染</button>
+<button class="pill on" data-tab="idx" type="button">目录索引</button><button class="pill" data-tab="sym" type="button">符号注册表</button><button class="pill" data-tab="vgl" type="button">视图组</button><button class="pill" data-tab="col" type="button">颜色配置</button><button class="pill" data-tab="pat" type="button">线型 / 填充</button><button class="pill" data-tab="alert" type="button">告警目录</button><button class="pill" data-tab="lua" type="button">规则文件</button><button class="pill" data-tab="feat" type="button">物标渲染</button>
 </p>
 <p class="toolbar hidden" id="pc-searchbar"><span class="search"><input id="pc-q" class="search-input" type="search" placeholder="过滤：如 ACHARE /  anchorage / 颜色令牌…" aria-label="过滤"></span><span class="panel-desc" style="margin:0">命中 <span id="pc-count">0</span> 条</span><span id="pat-palsw" class="hidden" style="margin-left:6px"></span></p>
 <div class="table-wrap hidden" id="pc-tablewrap"><table class="data-table"><thead id="pc-head"></thead><tbody id="pc-body"></tbody></table></div>
@@ -2157,7 +2157,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
 <script>
 (function(){
   var IDX=null, CP=null, AL=null;
-  var DIRURLS = {}, INLINE_SVG = {}, DIRLUA = {}, DIRSVGS = {}, DIRCSS = [];
+  var DIRURLS = {}, INLINE_SVG = {}, DIRLUA = {}, DIRXSL = {}, DIRSVGS = {}, DIRCSS = [];
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function kids(el,name){var o=[];for(var i=0;i<el.children.length;i++){var c=el.children[i];if(c.localName===name)o.push(c)}return o}
   function kid(el,name){var a=kids(el,name);return a.length?a[0]:null}
@@ -2261,18 +2261,21 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       plist.forEach(function(p2){ if(p2.kind==='line' && p2.parsed) drawLinePreview(document.querySelector('.pat-cv[data-f="'+p2.file+'"]'), p2.parsed); });
       plist.forEach(function(p2){ if(p2.kind==='fill' && p2.sym) tileFill(document.querySelector('.fill-tile[data-sym="'+p2.sym+'"]'), p2.sym, PATPAL); });
     } else if (TAB==='lua') {
-      var names = Object.keys(DIRLUA).filter(function(n){return !q || (n + ' ' + DIRLUA[n]).toLowerCase().indexOf(q)>=0});
-      head.innerHTML='<tr><th style="width:220px">规则文件</th><th>源码（Look-up 规则，Lua）</th></tr>';
-      body.innerHTML=names.map(function(n){
-        return '<tr><td class="c-code"><strong>'+esc(n)+'</strong></td><td><details><summary class="fc-opt">查看源码（'+DIRLUA[n].length+' 字符）</summary><pre style="white-space:pre-wrap;font-size:12px;margin:.4rem 0 0">'+esc(DIRLUA[n])+'</pre></details></td></tr>';
-      }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含 Lua 规则的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
+      var allRules = [];
+      Object.keys(DIRLUA).forEach(function(n){ allRules.push({ name: n, type: 'Lua', len: DIRLUA[n].length, src: DIRLUA[n] }); });
+      Object.keys(DIRXSL).forEach(function(n){ allRules.push({ name: n, type: 'XSLT', len: DIRXSL[n].length, src: DIRXSL[n] }); });
+      var names = allRules.filter(function(r){return !q || (r.name + ' ' + r.src).toLowerCase().indexOf(q)>=0});
+      head.innerHTML='<tr><th style="width:220px">规则文件</th><th>源码（Look-up 规则）</th></tr>';
+      body.innerHTML=names.map(function(r){
+        return '<tr><td class="c-code"><strong>'+esc(r.name)+'</strong> <span class="fc-opt">['+r.type+']</span></td><td><details><summary class="fc-opt">查看源码（'+r.len+' 字符）</summary><pre style="white-space:pre-wrap;font-size:12px;margin:.4rem 0 0">'+esc(r.src)+'</pre></details></td></tr>';
+      }).join('') || '<tr><td colspan="2" class="not-conv">当前未加载含规则文件的 PC 目录（部分产品规范分发包不含规则文件）</td></tr>';
       document.getElementById('pc-count').textContent=names.length;
     } else if (TAB==='feat') {
       if ((!window.LUARULES || !window.LUARULES.length) && window.__pcAttachBundle && window.__PC_SAMPLE_DATA) {
         try { window.__pcAttachBundle(window.__PC_SAMPLE_DATA); } catch(e) {}
       }
       if (!window.LUARULES || !window.LUARULES.length) {
-        head.innerHTML='<tr><th>物标</th></tr>'; body.innerHTML='<tr><td colspan="1" class="not-conv">当前未加载含 Lua 规则的 PC 目录（S-131 等分发包含 Rules/*.lua）</td></tr>';
+        head.innerHTML='<tr><th>物标</th></tr>'; body.innerHTML='<tr><td colspan="1" class="not-conv">当前未加载含规则文件的 PC 目录（S-131 等分发包含 Rules/*.lua，S-111/S-123 为 XSLT）</td></tr>';
         document.getElementById('pc-count').textContent=0; return;
       }
       var psw2 = document.getElementById('pat-palsw');
@@ -2294,9 +2297,17 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
           window.__featSimples[fi] = sl;
           lines.push('<canvas class="feat-cv" data-fi="'+fi+'" width="220" height="22" style="display:block"></canvas><span class="fc-opt">'+esc(sl.kind)+' 线 · 宽 '+esc(sl.w)+' · 色 '+esc(sl.c)+'</span>');
         });
-        r.complex.forEach(function(cid){ lines.push('<span class="fc-opt">复杂线型：'+esc(cid)+'</span>'); });
+        r.complex.forEach(function(cid){
+          var patItem = (window.PAT || {list:[]}).list.filter(function(pp){ return (pp.file||'').indexOf(cid) >= 0 || (pp.name||'').indexOf(cid) >= 0; })[0];
+          if (patItem && patItem.kind === 'line' && patItem.parsed) {
+            fi++;
+            window.__featSimples[fi] = patItem.parsed;
+            lines.push('<canvas class="feat-cv" data-fi="'+fi+'" width="220" height="22" style="display:block"></canvas><span class="fc-opt">复杂线型：'+esc(cid)+'</span>');
+          } else lines.push('<span class="fc-opt">复杂线型：'+esc(cid)+'（样式文件未加载）</span>');
+        });
         if (!lines.length) lines.push('<span class="fc-opt">纯点要素</span>');
-        return '<tr><td class="c-code"><strong>'+esc(r.feature)+'</strong></td><td>'+syms+'</td><td>'+lines.join('<br>')+'</td></tr>';
+        var srcBadge = r.kind === 'XSLT' ? ' <span class="fc-opt">[XSLT]</span>' : '';
+        return '<tr><td class="c-code"><strong>'+esc(r.feature)+'</strong>'+srcBadge+'</td><td>'+syms+'</td><td>'+lines.join('<br>')+'</td></tr>';
       }).join('') || '<tr><td colspan="3" class="not-conv">无匹配</td></tr>';
       document.getElementById('pc-count').textContent=rules.length;
       document.querySelectorAll('#pc-body .feat-cv').forEach(function(cv){
@@ -2404,6 +2415,25 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
         while ((m2 = cm.exec(src))) { if (rule.complex.indexOf(m2[1]) < 0) rule.complex.push(m2[1]); }
         if (rule.points.length || rule.simples.length || rule.complex.length) window.LUARULES.push(rule);
       });
+      // XSLT 规则提取（S-111 / S-123 等分发包含 XSLT 版 Look-up）
+      Object.keys(DIRXSL).forEach(function(n){
+        var src = DIRXSL[n];
+        var tm = /<xsl:template[^>]*match="([A-Za-z0-9_]+)[^"]*"/g, m5;
+        var seen = {};
+        while ((m5 = tm.exec(src))) {
+          var feat = m5[1];
+          if (seen[feat]) continue; seen[feat] = 1;
+          var nextT = src.indexOf('<xsl:template', m5.index + 10);
+          if (nextT < 0) nextT = src.length;
+          var body = src.slice(m5.index, nextT);
+          var rule = { feature: feat, points: [], simples: [], complex: [], src: src, kind: 'XSLT' };
+          var pm = /<symbol reference="([^"]+)"/g, m6;
+          while ((m6 = pm.exec(body))) { if (rule.points.indexOf(m6[1]) < 0) rule.points.push(m6[1]); }
+          var lm = /<lineStyle reference="([^"]+)"/g;
+          while ((m6 = lm.exec(body))) { if (rule.complex.indexOf(m6[1]) < 0) rule.complex.push(m6[1]); }
+          if (rule.points.length || rule.complex.length) window.LUARULES.push(rule);
+        }
+      });
   }
   window.__pcAttachBundle = function(data){
     if (!data) return;
@@ -2426,6 +2456,7 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       else if (/\.svg$/i.test(base)) { DIRSVGS[base] = ''; svgs++; }
       else if (/\.css$/i.test(base)) { DIRCSS.push({name: base, file: f}); }
       else if (/\.lua$/i.test(base)) { DIRLUA[rel.split('/').pop()] = ''; luas++; }
+      else if (/\.xsl$/i.test(base)) { DIRXSL[rel.split('/').pop()] = ''; luas++; }
     });
     status.textContent = '读取目录中：' + xmls.length + ' 个 XML，' + svgs + ' 个 SVG…';
     var kinds = {}, dirPat = [], errs = [];
@@ -2454,14 +2485,15 @@ if (fs.existsSync(path.join(ROOT, 'assets', 's100-pc', 'PortrayalCatalog_portray
       });
     }
     var luaJobs = readInto(DIRLUA);
+    var xslJobs = readInto(DIRXSL);
     var svgJobs = readInto(DIRSVGS);
     var cssJobs = DIRCSS.map(function(c){ return readFileText(c.file).then(function(t){ c.text = t; }); });
     Promise.all(jobs).then(function(){
-      return Promise.all(luaJobs.concat(svgJobs).concat(cssJobs)).then(function(){
+      return Promise.all(luaJobs.concat(xslJobs).concat(svgJobs).concat(cssJobs)).then(function(){
       if (dirPat.length) { window.PAT = { list: dirPat }; }
       applyLuaAndCss();
       var kindsStr = Object.keys(kinds).map(function(k){ return k + '×' + kinds[k] }).join('、');
-      status.textContent = '已加载目录：' + xmls.length + ' 个 XML（' + kindsStr + '），' + svgs + ' 个 SVG 已匹配符号' + (luas ? '，' + luas + ' 个 Lua 规则' : '') + (errs.length ? '；跳过：' + errs.slice(0,3).join('、') : '');
+      status.textContent = '已加载目录：' + xmls.length + ' 个 XML（' + kindsStr + '），' + svgs + ' 个 SVG 已匹配符号' + (luas ? '，' + luas + ' 个规则文件' : '') + (errs.length ? '；跳过：' + errs.slice(0,3).join('、') : '');
       showLoaded('index');
       });
     });
