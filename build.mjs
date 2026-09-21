@@ -393,7 +393,8 @@ function indexPage(articles) {
   const readInfo = (p) => {
     const reads = GC[`/${p.slug}.html`];
     const bits = [`<time datetime="${esc(p.date)}">${esc(fmtDate(p.date))}</time>`, `约 ${p.mins} 分钟`];
-    if (reads) bits.push(`${reads} 次阅读`);
+    // 阅读数：构建期 GoatCounter 快照仅作占位，页面加载后以 /api/views 实时值刷新（与文章页同源同口径）
+    bits.push(`<span class="post-views-n" data-path="/${p.slug}.html">${reads || 0}</span> 次阅读`);
     return bits.join('<span class="dot">·</span>');
   };
   const items = articles.slice(1).map((p) => `<li class="post-item">
@@ -452,7 +453,8 @@ function indexPage(articles) {
   <ul class="post-list">
 ${items}
   </ul>
-</section>`;
+</section>
+<script>(function(){var els=document.querySelectorAll(".post-views-n");if(!window.fetch||!els.length)return;els.forEach(function(el){fetch("/api/views?path="+encodeURIComponent(el.getAttribute("data-path"))).then(function(r){return r.json()}).then(function(j){if(j&&typeof j.views==="number"){el.textContent=j.views}}).catch(function(){})});})();</script>`;
 }
 
 function archivePage(articles) {
