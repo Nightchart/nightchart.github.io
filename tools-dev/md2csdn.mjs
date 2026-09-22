@@ -21,6 +21,10 @@ md = md.replace(/^---\n[\s\S]*?\n---\n/, "");
 const html = mdToHtml(md);
 // 不追加任何公众号引导：2026-09-20 实测 CSDN 机审对文末公众号导流（含纯文字）稳定判「广告-公众号」拒绝
 // （S-64/S-104/S-102 三篇三连拒）。CSDN 端放弃文末推广，主站/知乎端照常。
+const csdnTail = `
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+`;
 const outPath = path.join(ROOT, "data", "_csdn_html", path.basename(mdPath).replace(/\.md$/, ".html"));
-fs.writeFileSync(outPath, html + "\n");
-console.log("written:", outPath, html.length, "chars");
+fs.writeFileSync(outPath, html + csdnTail + "\n");
+console.log("written:", outPath, (html + csdnTail).length, "chars (含关注引导尾)");
