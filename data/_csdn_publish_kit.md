@@ -149,6 +149,7 @@
 | 09-28 | s131-harbour《S-131：把港口装进一张图》 | 草稿 |
 | 10-05 | s123-marine-radio《S-123：无线电服务也能成为海图产品》 | 草稿 |
 | 10-12 | toolkit-guide《航图笔记工具箱：十个工具的使用场景指南》 | 草稿 |
+| 10-19 | s401-inland《S-401：当电子海图开进内河》 | 草稿 |
 
 - 四篇均已 md2csdn 预转换（data/_csdn_html/，含 front matter 剥离与内链绝对化），发布日直接注入。
 - 发布流程 SOP：编辑器（新文章无 id 时先存草稿→继续编辑绑定 id）→ textarea 填标题 → CKEDITOR setData → 摘要/标签 → 原子发布。
