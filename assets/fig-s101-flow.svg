@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#143d38">条件制图流水线：规则 → 指令流 → 解释器</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">三股输入（要素属性 · 几何类型 · 船员设置）在规则里汇合，产出一条渲染器只读不猜的指令流</text>
+
+  <!-- 三股输入 -->
+  <g font-size="12.5">
+    <rect x="40" y="92" width="150" height="64" rx="7" fill="#ffffff" stroke="#c9c6bd"/>
+    <text x="52" y="116" font-weight="600" fill="#143d38">要素属性</text>
+    <text x="52" y="138" fill="#8a877e" font-size="11.5">categoryOfCargo 含 7</text>
+    <rect x="40" y="166" width="150" height="64" rx="7" fill="#ffffff" stroke="#c9c6bd"/>
+    <text x="52" y="190" font-weight="600" fill="#143d38">几何类型</text>
+    <text x="52" y="212" fill="#8a877e" font-size="11.5">Point / Surface</text>
+    <rect x="40" y="240" width="150" height="64" rx="7" fill="#ffffff" stroke="#c9c6bd"/>
+    <text x="52" y="264" font-weight="600" fill="#143d38">船员设置</text>
+    <text x="52" y="286" fill="#8a877e" font-size="11.5">RadarOverlay 开关</text>
+  </g>
+  <!-- 汇聚线 -->
+  <g stroke="#c9c6bd" stroke-width="1.4" fill="none">
+    <path d="M190 124 C 230 124, 240 180, 268 214"/>
+    <path d="M190 198 H 268"/>
+    <path d="M190 272 C 230 272, 240 216, 268 184"/>
+  </g>
+
+  <!-- 规则块 -->
+  <rect x="272" y="140" width="196" height="120" rx="8" fill="#0f6d5f"/>
+  <text x="288" y="170" font-size="13" font-weight="600" fill="#f2f0e8">AnchorBerth.lua</text>
+  <text x="288" y="192" font-size="11.5" fill="#cfe3dd">CSP · 条件制图程序</text>
+  <text x="288" y="214" font-size="11.5" fill="#cfe3dd">属性判断 → 换符号</text>
+  <text x="288" y="234" font-size="11.5" fill="#cfe3dd">几何分支 → 画边界</text>
+  <text x="288" y="252" font-size="11.5" fill="#cfe3dd">官方实现，随规范分发</text>
+
+  <!-- 箭头1 -->
+  <g stroke="#b5478c" stroke-width="2" fill="none">
+    <path d="M468 200 H 516"/>
+    <path d="M508 192 L 520 200 L 508 208"/>
+  </g>
+  <text x="436" y="184" font-size="10" fill="#b5478c">AddInstructions</text>
+
+  <!-- 指令流块 -->
+  <rect x="522" y="140" width="298" height="120" rx="8" fill="#ffffff" stroke="#c9c6bd"/>
+  <text x="538" y="168" font-size="12" font-weight="600" fill="#5b584f">指令流（分号分隔的字符串）</text>
+  <g font-family="Consolas, Menlo, monospace" font-size="11.5" fill="#33322e">
+    <text x="538" y="192">ViewingGroup:26220;</text>
+    <text x="538" y="210">DrawingPriority:15;</text>
+    <text x="538" y="228">DisplayPlane:OverRadar;</text>
+    <text x="538" y="246">PointInstruction:ANCBDNG2</text>
+  </g>
+
+  <!-- 底部：解释器长条 -->
+  <rect x="40" y="330" width="780" height="64" rx="8" fill="#143d38"/>
+  <text x="56" y="356" font-size="13" font-weight="600" fill="#f2f0e8">渲染器 = 解释器</text>
+  <text x="56" y="378" font-size="11.5" fill="#9fb8ae">实现指令集一次，规则包整体可替换——IHO 发新版 PC，换包不换码</text>
+  <!-- 汇箭头 -->
+  <g stroke="#0f6d5f" stroke-width="2" fill="none">
+    <path d="M671 260 V 300 H 430 V 326"/>
+    <path d="M422 318 L 430 330 L 438 318"/>
+  </g>
+</svg>

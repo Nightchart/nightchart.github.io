@@ -53,6 +53,8 @@ else
 
 最后一个小细节：要素带名字时，规则追加一条文本注记，且内容走模板——`EncodeString(GetFeatureName(feature, contextParameters), 'Nr %s')`。图上"Nr 7"这样的锚泊编号格式，是规则里定的，不是渲染器拼的。连一个前缀字符串的归属都被规范收走了。
 
+![条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释](assets/fig-s101-flow.svg)
+
 顺带看一眼指令协议本身：`AddInstructions` 吃一个分号分隔的字符串，`ViewingGroup:26220;DrawingPriority:15;DisplayPlane:UnderRadar`——分组、优先级、显示面，一条指令流。**渲染器要做的只是实现这个指令集的解释器**，规则怎么写它一概不关心。
 
 ## 最复杂的规则：深度区和它的邻居们
