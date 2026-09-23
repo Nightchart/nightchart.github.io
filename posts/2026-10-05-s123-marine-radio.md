@@ -19,8 +19,8 @@ S-57 时代，VHF 岸台、NAVTEX 播发这些信息住在航标表和无线电�
 - **GMDSSArea**：全球海上安全通信系统的海区划分——A1 是岸台 VHF 覆盖圈，往外 A2/A3/A4 逐级过渡，直到远海只剩卫星覆盖，四个等级一圈圈套出去
 - **NavtexStationArea**：NAVTEX 播发站的覆盖区
 - **InmarsatOceanRegionArea**：Inmarsat 卫星的洋区
-- **WeatherForecastWarningArea / NavigationalMeteorologicalArea / ForecastAreaAggregate**：气象预报与警报区
-- **FuzzyAreaAggregate / IndeterminateZone**：模糊聚合区与不确定区——服务覆盖边界本来就有渐变和不确定性，规范直接给了表达它的物标
+- **WeatherForecastWarningArea / NavigationalMeteorologicalArea**：气象预报与警报区
+- **ForecastAreaAggregate / FuzzyAreaAggregate / IndeterminateZone**：预报聚合区、模糊聚合区与不确定区——服务覆盖的边界本来就有渐变和不确定性，规范直接给了表达它们的物标
 
 ![GMDSS 海区与 S-123 物标的对应](assets/fig-s123-gmdss.svg)
 
