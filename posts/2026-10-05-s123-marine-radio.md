@@ -22,9 +22,9 @@ S-57 时代，VHF 岸台、NAVTEX 播发这些信息住在航标表和无线电�
 - **WeatherForecastWarningArea / NavigationalMeteorologicalArea**：气象预报与警报区
 - **ForecastAreaAggregate / FuzzyAreaAggregate / IndeterminateZone**：预报聚合区、模糊聚合区与不确定区——服务覆盖的边界本来就有渐变和不确定性，规范直接给了表达它们的物标
 
-![GMDSS 海区与 S-123 物标的对应](assets/fig-s123-gmdss.svg)
-
 FC 的体量不大：**19 个要素类型加 14 个信息类型**，但每一个都对应一类真实的海上服务能力。这份目录我也丢进了[要素目录解析器](fc.html)实测，18 个非抽象要素类型直接解析成表。
+
+![GMDSS 海区与 S-123 物标的对应](assets/fig-s123-gmdss.svg)
 
 渲染层面还有个细节：GMDSS 区的填充规则里写着 `transparency="0.30"`——服务区在海图上永远是**半透明**的，盖得住底色但不挡航行信息。边界的几何是确定的，它代表的服务能力却是概率性的，透明度就是这两者之间的诚实。
 
