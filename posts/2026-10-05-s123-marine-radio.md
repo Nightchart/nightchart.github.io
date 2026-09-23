@@ -22,6 +22,8 @@ S-57 时代，VHF 岸台、NAVTEX 播发这些信息住在航标表和无线电�
 - **WeatherForecastWarningArea / NavigationalMeteorologicalArea / ForecastAreaAggregate**：气象预报与警报区
 - **FuzzyAreaAggregate / IndeterminateZone**：模糊聚合区与不确定区——服务覆盖边界本来就有渐变和不确定性，规范直接给了表达它的物标
 
+![GMDSS 海区与 S-123 物标的对应](assets/fig-s123-gmdss.svg)
+
 这套物标面的共同点：**几何画的是"服务能力的边界"，不是自然物**。信号覆盖、播发范围、预报分区，边界随台站开关、功率调整、气象过程动态变化。这也是为什么 S-123 的图示表达大量依赖文字注记。拿海警站的规则原文看：
 
 ```xml

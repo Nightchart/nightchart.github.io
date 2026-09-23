@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#143d38">把服务能力画成多边形：GMDSS 海区与 S-123 物标</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">覆盖边界随台站、功率、气象过程动态变化——边界本身是几何，频道与频率是属性</text>
+
+  <!-- 左：GMDSS 四区嵌套示意（海岸线 + 弧） -->
+  <g>
+    <path d="M60 90 C 90 180, 90 280, 60 360 L 40 360 L 40 90 Z" fill="#d8d3c3"/>
+    <path d="M60 90 C 96 180, 96 280, 60 360" fill="none" stroke="#5b584f" stroke-width="1.5"/>
+    <!-- A1 VHF -->
+    <path d="M62 96 C 150 160, 150 290, 62 354" fill="rgba(15,109,95,0.16)" stroke="#0f6d5f" stroke-width="1.4"/>
+    <!-- A2 MF -->
+    <path d="M62 90 C 205 160, 205 292, 62 358" fill="none" stroke="#3a7ca5" stroke-width="1.4" stroke-dasharray="6 4"/>
+    <!-- A3 Inmarsat -->
+    <path d="M62 82 C 285 150, 285 300, 62 366" fill="none" stroke="#b5478c" stroke-width="1.4" stroke-dasharray="2 4"/>
+    <!-- A4 极地 -->
+    <text x="300" y="76" font-size="11.5" fill="#8a877e">A4 · 极地（Inmarsat 之外）</text>
+    <!-- 区标注 -->
+    <text x="112" y="228" font-size="13" font-weight="600" fill="#0f6d5f">A1</text>
+    <text x="106" y="244" font-size="10.5" fill="#0f6d5f">VHF 岸台</text>
+    <text x="182" y="228" font-size="13" font-weight="600" fill="#3a7ca5">A2</text>
+    <text x="176" y="244" font-size="10.5" fill="#3a7ca5">MF 岸台</text>
+    <text x="256" y="228" font-size="13" font-weight="600" fill="#b5478c">A3</text>
+    <text x="250" y="244" font-size="10.5" fill="#b5478c">Inmarsat</text>
+    <!-- 电台/NAVTEX 标记 -->
+    <circle cx="70" cy="140" r="4" fill="#b5478c"/>
+    <text x="58" y="128" font-size="10.5" fill="#5b584f">岸台</text>
+    <circle cx="66" cy="310" r="4" fill="#d9a410"/>
+    <text x="54" y="330" font-size="10.5" fill="#5b584f">NAVTEX</text>
+  </g>
+
+  <!-- 右：S-123 物标映射卡 -->
+  <g font-size="12.5">
+    <rect x="380" y="88" width="440" height="56" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="396" y="112" font-weight="600" fill="#143d38">GMDSSArea</text>
+    <text x="396" y="132" fill="#8a877e" font-size="11.5">A1–A4 海区划分，一圈圈套出去</text>
+    <rect x="380" y="152" width="440" height="56" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="396" y="176" font-weight="600" fill="#143d38">RadioStation / RadioServiceArea</text>
+    <text x="396" y="196" fill="#8a877e" font-size="11.5">电台是点，覆盖区是多边形</text>
+    <rect x="380" y="216" width="440" height="56" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="396" y="240" font-weight="600" fill="#143d38">NavtexStationArea</text>
+    <text x="396" y="260" fill="#8a877e" font-size="11.5">NAVTEX 播发覆盖区</text>
+    <rect x="380" y="280" width="440" height="56" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="396" y="304" font-weight="600" fill="#143d38">InmarsatOceanRegionArea</text>
+    <text x="396" y="324" fill="#8a877e" font-size="11.5">卫星洋区</text>
+    <rect x="380" y="344" width="440" height="56" rx="7" fill="#0f6d5f"/>
+    <text x="396" y="368" font-weight="600" fill="#f2f0e8">WeatherForecastWarningArea</text>
+    <text x="396" y="388" fill="#cfe3dd" font-size="11.5">气象预报与警报区——边界跟着天气过程跑</text>
+  </g>
+</svg>
