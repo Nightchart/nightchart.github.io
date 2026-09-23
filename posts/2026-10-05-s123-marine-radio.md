@@ -16,7 +16,7 @@ draft: true
 S-57 时代，VHF 岸台、NAVTEX 播发这些信息住在航标表和无线电信号表（ALL）里——**表格形态，人查的**。S-123 把它们升格成空间物标：
 
 - **RadioStation / RadioServiceArea**：无线电台和它的服务区——服务区是个多边形，覆盖边界就是几何
-- **GMDSSArea**：全球海上安全通信系统的海区划分（A1/A2/A3/A4 那套）
+- **GMDSSArea**：全球海上安全通信系统的海区划分——A1 是岸台 VHF 覆盖圈，往外 A2/A3/A4 逐级过渡，直到远海只剩卫星覆盖，四个等级一圈圈套出去
 - **NavtexStationArea**：NAVTEX 播发站的覆盖区
 - **InmarsatOceanRegionArea**：Inmarsat 卫星的洋区
 - **WeatherForecastWarningArea / NavigationalMeteorologicalArea / ForecastAreaAggregate**：气象预报与警报区
