@@ -1,0 +1,78 @@
+<p>上一篇<a href="s101-portrayal-lookup.html">拆 PC 分发件</a>时留了个坑：目录里登记着 215 个规则文件的&quot;引用&quot;，但解开包只看到数据——符号怎么画有 XML，颜色怎么配有 colorProfile，<strong>唯独没有&quot;什么条件下画什么&quot;的逻辑</strong>。S-52 时代的 Look-up 表好歹是一张能读的表，S-101 把它变成了 215 个 Lua 文件——208 个物标规则，外加 7 个 <code>PortrayalAPI</code>、<code>S100Scripting</code> 之类的框架与公共文件。</p>
+<p>这些文件不在公开分发包里，而是以 CSP（Conditional Symbology Procedure，条件制图程序）源码的形式随产品规范发布。这件事的分量值得单独说一句：<strong>条件制图从&quot;给人读的文档&quot;变成了&quot;给机器跑的程序&quot;</strong>。S-52 PresLib 时代，PL 3.4 / PL 4.0 里的条件逻辑是伪代码，每家渲染器自己翻译成 C++——翻译过程就是实现分歧的温床。S-101 干脆把官方实现（Lua）连同文档一起发，你要做的不是&quot;照着文档写&quot;，而是&quot;把这段 Lua 嵌进去跑&quot;。</p>
+<p>这篇把其中的代表拆开看：一个最小的，一个最复杂的，最后看一族不用 Lua 的。</p>
+<h2>最小的规则：锚泊船</h2>
+<p><code>AnchorBerth.lua</code> 全文 43 行，是理解 CSP 结构的好样本。核心判断只有两处：</p>
+<pre><code class="language-lua">local symbol = 'ACHBRT07'	-- default for categoryOfCargo != 7
+
+if contains(7, feature.categoryOfCargo) then
+	symbol = 'ANCBDNG2'
+end</code></pre>
+<p>第一个条件就值得停一下：<strong>属性直接改写符号</strong>。锚泊船装的是危险品（categoryOfCargo 含 7），符号从普通锚泊换成危险品锚泊标——船员扫一眼符号就知道这片锚地里混着危险品船。这行代码在 S-52 里对应 Look-up 表里的一条带条件的行，语义没变，只是载体从表行变成了 if。</p>
+<p>几何类型分支是第二处：</p>
+<pre><code class="language-lua">if feature.PrimitiveType == PrimitiveType.Point then
+	...
+elseif feature.PrimitiveType == PrimitiveType.Surface then
+	...
+	featurePortrayal:SimpleLineStyle('dash',0.64,'CHMGF')
+	featurePortrayal:AddInstructions('LineInstruction:_simple_')</code></pre>
+<p>点要素给符号，面要素除了符号还要画边界——边界不引用外部线样式文件，而是用 <code>SimpleLineStyle</code> 内联一条简单的虚线（0.64 宽、CHMGF 浅品红）。S-52 里这个区分写在 Look-up 表的两个不同条目里，现在变成了显式的 if-else。</p>
+<p>还有一处容易被忽略但很关键：</p>
+<pre><code class="language-lua">if contextParameters.RadarOverlay then
+	featurePortrayal:AddInstructions('ViewingGroup:26220;DrawingPriority:15;DisplayPlane:OverRadar')
+else
+	featurePortrayal:AddInstructions('...DisplayPlane:UnderRadar')</code></pre>
+<p><code>contextParameters</code> 是<strong>船员设置</strong>，不是要素属性。雷达叠加开着，锚泊符号画在雷达图像上层；关着就画在下层。同一个物标，画面层级跟着用户参数走——这就是为什么渲染器没法把&quot;画在哪层&quot;写死，也是 CSP 签名里带 <code>contextParameters</code> 的原因。要素属性、几何类型、用户上下文，三股输入在这里汇合。</p>
+<p>最后一个小细节：要素带名字时，规则追加一条文本注记，且内容走模板——<code>EncodeString(GetFeatureName(feature, contextParameters), 'Nr %s')</code>。图上&quot;Nr 7&quot;这样的锚泊编号格式，是规则里定的，不是渲染器拼的。连一个前缀字符串的归属都被规范收走了。</p>
+<p><img src="assets/fig-s101-flow.svg" alt="条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释" loading="lazy"></p>
+<p>顺带看一眼指令协议本身：<code>AddInstructions</code> 吃一个分号分隔的字符串，<code>ViewingGroup:26220;DrawingPriority:15;DisplayPlane:UnderRadar</code>——分组、优先级、显示面，一条指令流。<strong>渲染器要做的只是实现这个指令集的解释器</strong>，规则怎么写它一概不关心。</p>
+<h2>最复杂的规则：深度区和它的邻居们</h2>
+<p><code>DEPARE03.lua</code> 有 150 余行，处理的是海图上最要命的问题：<strong>安全等深线到底画在哪</strong>。</p>
+<p><a href="s52-portrayal.html">前文讲过</a>，安全等深线是船员按吃水设的参数，改一个数整张图的填色分布重算。&quot;重算&quot;在 S-101 里的实体就是这段 Lua：</p>
+<pre><code class="language-lua">if depthRangeMinimumValue &lt; contextParameters.SafetyContour then
+	unsafe = true
+else
+	safe = true
+end</code></pre>
+<p>水深小于安全等深线，这片深度区标记为 unsafe——但真正的重头戏在后面。深度区画边界时，要判断&quot;我这条边是不是安全等深线&quot;，而判断依据不是自己的属性，是<strong>邻居是谁</strong>：</p>
+<pre><code class="language-lua">for curveAssociation in feature:GetFlattenedSpatialAssociations() do
+	local associatedFeatures = curveAssociation.AssociatedFeatures
+	...</code></pre>
+<p>DEPARE03 遍历自己每条共享边，把共边的要素捞出来分堆：共边的是 <code>DepthContour</code>？看它的深度值是不是恰好等于安全等深线（<code>loc_safety</code>）。是 <code>LandArea</code>、<code>UnsurveyedArea</code>？那要看对方的水线效果（<code>waterLevelEffect</code>）——陆地和未测量区贴着的边按 unsafe 处理。连内陆水域都有特判：River、Lake、Canal、DockArea、LockBasin 算一组，还要看线性建筑物的水线效果属性。</p>
+<p>这段代码里埋着一句真实工程味的注释：</p>
+<pre><code class="language-lua">-- NOTE: S-52 PL 3.4 disagrees with PL 4.0.1 on the inlandWaterShared and watlev.
+--       Going with 3.4 since 4.0.1 doesn't apply the proper weight when safe water is
+--       next to a land area.</code></pre>
+<p>S-52 预库 3.4 版和 4.0.1 版在内陆水域的判定上<strong>标准自己打架了</strong>，官方实现选边站 3.4，理由写在注释里。条件制图程序化的一个意外好处就在这：实现分歧没法再藏在各家 C++ 里，它被显式地摆在了代码注释中，型式认可时审的就是这一行。</p>
+<p>DEPARE03 里还有两处值得圈出来。其一，位置质量直接映射到线型：</p>
+<pre><code class="language-lua">if qualityOfPosition and qualityOfPosition ~= 1 and qualityOfPosition ~= 10 and qualityOfPosition ~= 11 then
+	featurePortrayal:SimpleLineStyle('dash',0.64,'DEPSC')</code></pre>
+<p>这条边如果位置测量质量不达标（qualityOfPosition 不在可信值列表里），安全等深线画成<strong>虚线</strong>——测得不准的等深线在图上就该长得不确定。数据质量参与渲染决策，这是 S-100 系列相对 S-57 最实质的进步之一，而它就落在这几行里。</p>
+<p>其二，规则是可组合的。文件头 <code>require 'RESCSP03'</code>、<code>require 'SAFCON01'</code>、<code>require 'SEABED01'</code>——管制区注记、安全水深标注、海床显示各是独立的 CSP，被 DEPARE03 按需调用。215 个规则文件不是 215 个孤立函数，是一张调用网。连性能桩都标准化了（<code>Debug.StartPerformance('Lua Code - DEPARE03')</code>），官方实现自带计时。</p>
+<h2>另一族：不用 Lua 的 XSLT</h2>
+<p>Lua 不是唯一载体。S-111 表面流、S-123 海上无线电服务这批产品规范的图示表达，用的是 <strong>XSLT</strong>——规则文件长这样（S-123 的海警站，42 行）：</p>
+<pre><code class="language-xml">&lt;xsl:template match=&quot;CoastguardStation[@primitive='Point']&quot; priority=&quot;1&quot;&gt;
+  &lt;pointInstruction&gt;
+    ...
+    &lt;viewingGroup&gt;12310&lt;/viewingGroup&gt;
+    &lt;displayPlane&gt;OVERRADAR&lt;/displayPlane&gt;
+    &lt;symbol reference=&quot;CostGuardStattion&quot;/&gt;
+  &lt;/pointInstruction&gt;
+  &lt;xsl:if test=&quot;communicationChannel!= ''&quot;&gt;
+    &lt;textInstruction&gt;...&lt;/textInstruction&gt;
+  &lt;/xsl:if&gt;
+&lt;/xsl:transform&gt;</code></pre>
+<p>对比 AnchorBerth 那段 Lua，语义一一对应：模板匹配管几何类型（<code>[@primitive='Point']</code>），<code>xsl:if</code> 管条件注记，输出的是指令 XML 而不是指令流字符串。一个是命令式（Lua 主动 AddInstructions），一个是声明式（XSLT 匹配后产出 XML），条件制图的语义是同一套。顺带一个彩蛋：注意引用里那个 <code>CostGuardStattion</code>——双写的 t，官方分发件原样带着这个拼写错误。同一个包里还有拼错的 <code>Meterorological</code> 文件名（少个 o 的版本和正确版本并存）——一个 S-123 包贡献两处拼写彩蛋，标准是工程产物这件事，在细节里到处都是实锤。</p>
+<p>为什么两套并存？XSLT 是 S-52 预库时代就确立的技术路线，这批产品规范延续了它；S-101 较新，规则换成了 Lua。对我们做渲染器的人，实际含义是：<strong>解析器要么支持两种规则引擎，要么在接入不同产品规范前先做一层转换</strong>。我们的做法是工具里双引擎并列：同一个 S-131 分发包实测吃下 41 个 Lua 规则，S-123 分发包实测吃下 26 个 XSLT 规则文件（87 个 XML、657 个符号，覆盖 11 个物标），两条管道各自出渲染预览。</p>
+<h2>这件事的真正含义</h2>
+<p>把逻辑标准化成可执行程序，改变的不只是写法：</p>
+<p><strong>渲染器退化成解释器</strong>。指令集（ViewingGroup / PointInstruction / LineInstruction / …）成为唯一稳定接口，规则包整体可替换——IHO 发新版 PC，换包不换码。对照 S-52 时代&quot;每家把 Look-up 翻译进 C++&quot;，升级一次预库等于重新翻译一次。</p>
+<p><strong>实现分歧无处可藏</strong>。3.4 对 4.0.1 的取舍写在官方源码注释里，谁跟谁不一致、跟了谁，全都可查。型式认可审&quot;显示对不对&quot;时，审的不再是&quot;你按文档理解对了吗&quot;，而是&quot;你跑的是不是这段代码&quot;。</p>
+<p><strong>测试有了锚点</strong>。S-64 的官方测试数据集为什么能当&quot;标准答案&quot;，<a href="s64-test-datasets.html">前文</a>说过；现在补上另一半——数据集喂进来，规则跑出去，两侧都是标准件，对不对得上，逐条可比。</p>
+<p>规则文件、绘图资源、颜色配置三样凑齐，渲染器才算拿到了完整的&quot;画法&quot;。想亲手翻这 215 个规则？<a href="pc.html">工具页的 PC 解析器</a>支持上传整个分发包目录：每个物标的渲染预览、规则源码、符号实图都在里面，S-101 和 S-123 的包都能直接吃。</p>
+<p>下一篇进 S-131：港口基础设施产品——S-100 的产品谱系从&quot;航海&quot;走向&quot;港口运营&quot;，连系船柱和岸电设施都成了物标。图示表达规则换到新场景里怎么组织，<a href="pc.html">本篇双引擎实测</a>用的那个 S-131 PC 2.0.0 分发包到时候正好登场。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+

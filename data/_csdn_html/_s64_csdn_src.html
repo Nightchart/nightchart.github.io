@@ -1,0 +1,43 @@
+<blockquote><p>本文首发于个人博客<strong>航图笔记</strong> nightchart.cn（S-57 / S-52 / S-100 / 渲染引擎源码走读，持续更新）。CSDN 同步发布，转载请保留出处。</p></blockquote>
+<p>第一篇入门文里给过一条最便宜的上手路线：OpenCPN + IHO S-64 官方测试数据 + GDAL，一周建立&quot;数据→显示&quot;的直觉。前半句和后半句都好理解，中间这个 <strong>S-64</strong> 一直没展开。一句话定位：<strong>它是 IHO 出的 ECDIS 测试数据集，专门回答&quot;你的渲染器显示得对不对&quot;</strong>。</p>
+<p>标准文本（S-52、S-57）写的是&quot;应该怎样&quot;；S-64 给的是<strong>现成的数据加标准答案</strong>——一份精心构造的 ENC 数据，配套一批&quot;加载后你应该看到什么&quot;的用例说明与预期显示效果。自研渲染器最痛苦的一步是手里没有&quot;对的参照物&quot;，S-64 就是那个参照物。</p>
+<h2>三类人，三种用法</h2>
+<ul><li><strong>ECDIS 合规视角</strong>：显示与更新是否符合 S-52/S-57 的表现要求，是型式认可审查的实质内容之一——正式测试以 IEC 61174 为纲，S-64 数据集就是它的核心输入。按用例逐条过，差异即疑点</li><li><strong>开源/自研渲染器视角</strong>：OpenCPN 这类实现和各家自研引擎，拿它当<strong>对照系</strong>——同一份数据，你画的、别人画的、预期效果，三者对齐说明理解没跑偏</li><li><strong>入门者视角</strong>：初学最难的不是代码，是&quot;不知道自己画得对不对&quot;。S-64 每条用例附带现象说明，等于自带答案册</li></ul>
+<p><strong>怎么拿到手</strong>：IHO 官网的<a href="https://iho.int/en/standards-and-specifications" target="_blank" rel="noopener">标准与规范页</a>免费下载，现行版本在 Ed 3.0 一线（IHO 的&quot;Standards in Force&quot;页面可查现行版次）。顺手提一句它的地位：连 S-100 安全方案的官方测试数据，都是拿 S-64 这套改出来的。</p>
+<h2>一条更新用例的完整走法</h2>
+<p>拿最能暴露问题的&quot;更新链路&quot;用例举例（各版本 S-64 的用例组织不同，以随包说明为准），走法固定五步：</p>
+<blockquote><p><strong>五步工作流 + 像素 diff 回归循环</strong>（配图见博客原文：https://nightchart.cn/s64-test-datasets.html ）</p></blockquote>
+<ol><li><strong>装底座</strong>：<a href="https://opencpn.org/" target="_blank" rel="noopener">OpenCPN</a> 正常安装，把 S-64 数据集所在目录加入海图集合，加载基础数据，截图记下初始画面</li><li><strong>逐份应用更新</strong>：数据集内的增量更新文件逐份导入。要盯的不是一个静态结果，而是<strong>每一次应用后的画面变化</strong>：浮标移位、沉船新增、等深线改值导致周边填色重排——每一处变化都对应标准里的一条表现要求</li><li><strong>对照预期</strong>：用例说明写明了预期现象，逐条打钩</li><li><strong>数据侧核对</strong>：有疑问时用 GDAL 把同一份数据的要素、属性、几何 dump 出来，先分清&quot;数据理解错了&quot;还是&quot;画错了&quot;——这两类错的排查方向完全相反</li><li><strong>记错题本</strong>：把翻车用例记下来。它们就是你私有的 S-64，未来回归测试的种子</li></ol>
+<p>前三步手点一遍大约半天，价值在于理解每条用例在防什么错。<strong>手点第二遍开始就是在浪费生命</strong>——所以有第四步之后的自动化。</p>
+<h2>三大翻车点对照表</h2>
+<p>大量排查时间其实花在同一类问题上。按出现频率排个序：</p>
+<table><thead><tr><th>现象</th><th>根因</th><th>第一排查动作</th></tr></thead><tbody><tr><td>更新应用了，画面没变</td><td>某层缓存的失效没接到这次更新</td><td>关缓存直渲染复现，先定性再定位</td></tr><tr><td>物标画了，符号不对</td><td>look-up 表查错：条件项、状态档位或专用符号匹配</td><td>打印该要素命中的 look-up 条目，逐项核对</td></tr><tr><td>颜色&quot;差不多但不全对&quot;</td><td>token 用错色板，或硬编码了十六进制值</td><td>从渲染代码里捞出该像素的 token 名，回色板表对照</td></tr></tbody></table>
+<p>查错顺序也值得写死：<strong>先查 look-up 和配置，再查绘制代码</strong>——前者错得最多，后者背锅最多。</p>
+<h2>从人眼到像素 diff</h2>
+<p>把&quot;预期效果 vs 实际渲染&quot;自动化，只需要<strong>三固定</strong>：固定输入、固定渲染、固定比对。</p>
+<ul><li><strong>固定输入</strong>：同一份数据文件、同一套 look-up 配置、同一个视口；涉及时间的要素（灯标光韵律这类）固定时钟</li><li><strong>固定渲染</strong>：渲染一帧，截图保存为基准图（baseline）；此后每次代码变动，重画同一帧</li><li><strong>固定比对</strong>：逐像素做通道差分，容差以内（抗锯齿边缘的灰度抖动）忽略；超差的连通区域聚类、框出、高亮——一份差异报告就是本次改动的影响清单</li></ul>
+<p>比对函数本身只有几十行，核心逻辑一看就懂：</p>
+<pre><code class="language-js">// diff.js：基准图 vs 当前帧（RGBA，逐像素比较）
+function diff(baseline, current, tol = 8) {
+  const bad = [];
+  for (let i = 0; i &lt; baseline.length; i += 4) {
+    if (Math.abs(baseline[i]   - current[i])   &gt; tol ||
+        Math.abs(baseline[i+1] - current[i+1]) &gt; tol ||
+        Math.abs(baseline[i+2] - current[i+2]) &gt; tol) {
+      bad.push(i / 4);                   // 记下超差像素的坐标
+    }
+  }
+  return cluster(bad, baseline.width);   // 相邻超差点聚成矩形框
+}</code></pre>
+<p>两个工程细节决定这玩意儿是&quot;真好用&quot;还是&quot;天天狼来了&quot;：</p>
+<ul><li><strong>可容忍区域做成掩膜</strong>：状态栏时钟、天然渐变的水面纹理这类必然变化的区域，从比对中剔除——否则每天第一次运行都是假警报</li><li><strong>固定输入要真的固定</strong>：涉及时间的要素（灯标光韵律、潮汐时刻）给渲染器喂固定 UTC，随机数喂固定种子</li></ul>
+<p>这条 diff 线的成本是一个截图脚本加一个比对函数，收益是<strong>每一次升级依赖、移植算法、调整 look-up 都有保险</strong>。配套还要立一条纪律：diff 报红只有两种合法处理——修 bug，或者确认是&quot;有意变更&quot;并评审后更新基准图。没有第三种，基准图悄悄换掉的那天，回归线就名存实亡。</p>
+<p>我们的回归线跑起来后抓到的第一个问题，是一个只在特定符号密度下出现的注记错位，手测根本撞不见。这种案子攒多了你会发现：<strong>S-64 的价值不在&quot;通过&quot;，而在把&quot;显示得对不对&quot;从一道主观题变成一道判断题。</strong></p>
+<h2>S-100 时代：接棒的是 S-164</h2>
+<p>S-64 服务的还是 S-57/S-52 体系。S-100 时代的接棒者叫 <strong>S-164</strong>——《IHO Test Data Sets in ECDIS》（Ed 1.0.0，2023 年 3 月），定位与 S-64 一脉相承：测试数据集加一本使用手册（TIM），首批覆盖的是 <strong>S-101 新一代 ENC</strong> 的显示与更新用例，数据集连增量更新和 XML 版本都备齐了。最初的仓库说明写得很直白：初始内容就是 <strong>S-64 测试数据集的 S-101 等价物</strong>。</p>
+<p>更值得点赞的是发布方式：数据集和手册直接开源在 IHO 官方的 GitHub 组织里（<a href="https://github.com/iho-ohi/S-164-Sub-Group" target="_blank" rel="noopener">iho-ohi/S-164-Sub-Group</a>），任何人可以下载、比对、提 issue——&quot;标准配套测试数据&quot;这件事，从纸质附录变成了活的公开项目。覆盖面也在实打实地扩：从 S-101 起步，已经把内河 ENC（S-401）和 S-102、S-111 这类辅助数据纳了进来。双标准并存的年代意味着两套都得用：存量系统跑 S-64，S-101 项目从第一天起就该把 S-164 纳入回归。</p>
+<h2>两个提醒</h2>
+<p>S-64 覆盖的是<strong>典型与疑难场景的抽样</strong>，不是全量验收——通过它不代表合规达标，不通过一定有问题。另外它随版本演进、用例集持续增补（S-164 那边也一样，覆盖面在逐版扩员），跟着当前版本的随包说明走，别背旧版目录。</p>
+<p>下一篇回到数据侧：S-125 航标（AtoN）——灯标&quot;灭没&quot;这种短周期变更，标准里是怎么建模的。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」：https://nightchart.cn ，同步更新全部文章，欢迎收藏。</p>

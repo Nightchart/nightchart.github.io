@@ -1,0 +1,22 @@
+<p>这个博客写了半年 S-57 和 S-100，每篇文章里出现过的速查表和解析器，最后都沉淀成了<a href="tools.html">工具页</a>里的十个在线工具。这篇按<strong>实际工作流的顺序</strong>把它们串起来——不是功能清单，是什么场景该抓哪个工具、以及它们各自解决过的真实问题。全部工具纯浏览器本地运行，数据不出本机。</p>
+<p><img src="assets/fig-toolkit-flow.svg" alt="工具箱工作流：四个阶段、十个工具" loading="lazy"></p>
+<h2>查标准：两张某表</h2>
+<p><strong><a href="objl.html">S-57 对象类码表</a></strong> 和 <strong><a href="attr.html">S-57 属性码表</a></strong>：写解析器时最常开的两个页。对象类码表收录 179 个核心 ENC 对象类（编码、缩写、中英文名、图元），实时过滤、高频对象标星，点行即复制；属性码表除了类型和取值域，还做了<strong>反向索引</strong>——查一个属性能直接看到&quot;被哪些对象类使用&quot;，双向跳转互通。典型场景：拿到一份 ENC，某个物标用了冷门属性组合，两个页面对着查五分钟就能定位——比翻 S-57 Appendix A 的 PDF 快得多。第一次接手 ENC 的，配合<a href="s57-enc-anatomy.html">数据解剖那篇</a>对照着走一遍，比读规范快一周。</p>
+<p><strong><a href="s52.html">S-52 颜色与符号速查</a></strong>：五套标准调色板 63 个令牌的屏显值全量内嵌，一键导出 JSON / CSS 变量直接进代码；166 个 INT 1 符号中文图库，实时过滤分类浏览。写渲染器调颜色、对符号时开着当案头字典。色值数据的来历和设计逻辑在<a href="s52-night-palette.html">夜航那篇</a>里有完整拆解。</p>
+<h2>拆数据：从 ENC 到字段</h2>
+<p><strong><a href="s57-s101.html">S-57 ↔ S-101 要素对照</a></strong>：160 个 S-57 对象到 S-101 要素的<strong>官方转换对照表</strong>，带 DCEG 条款引用，还有&quot;不转换清单&quot;——迁移时哪些东西被 S-101 舍弃了，一张表说清。支持 URL 深链过滤，排查&quot;这个 S-57 物标迁过去叫什么&quot;十秒出结果。</p>
+<p><strong><a href="geo-calc.html">坐标 / 磁差速算</a></strong>：经纬度与 Web 墨卡托 / UTM / 高斯-克吕格 / 度分秒 / GCJ02 火星坐标互转，单点批量都行；磁差按 WMM2025 模型算，支持航线批量并含年变率。看着不起眼，但海图数据里的坐标全是度分秒格式，调试时肉眼对位全靠它。</p>
+<p><strong><a href="h5.html">HDF5 / S-100 网格解析器</a></strong>：S-102 水深、S-111 流场的 .h5 拖进去<strong>自动渲染热力图</strong>——时序帧切换、点选读值、干出与填充值区分，附结构树与属性，内置 NOAA 样本两个。排查&quot;水深怎么读出来是乱的&quot;这类问题时，先看底层 HDF5 的组织再怪代码。</p>
+<p><strong><a href="fc.html">S-100 要素目录解析器</a></strong>：内置 S-101 FC 2.0.0 全量样本——190 个要素类型、5 个信息类型、236 个简单属性、42 个复杂属性、18 组要素级关联，全部可搜索，S-57 别名直达对照。写 S-101 解析器对字段时开它。<a href="s101-dataset-anatomy.html">数据集拆解</a>那篇的 FC 部分就是拿它验证的。FC 是统一的 S-100 框架，其它产品（S-401 内河、S-131 港口）的目录同样是这个格式，理论上传了就能解析。</p>
+<p><strong><a href="pc.html">S-100 图示表达解析器</a></strong>：这个要重点说。内置样本之外，支持上传<strong>整个 PC 分发目录</strong>（S-101 / S-131 / S-123 的包都实测通过）：718 个符号注册表按调色板着色渲染、Lua 和 XSLT 规则源码分页查看、84 个线型与面填充的 canvas 可视化预览、物标级渲染效果合成（符号实图 + 简单线 + 填充）。双规则引擎的事在<a href="s101-portrayal-rules.html">规则拆解篇</a>里写过，工具就是那篇文章的活标本。</p>
+<h2>造数据和看效果</h2>
+<p><strong><a href="gen.html">S-100 测试数据生成器</a></strong>：基于官方 S-101 要素目录批量生成合成要素实例——1 到 50 个，坐标散布、枚举轮转、数值扰动，导出 JSON / GeoJSON。写解析器最怕&quot;没有样本&quot;，这个工具就是给<a href="s64-test-datasets.html">官方测试集</a>之外的日常迭代补位用的。</p>
+<p><strong><a href="s52-sim.html">S-52 昼夜模拟器</a></strong>：一块合成海图按 look-up 表实时渲染，白昼/黄昏/夜间三套标准色板一键切换；<strong>浅水、安全、深水三条等深线滑块</strong>各自拖动，看填色当场重排。给非开发同事演示&quot;为什么夜航色板不能调暗了事&quot;，一个链接胜过千言。</p>
+<h2>离线完整版</h2>
+<p>以上工具有一个<strong>离线完整版</strong>（断网可用），适合船端、隔离网段这类没外网的开发环境：要素目录、图示表达全资产、HDF5 样本这些大块头数据全部内嵌，打开即是完整功能。获取方式见博客页脚的<a href="https://afdian.com/a/nightchart" target="_blank" rel="noopener">爱发电主页</a>与 CSDN 资源页。工具持续更新，离线包随版本升级。</p>
+<p>工具都是解决自己问题时顺手做的，如果你在 ECDIS 或海图开发里有个反复要查、反复要试的东西没有趁手工具，欢迎来信 <a href="mailto:hi@nightchart.cn">hi@nightchart.cn</a> 提议——大概率下一个工具就是它。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+

@@ -1,0 +1,30 @@
+<p>S-101 是航海图，S-102 是水深，S-104 是水位——讲到这儿，S-100 的产品谱系看起来还是&quot;航海&quot;的延伸。直到你在要素目录里看到 <strong>AutomatedGuidedVehicle</strong>（自动导引车）这个名字和 Bollard（系船柱）、FenderLine（护舷线）并排躺在一起，才会意识到：IHO 在做的事情早就超出了&quot;海图&quot;。这篇拆的 S-131，就是港口场景的专题产品——而且是<strong>新到发烫的 2.0.0 版</strong>（要素目录的 versionDate 是 2026 年 3 月）。</p>
+<p>样本照旧是真实分发件：<code>131_Feature_Catalogue_2.0.0.xml</code> 加 <code>131_Portrayal_Catalogue_2.0.0</code>，都喂给<a href="pc.html">工具页的 PC 解析器</a>跑通过。</p>
+<h2>要素目录：港口的数字化颗粒度</h2>
+<p>S-131 的 fieldOfApplication 写的是 <strong>Marine Harbour Infrastructure</strong>（港口基础设施）。翻一遍要素类型，你能看到一条清晰的颗粒度递进：</p>
+<ul><li>港域级：HarbourAreaAdministrative（港区行政界）、HarbourBasin（港池）、HarbourAreaSection（港区段）</li><li>设施级：Berth（泊位）、Dolphin（系船墩）、DryDock（干船坞）、FloatingDock（浮船坞）、Gridiron（船台）、LockBasin（船闸）、Terminal（码头作业区）</li><li><strong>构件级</strong>：Bollard（系船柱）、FenderLine（护舷线）——单个系缆桩是一个物标</li></ul>
+<p>再往下的&quot;运营级&quot;信息不以物标存在，而是<strong>挂在设施上的属性组</strong>：Authority / AuthorityContact / AuthorityHours（主管机关与联系方式、工作时间）、AvailablePortServices（可用港口服务）、ExceptionalWorkday（例外工作日）。</p>
+<p>属性组值得多说两句。联系方式、办公时间、例外工作日——这些在 S-57 时代是航标表和港章里的<strong>文字</strong>，在 S-131 里是带结构的属性。港调中心的值班电话变了，改的是一个属性值，不是重印一页港章。港口信息的数据化颗粒度，做到构件和运营时序这一层，才算真正&quot;可计算&quot;。</p>
+<p>定义的严谨程度也值得一看。系船柱（Bollard）的官方定义是 &quot;Small shaped post, mounted on a wharf or dolphin used to secure ship's lines&quot;——系的是 ship's lines（船缆），所以它挂在码头<strong>或系船墩</strong>上，两个载体一句话覆盖。跨运车（StraddleCarrier）的定义更妙：&quot;designed to lift and carry containers or <strong>vessels</strong>&quot;——能搬集装箱也能搬船，修船厂的跨运车因此名正言顺地进了 IHO 的产品。这类设施在图上统一是点物标（permittedPrimitives: point）。</p>
+<p>这份 FC 登记了 <strong>41 个要素类型和 15 个信息类型</strong>。对一个只覆盖港口场景的产品来说，颗粒度相当可观——而且还在跟着港口的演进长：岸电设施（OnshorePowerFacility）、自动导引车（AutomatedGuidedVehicle）、跨运车（StraddleCarrier）这些绿色化、自动化改造的产物都已经进了物标表。颗粒度细的代价是属性联动多，好处是每个物标都能被独立查询、校验、告警。</p>
+<h2>图示表达：小包，但五脏俱全</h2>
+<p><img src="assets/fig-s131-tree.svg" alt="S-131 图示表达目录的整包实测：53 个文件、41 个规则全部解析" loading="lazy"></p>
+<p>S-131 的 PC 目录比 S-101 的轻，但绝不含糊。把整个分发目录（53 个文件）一次性喂给<a href="pc.html">工具页</a>实测：3 个 XML、6 个 SVG、<strong>41 个规则文件全部解析通过</strong>，34 个提取出了可渲染的指令流。41 个 Lua 里有 33 个是物标规则，剩下 8 个是 <code>PortrayalAPI</code>（35 KB）、<code>PortrayalModel</code>、<code>S100Scripting</code> 这几个<strong>随包分发的运行时框架</strong>和公共辅助——官方连&quot;规则怎么被执行&quot;的库都一并给你，条件制图从规范到运行的链条是完整的。</p>
+<p>小包不等于简单。拿 AnchorBerth（锚泊）的规则和<a href="s101-portrayal-rules.html">S-101 那篇</a>拆过的同名规则对照：骨架一模一样——点/面分支、雷达叠加判 <code>contextParameters.RadarOverlay</code>、名字注记走同一个 <code>Nr %s</code> 模板；但细节处处是 S-131 自己的印记。S-101 版开头有个危险品判断（<code>categoryOfCargo</code> 含 7 就换符号），S-131 版整个删掉了——有意思的是，要素目录里 <code>categoryOfCargo</code> 属性<strong>还挂着</strong>（锚泊物标照样采集危险品信息），只是渲染规则不再拿它换符号。数据层保留、画法层不用，两层解耦得干干净净；viewingGroup 从 26220 换成 32440；点要素用 <code>131SYMBL3S</code>，面要素却换成 <code>131INFRM</code> 信息符号加 dash / 0.64 / CHGRD 边界（S-101 版点面用的是同一枚符号）；连 <code>OverRadar</code> 的拼写都变成了全大写 <code>OverRADAR</code>。FC 里的 remarks 还解释了为什么锚泊在 S-131 里多是点要素：&quot;the anchor berth is defined by the centre point and a swinging circle radius&quot;——抛锚时船绕着锚旋回，<strong>中心点加旋回圈半径</strong>就定义了一切，画成面反而是浪费。<strong>同一个物标，两套规范各自长出自己的细节</strong>——这正是上一篇文章说的&quot;渲染器是解释器&quot;的直接验证：解释器吃的是指令集，规则怎么变它一行不改。</p>
+<p>同包的 LockBasin（船闸）规则则是另一套排版思路：名字注记不走编号模板，而是 <code>TextAlignHorizontal:Center;TextAlignVertical:Center</code> 双向居中——船闸的名字端正地写在港池面中央，锚泊的编号斜挂在符号旁边。点物标的编号注记和面物标的居中标注，是两套各自讲究的排版方案。</p>
+<p>翻一下目录结构也能看出设计意图：<code>Rules/</code>、<code>Symbols/</code>、<code>ColorProfiles/</code>、<code>LineStyles/</code> 四个目录各司其职。符号表里 <code>131SYMBL3</code> 一族有三个成员（<code>131SYMBL3</code>、<code>131SYMBL3L</code>、<code>131SYMBL3S</code>）——同一枚符号的大、中、小三个尺寸变体，供不同显示尺寸选用。</p>
+<p><code>LineStyles/QUESMRK1.xml</code> 是全包最有味道的一个文件。它是一条线样式：品红（CHMGD）虚线，循环长度 17.5，三段 dash 的起点和长度写死成数据，然后在 11.4 的位置摆一枚 <code>EMQUESM1</code> 问号符号。用途写在文件头的 exposition 里——&quot;object which is not sufficiently described to be symbolized, or for which no symbol exists&quot;：<strong>没被充分描述到可以符号化的对象，就用这条带问号的虚线画</strong>。不确定本身也是信息，问号也是标准件。</p>
+<p>而它文件头的两行注释，值得单独停下来看：</p>
+<pre><code>&lt;?S100lineage source=&quot;S52Preslib4.0&quot; format=&quot;S100Ed2&quot; version=&quot;0.1&quot; creationDate=&quot;2015-03-13&quot;?&gt;</code></pre>
+<p>S-131 是 2026 年发布 2.0.0 的新产品，它的一条线样式却自报家门：继承自 2015 年的 S-52 预库（PresLib 4.0）。依赖也一起继承——线样式引用的那枚 <code>EMQUESM1</code> 符号，在本包的 Symbols 目录里<strong>并不存在</strong>（六个 SVG 是 131 系四个——<code>131INFRM</code>、<code>131SYMBL3</code> 和它的大小变体——加 CHDATD01、QUESMRK1），要回 S-52 预库的符号库去找。<a href="s101-portrayal-lookup.html">S-101 的图示表达</a>也是同一血统。IHO 在 S-100 上做的事，一大半是<strong>把二十年积累的 S-52 显示资产平移进新框架</strong>，而不是推倒重来——你在旧标准上的积累，又一次不作废。</p>
+<p><code>ColorProfiles/colorProfile.xml</code> 里的颜色令牌是 <strong>67 个</strong>——和 S-101 的颜色令牌数完全一致，Day / Dusk / Night 三板的框架原样沿用。港口产品不需要发明新颜色，需要的只是把既有的安全配色体系带到新场景。</p>
+<p>还有一个值得注意的细节：S-131 的 FC 和 PC 是<strong>独立分发</strong>的两份文件（和 S-101 一样），版本号各自演进。FC 2.0.0 配 PC 2.0.0，将来 FC 出 2.1.0 时 PC 可以不动——数据和画法的解耦，在产品规范这一层也是成立的。</p>
+<h2>&quot;合成&quot;的实质：不做新测量，做场景封装</h2>
+<p>S-131 常被叫做&quot;合成海图产品&quot;。这个词容易让人以为是把 S-101 和 S-102 的数据&quot;混合渲染&quot;——其实看一遍要素目录就明白，<strong>合成的实质是场景封装</strong>：把港口进港场景需要的既有要素（水深、泊位、航标）加上港口运营特有的物标（设施、服务、时序），打包成一个自带要素目录、自带图示表达、自带校验规则（Annex A DCEG 和 S-158 校验项都齐）的独立产品。</p>
+<p>这种&quot;一个场景一个产品规范&quot;的路数，对国内海道测量机构是很有参考价值的模板：长江口的水深告警、琼州海峡的通航服务、洋山港的集卡调度，理论上都可以是下一个&quot;S-1xx&quot;。产品规范的成本大头在要素目录和图示表达的标准件，而这些正是 S-100 通用框架已经摊薄的部分。</p>
+<p>工具页的 <a href="pc.html">PC 解析器</a>可以直接吃 S-131 的 Portrayal Catalogue 目录——上传后每个物标的渲染预览、规则源码、符号实图都在。下一篇回到 S-123：一篇很多资料会搞混的产品规范，它和航行警告到底什么关系，拿真实分发件说清楚。</p>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+
