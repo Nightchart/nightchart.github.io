@@ -7,7 +7,7 @@ tags: S-101, 图示表达, Lua, ECDIS, IHO
 draft: true
 ---
 
-上一篇[拆 PC 分发件](s101-portrayal-lookup.html)时留了个坑：目录里登记着 215 个规则文件的"引用"，但解开包只看到数据——符号怎么画有 XML，颜色怎么配有 colorProfile，**唯独没有"什么条件下画什么"的逻辑**。S-52 时代的 Look-up 表好歹是一张能读的表，S-101 把它变成了 215 个 Lua 文件。
+上一篇[拆 PC 分发件](s101-portrayal-lookup.html)时留了个坑：目录里登记着 215 个规则文件的"引用"，但解开包只看到数据——符号怎么画有 XML，颜色怎么配有 colorProfile，**唯独没有"什么条件下画什么"的逻辑**。S-52 时代的 Look-up 表好歹是一张能读的表，S-101 把它变成了 215 个 Lua 文件——约 200 个物标规则，外加 `PortrayalAPI`、`S100Scripting` 这几个随包运行的框架库。
 
 这些文件不在展示性分发件里，而是以 CSP（Conditional Symbology Procedure，条件制图程序）源码的形式随产品规范发布。这件事的分量值得单独说一句：**条件制图从"给人读的文档"变成了"给机器跑的程序"**。S-52 PresLib 时代，PL 3.4 / PL 4.0 里的条件逻辑是伪代码，每家渲染器自己翻译成 C++——翻译过程就是实现分歧的温床。S-101 干脆把官方实现（Lua）连同文档一起发，你要做的不是"照着文档写"，而是"把这段 Lua 嵌进去跑"。
 
@@ -15,7 +15,7 @@ draft: true
 
 ## 最小的规则：锚泊船
 
-`AnchorBerth.lua` 全文六十多行，是理解 CSP 结构的好样本。核心判断只有两处：
+`AnchorBerth.lua` 全文 43 行，是理解 CSP 结构的好样本。核心判断只有两处：
 
 ```lua
 local symbol = 'ACHBRT07'	-- default for categoryOfCargo != 7
@@ -51,11 +51,13 @@ else
 
 `contextParameters` 是**船员设置**，不是要素属性。雷达叠加开着，锚泊符号画在雷达图像上层；关着就画在下层。同一个物标，画面层级跟着用户参数走——这就是为什么渲染器没法把"画在哪层"写死，也是 CSP 签名里带 `contextParameters` 的原因。要素属性、几何类型、用户上下文，三股输入在这里汇合。
 
+最后一个小细节：要素带名字时，规则追加一条文本注记，且内容走模板——`EncodeString(GetFeatureName(feature, contextParameters), 'Nr %s')`。图上"Nr 7"这样的锚泊编号格式，是规则里定的，不是渲染器拼的。连一个前缀字符串的归属都被规范收走了。
+
 顺带看一眼指令协议本身：`AddInstructions` 吃一个分号分隔的字符串，`ViewingGroup:26220;DrawingPriority:15;DisplayPlane:UnderRadar`——分组、优先级、显示面，一条指令流。**渲染器要做的只是实现这个指令集的解释器**，规则怎么写它一概不关心。
 
 ## 最复杂的规则：深度区和它的邻居们
 
-`DEPARE03.lua` 有 170 行，处理的是海图上最要命的问题：**安全等深线到底画在哪**。
+`DEPARE03.lua` 有 150 余行，处理的是海图上最要命的问题：**安全等深线到底画在哪**。
 
 [前文讲过](s52-portrayal.html)，安全等深线是船员按吃水设的参数，改一个数整张图的填色分布重算。"重算"在 S-101 里的实体就是这段 Lua：
 
@@ -96,7 +98,7 @@ if qualityOfPosition and qualityOfPosition ~= 1 and qualityOfPosition ~= 10 and 
 
 这条边如果位置测量质量不达标（qualityOfPosition 不在可信值列表里），安全等深线画成**虚线**——测得不准的等深线在图上就该长得不确定。数据质量参与渲染决策，这是 S-100 系列相对 S-57 最实质的进步之一，而它就落在这几行里。
 
-其二，规则是可组合的。文件头 `require 'RESCSP03'`、`require 'SAFCON01'`、`require 'SEABED01'`——海床整理、安全水深注记各是独立的 CSP，被 DEPARE03 按需调用。215 个规则文件不是 215 个孤立函数，是一张调用网。连性能桩都标准化了（`Debug.StartPerformance('Lua Code - DEPARE03')`），官方实现自带计时。
+其二，规则是可组合的。文件头 `require 'RESCSP03'`、`require 'SAFCON01'`、`require 'SEABED01'`——管制区注记、安全水深标注、海床显示各是独立的 CSP，被 DEPARE03 按需调用。215 个规则文件不是 215 个孤立函数，是一张调用网。连性能桩都标准化了（`Debug.StartPerformance('Lua Code - DEPARE03')`），官方实现自带计时。
 
 ## 另一族：不用 Lua 的 XSLT
 
@@ -110,15 +112,15 @@ Lua 不是唯一载体。S-111 表面流、S-123 海上无线电服务这批产�
     <displayPlane>OVERRADAR</displayPlane>
     <symbol reference="CostGuardStattion"/>
   </pointInstruction>
-  <xsl:if test="communicationChannel != ''">
+  <xsl:if test="communicationChannel!= ''">
     <textInstruction>...</textInstruction>
   </xsl:if>
 </xsl:transform>
 ```
 
-对比 AnchorBerth 那段 Lua，语义一一对应：模板匹配管几何类型（`[@primitive='Point']`），`xsl:if` 管条件注记，输出的是指令 XML 而不是指令流字符串。一个是命令式（Lua 主动 AddInstructions），一个是声明式（XSLT 匹配后产出 XML），条件制图的语义是同一套。
+对比 AnchorBerth 那段 Lua，语义一一对应：模板匹配管几何类型（`[@primitive='Point']`），`xsl:if` 管条件注记，输出的是指令 XML 而不是指令流字符串。一个是命令式（Lua 主动 AddInstructions），一个是声明式（XSLT 匹配后产出 XML），条件制图的语义是同一套。顺带一个彩蛋：注意引用里那个 `CostGuardStattion`——双写的 t，官方分发件原样带着这个拼写错误。同一个包里还有拼错的 `Meterorological` 文件名（少个 o 的版本和正确版本并存）——一个 S-123 包贡献两处拼写彩蛋，标准是工程产物这件事，在细节里到处都是实锤。
 
-为什么两套并存？这批产品规范的图示表达直接从 S-52 PresLib 迁移而来，XSLT 是当年 PresLib 的既有技术路线，S-101 新写的产品才换成了 Lua。对我们做渲染器的人，实际含义是：**解析器要么支持两种规则引擎，要么在接入不同产品规范前先做一层转换**。我们的做法是工具里双引擎并列：同一个 S-131 分发包实测吃下 2 个 Lua 规则，S-123 分发包实测吃下 26 个 XSLT 规则文件（87 个 XML、657 个符号），两条管道各自出渲染预览。
+为什么两套并存？XSLT 是 S-52 预库时代就确立的技术路线，这批产品规范延续了它；S-101 较新，规则换成了 Lua。对我们做渲染器的人，实际含义是：**解析器要么支持两种规则引擎，要么在接入不同产品规范前先做一层转换**。我们的做法是工具里双引擎并列：同一个 S-131 分发包实测吃下 41 个 Lua 规则，S-123 分发包实测吃下 26 个 XSLT 规则文件（87 个 XML、657 个符号、15 个物标规则），两条管道各自出渲染预览。
 
 ## 这件事的真正含义
 
