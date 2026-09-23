@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#143d38">工具箱工作流：四个阶段，十个工具</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">全部纯浏览器本地运行，数据不出本机</text>
+
+  <!-- 阶段横条 -->
+  <g text-anchor="middle">
+    <rect x="40" y="96" width="180" height="46" rx="8" fill="#0f6d5f"/>
+    <text x="130" y="125" font-size="14" font-weight="600" fill="#f2f0e8">① 查标准</text>
+    <rect x="250" y="96" width="180" height="46" rx="8" fill="#0f6d5f"/>
+    <text x="340" y="125" font-size="14" font-weight="600" fill="#f2f0e8">② 拆数据</text>
+    <rect x="460" y="96" width="180" height="46" rx="8" fill="#0f6d5f"/>
+    <text x="550" y="125" font-size="14" font-weight="600" fill="#f2f0e8">③ 造数据 / 看效果</text>
+    <rect x="670" y="96" width="150" height="46" rx="8" fill="#143d38"/>
+    <text x="745" y="125" font-size="14" font-weight="600" fill="#f2f0e8">④ 离线带走</text>
+  </g>
+  <!-- 阶段箭头 -->
+  <g stroke="#8a877e" stroke-width="1.6" fill="none">
+    <path d="M224 119 H 246"/><path d="M434 119 H 456"/><path d="M644 119 H 666"/>
+    <path d="M240 112 L 248 119 L 240 126"/>
+    <path d="M450 112 L 458 119 L 450 126"/>
+    <path d="M660 112 L 668 119 L 660 126"/>
+  </g>
+
+  <!-- 阶段1工具 -->
+  <g font-size="12">
+    <rect x="40" y="170" width="180" height="128" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="54" y="196" font-weight="600" fill="#143d38">S-57 对象类码表</text>
+    <text x="54" y="216" font-weight="600" fill="#143d38">S-57 属性码表</text>
+    <text x="54" y="236" font-weight="600" fill="#143d38">S-52 颜色与符号速查</text>
+    <text x="54" y="256" font-weight="600" fill="#143d38">S-57 ↔ S-101 要素对照</text>
+    <text x="54" y="280" fill="#8a877e" font-size="11">179 对象类 · 属性反向索引</text>
+  </g>
+  <!-- 阶段2工具 -->
+  <g font-size="12">
+    <rect x="250" y="170" width="180" height="128" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="264" y="196" font-weight="600" fill="#143d38">坐标 / 磁差速算</text>
+    <text x="264" y="216" font-weight="600" fill="#143d38">HDF5 / S-100 网格解析</text>
+    <text x="264" y="236" font-weight="600" fill="#143d38">S-100 要素目录解析器</text>
+    <text x="264" y="256" font-weight="600" fill="#143d38">S-100 图示表达解析器</text>
+    <text x="264" y="280" fill="#8a877e" font-size="11">整目录上传 · 双规则引擎</text>
+  </g>
+  <!-- 阶段3工具 -->
+  <g font-size="12">
+    <rect x="460" y="170" width="180" height="128" rx="7" fill="#ffffff" stroke="#e0ddd4"/>
+    <text x="474" y="196" font-weight="600" fill="#143d38">S-100 测试数据生成器</text>
+    <text x="474" y="216" font-weight="600" fill="#143d38">S-52 昼夜模拟器</text>
+    <text x="474" y="240" fill="#8a877e" font-size="11">1–50 个合成要素实例</text>
+    <text x="474" y="260" fill="#8a877e" font-size="11">三条等深线滑块拖动重排</text>
+  </g>
+  <!-- 阶段4 -->
+  <g font-size="12">
+    <rect x="670" y="170" width="150" height="128" rx="7" fill="#f1efe9" stroke="#e0ddd4"/>
+    <text x="684" y="196" font-weight="600" fill="#143d38">离线完整版</text>
+    <text x="684" y="220" fill="#8a877e" font-size="11">样本数据全量内嵌</text>
+    <text x="684" y="240" fill="#8a877e" font-size="11">船端 · 隔离网段可用</text>
+    <text x="684" y="264" fill="#8a877e" font-size="11">随版本升级</text>
+  </g>
+
+  <!-- 底部说明 -->
+  <text x="40" y="348" font-size="12.5" fill="#5b584f">每个工具的详细说明见工具页；配套的拆解文章：S-57 数据解剖 → S-101 数据集拆开看 → 215 条渲染规则。</text>
+  <text x="40" y="372" font-size="11.5" fill="#8a877e">缺什么工具？hi@nightchart.cn —— 大概率下一个工具就是它。</text>
+</svg>
