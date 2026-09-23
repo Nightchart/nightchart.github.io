@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#143d38">S-401 内河物标：定义里全是生活（Ed 1.3.0 实拆）</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">179 个要素类型里的五个样本 · 定义引自要素目录原文 · 图元按规范登记</text>
+
+  <!-- 卡片网格 2 行 -->
+  <g>
+    <!-- Dam -->
+    <rect x="40" y="86" width="380" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="40" y="86" width="6" height="150" rx="3" fill="#0f6d5f"/>
+    <text x="62" y="112" font-size="14" font-weight="700" fill="#143d38">Dam（坝）</text>
+    <text x="200" y="112" font-size="11" fill="#0f6d5f" font-family="Consolas, monospace">curve</text>
+    <text x="62" y="138" font-size="12" fill="#44423c">"A barrier to check or confine anything</text>
+    <text x="62" y="156" font-size="12" fill="#44423c">in motion; particularly one constructed to</text>
+    <text x="62" y="174" font-size="12" fill="#44423c">hold back water and raise its level…"</text>
+    <text x="62" y="200" font-size="11.5" fill="#8a877e">内河航道边最硬的边界，图元是线不是点</text>
+
+    <!-- Checkpoint -->
+    <rect x="440" y="86" width="380" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="440" y="86" width="6" height="150" rx="3" fill="#b5478c"/>
+    <text x="462" y="112" font-size="14" font-weight="700" fill="#143d38">Checkpoint（检查站）</text>
+    <text x="600" y="112" font-size="11" fill="#b5478c" font-family="Consolas, monospace">point</text>
+    <text x="462" y="138" font-size="12" fill="#44423c">"An official location at which to register,</text>
+    <text x="462" y="156" font-size="12" fill="#44423c">declare and/or inspect goods and/or</text>
+    <text x="462" y="174" font-size="12" fill="#44423c">people."</text>
+    <text x="462" y="200" font-size="11.5" fill="#8a877e">内河海事管理的日常，写成了一个点物标</text>
+
+    <!-- BunkerStation -->
+    <rect x="40" y="248" width="380" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="40" y="248" width="6" height="150" rx="3" fill="#d9a410"/>
+    <text x="62" y="274" font-size="14" font-weight="700" fill="#143d38">BunkerStation（燃料补给站）</text>
+    <text x="62" y="300" font-size="12" fill="#44423c">给船加油、加水、加压载——</text>
+    <text x="62" y="318" font-size="12" fill="#44423c">"or to obtain electrical power supply"</text>
+    <text x="62" y="336" font-size="12" fill="#44423c">连岸电补给都写在定义里。</text>
+    <text x="62" y="362" font-size="11.5" fill="#8a877e">绿色港口的演进，要素目录同步跟进</text>
+
+    <!-- Fairway -->
+    <rect x="440" y="248" width="380" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="440" y="248" width="6" height="150" rx="3" fill="#3a7ca5"/>
+    <text x="462" y="274" font-size="14" font-weight="700" fill="#143d38">Fairway（航道）</text>
+    <text x="600" y="274" font-size="11" fill="#3a7ca5" font-family="Consolas, monospace">surface</text>
+    <text x="462" y="300" font-size="12" fill="#44423c">较大船舶的主通航通道所在，也是船舶</text>
+    <text x="462" y="318" font-size="12" fill="#44423c">通常遵循的航线——一条有官方认证的</text>
+    <text x="462" y="336" font-size="12" fill="#44423c">"路"，内河航道的核心概念。</text>
+    <text x="462" y="362" font-size="11.5" fill="#8a877e">同类还有 Gate · Daymark · FerryRoute · Hulk</text>
+  </g>
+</svg>
