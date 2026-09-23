@@ -1,5 +1,5 @@
 <p>这个博客写了半年 S-57 和 S-100，每篇文章里出现过的速查表和解析器，最后都沉淀成了<a href="tools.html">工具页</a>里的十个在线工具。这篇按<strong>实际工作流的顺序</strong>把它们串起来——不是功能清单，是什么场景该抓哪个工具、以及它们各自解决过的真实问题。全部工具纯浏览器本地运行，数据不出本机。</p>
-<p><img src="assets/fig-toolkit-flow.svg" alt="工具箱工作流：四个阶段、十个工具" loading="lazy"></p>
+<p><img src="https://i-blog.csdnimg.cn/direct/96caf8ea97cf44059b20103f9aa7d146.png" alt="工具箱工作流：四个阶段、十个工具" loading="lazy"></p>
 <h2>查标准：两张某表</h2>
 <p><strong><a href="objl.html">S-57 对象类码表</a></strong> 和 <strong><a href="attr.html">S-57 属性码表</a></strong>：写解析器时最常开的两个页。对象类码表收录 179 个核心 ENC 对象类（编码、缩写、中英文名、图元），实时过滤、高频对象标星，点行即复制；属性码表除了类型和取值域，还做了<strong>反向索引</strong>——查一个属性能直接看到&quot;被哪些对象类使用&quot;，双向跳转互通。典型场景：拿到一份 ENC，某个物标用了冷门属性组合，两个页面对着查五分钟就能定位——比翻 S-57 Appendix A 的 PDF 快得多。第一次接手 ENC 的，配合<a href="s57-enc-anatomy.html">数据解剖那篇</a>对照着走一遍，比读规范快一周。</p>
 <p><strong><a href="s52.html">S-52 颜色与符号速查</a></strong>：五套标准调色板 63 个令牌的屏显值全量内嵌，一键导出 JSON / CSS 变量直接进代码；166 个 INT 1 符号中文图库，实时过滤分类浏览。写渲染器调颜色、对符号时开着当案头字典。色值数据的来历和设计逻辑在<a href="s52-night-palette.html">夜航那篇</a>里有完整拆解。</p>

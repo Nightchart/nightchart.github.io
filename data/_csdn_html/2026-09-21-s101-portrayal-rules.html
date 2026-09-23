@@ -24,7 +24,7 @@ else
 	featurePortrayal:AddInstructions('...DisplayPlane:UnderRadar')</code></pre>
 <p><code>contextParameters</code> 是<strong>船员设置</strong>，不是要素属性。雷达叠加开着，锚泊符号画在雷达图像上层；关着就画在下层。同一个物标，画面层级跟着用户参数走——这就是为什么渲染器没法把&quot;画在哪层&quot;写死，也是 CSP 签名里带 <code>contextParameters</code> 的原因。要素属性、几何类型、用户上下文，三股输入在这里汇合。</p>
 <p>最后一个小细节：要素带名字时，规则追加一条文本注记，且内容走模板——<code>EncodeString(GetFeatureName(feature, contextParameters), 'Nr %s')</code>。图上&quot;Nr 7&quot;这样的锚泊编号格式，是规则里定的，不是渲染器拼的。连一个前缀字符串的归属都被规范收走了。</p>
-<p><img src="assets/fig-s101-flow.svg" alt="条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释" loading="lazy"></p>
+<p><img src="https://i-blog.csdnimg.cn/direct/f539539c73944abd98e45067325b8840.png" alt="条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释" loading="lazy"></p>
 <p>顺带看一眼指令协议本身：<code>AddInstructions</code> 吃一个分号分隔的字符串，<code>ViewingGroup:26220;DrawingPriority:15;DisplayPlane:UnderRadar</code>——分组、优先级、显示面，一条指令流。<strong>渲染器要做的只是实现这个指令集的解释器</strong>，规则怎么写它一概不关心。</p>
 <h2>最复杂的规则：深度区和它的邻居们</h2>
 <p><code>DEPARE03.lua</code> 有 150 余行，处理的是海图上最要命的问题：<strong>安全等深线到底画在哪</strong>。</p>
