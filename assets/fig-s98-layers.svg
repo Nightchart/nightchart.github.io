@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#1f2d3d">S-98 九层优先级：屏幕信息的秩序（Ed 2.0.0 §9.2.1）</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">第 n+1 层不得遮挡第 n 层 · 列表约束遮挡关系，不指定绘制顺序</text>
+
+  <!-- 九层栈：从高到低 -->
+  <g font-size="12.5">
+    <rect x="60" y="84"  width="440" height="34" rx="5" fill="#c0392b"/>
+    <text x="76" y="106" fill="#fff" font-weight="700">1　ECDIS 告警与指示</text>
+    <text x="380" y="106" fill="#f6d4cf" font-size="10.5">caution / 超比例尺</text>
+
+    <rect x="60" y="122" width="440" height="34" rx="5" fill="#2c5f8a"/>
+    <text x="76" y="144" fill="#fff" font-weight="700">2　官方点/线/面 + 官方更新</text>
+    <text x="380" y="144" fill="#c7d9ea" font-size="10.5">S-101 底层，永久开启</text>
+
+    <rect x="60" y="160" width="440" height="34" rx="5" fill="#3a76a8"/>
+    <text x="76" y="182" fill="#fff" font-weight="700">3　改版通告 · 手动更新 · 航行警告</text>
+    <text x="380" y="182" fill="#c7d9ea" font-size="10.5">S-124</text>
+
+    <rect x="60" y="198" width="440" height="34" rx="5" fill="#5b93bd"/>
+    <text x="76" y="220" fill="#fff" font-weight="700">4　官方 caution 注记</text>
+
+    <rect x="60" y="236" width="440" height="34" rx="5" fill="#7fadcd"/>
+    <text x="76" y="258" fill="#fff" font-weight="700">5　官方填色区域</text>
+
+    <rect x="60" y="274" width="440" height="34" rx="5" fill="#0f8a6d" stroke="#d8b74a" stroke-width="2"/>
+    <text x="76" y="296" fill="#fff" font-weight="700">6　官方按需数据</text>
+    <text x="240" y="296" fill="#f0e6b8" font-size="10.5">S-102 水深 · S-104 水位 · S-111 流 · S-129 富余水深</text>
+
+    <rect x="60" y="312" width="440" height="34" rx="5" fill="#555a63"/>
+    <text x="76" y="334" fill="#fff" font-weight="700">7　雷达与 AIS</text>
+    <text x="380" y="334" fill="#c9cdd4" font-size="10.5">在官方填色之下</text>
+
+    <rect x="60" y="350" width="440" height="34" rx="5" fill="#c87f3a"/>
+    <text x="76" y="372" fill="#fff" font-weight="700">8　船员点/线/面</text>
+
+    <rect x="60" y="388" width="440" height="34" rx="5" fill="#dba96a"/>
+    <text x="76" y="410" fill="#fff" font-weight="700">9　船员填色区域</text>
+  </g>
+
+  <!-- 右侧注解 -->
+  <g font-size="11.5" fill="#44423c">
+    <line x1="500" y1="291" x2="560" y2="160" stroke="#0f8a6d" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <rect x="560" y="96" width="260" height="88" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="560" y="96" width="6" height="88" rx="3" fill="#0f8a6d"/>
+    <text x="580" y="120" font-weight="700" fill="#143d38">按需 ≠ 不重要</text>
+    <text x="580" y="140">S-102/104/111/129 统统住第 6 层：</text>
+    <text x="580" y="158">在官方填色之下、雷达之上，</text>
+    <text x="580" y="176">用户打开才显示的"增强层"</text>
+
+    <line x1="500" y1="329" x2="560" y2="250" stroke="#555a63" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <rect x="560" y="206" width="260" height="88" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="560" y="206" width="6" height="88" rx="3" fill="#555a63"/>
+    <text x="580" y="230" font-weight="700" fill="#143d38">雷达在上还是在下？</text>
+    <text x="580" y="250">由显示平面 order 属性决定：</text>
+    <text x="580" y="268">负值平面画在雷达之下，</text>
+    <text x="580" y="286">正值画在雷达之上</text>
+
+    <rect x="560" y="316" width="260" height="106" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="560" y="316" width="6" height="106" rx="3" fill="#b5478c"/>
+    <text x="580" y="340" font-weight="700" fill="#143d38">身份靠签名，不靠声明</text>
+    <text x="580" y="360">X.509 的 ST 字段存角色码：</text>
+    <text x="580" y="378">DATA_PRODUCER / AGGREGATOR</text>
+    <text x="580" y="396">= 官方；其余非官方；</text>
+    <text x="580" y="414">CN 必须是 MRN 生产者码</text>
+  </g>
+</svg>
