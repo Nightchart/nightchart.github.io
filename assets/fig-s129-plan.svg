@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#1f2d3d">S-129 一份计划的一生：Pre-plan → Actual Plan → Actual Update</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">岸上算账，船上选窗；计划可整体替换；船与引航员的 PPU 显示同一份</text>
+
+  <!-- 泳道标签 -->
+  <rect x="40" y="92" width="52" height="120" rx="6" fill="#2c5f8a"/>
+  <text x="66" y="150" font-size="12" fill="#fff" font-weight="700" text-anchor="middle" writing-mode="tb" letter-spacing="2">岸上服务方</text>
+  <rect x="40" y="230" width="52" height="150" rx="6" fill="#c87f3a"/>
+  <text x="66" y="300" font-size="12" fill="#fff" font-weight="700" text-anchor="middle" writing-mode="tb" letter-spacing="2">船　长</text>
+
+  <!-- 阶段 1：Pre-plan -->
+  <rect x="110" y="92" width="180" height="120" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+  <rect x="110" y="92" width="6" height="120" rx="3" fill="#2c5f8a"/>
+  <text x="130" y="118" font-size="13.5" font-weight="700" fill="#143d38">Pre-plan</text>
+  <text x="130" y="140" font-size="11.5" fill="#44423c">按一串可能的到达时间</text>
+  <text x="130" y="158" font-size="11.5" fill="#44423c">预先算账，产出若干</text>
+  <text x="130" y="176" font-size="11.5" fill="#44423c">可通行时间窗</text>
+  <text x="130" y="198" font-size="10.5" fill="#8a877e">给定吃水的候选方案</text>
+
+  <path d="M292 152 h44" stroke="#8a877e" stroke-width="2"/>
+  <path d="M332 146 l12 6 -12 6 Z" fill="#8a877e"/>
+
+  <!-- 阶段 2：船长选择 -->
+  <rect x="110" y="230" width="180" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+  <rect x="110" y="230" width="6" height="150" rx="3" fill="#c87f3a"/>
+  <text x="130" y="256" font-size="13.5" font-weight="700" fill="#143d38">选窗 + 报参数</text>
+  <text x="130" y="278" font-size="11.5" fill="#44423c">船长选定时间窗，</text>
+  <text x="130" y="296" font-size="11.5" fill="#44423c">上报稳性、吃水等</text>
+  <text x="130" y="314" font-size="11.5" fill="#44423c">船舶细节</text>
+  <text x="130" y="340" font-size="10.5" fill="#8a877e">SOLAS V/34 泊位到泊位</text>
+  <text x="130" y="356" font-size="10.5" fill="#8a877e">规划义务的数据化落地</text>
+
+  <path d="M200 228 v-14" stroke="#8a877e" stroke-width="0" />
+  <path d="M292 305 h44" stroke="#8a877e" stroke-width="0"/>
+
+  <!-- 阶段 3：Actual Plan -->
+  <rect x="340" y="92" width="200" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+  <rect x="340" y="92" width="6" height="150" rx="3" fill="#0f8a6d"/>
+  <text x="360" y="118" font-size="13.5" font-weight="700" fill="#143d38">Actual Plan</text>
+  <text x="360" y="140" font-size="11.5" fill="#44423c">专属模型算出：航线、</text>
+  <text x="360" y="158" font-size="11.5" fill="#44423c">控制点（时刻+航速）、</text>
+  <text x="360" y="176" font-size="11.5" fill="#44423c">红区金区清单</text>
+  <text x="360" y="198" font-size="10.5" fill="#8a877e">可共享给船东/租家/代理，</text>
+  <text x="360" y="214" font-size="10.5" fill="#8a877e">供引航与泊位预订</text>
+
+  <path d="M542 152 h44" stroke="#8a877e" stroke-width="2"/>
+  <path d="M582 146 l12 6 -12 6 Z" fill="#8a877e"/>
+
+  <!-- 阶段 4：Actual Update -->
+  <rect x="598" y="92" width="222" height="150" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+  <rect x="598" y="92" width="6" height="150" rx="3" fill="#b5478c"/>
+  <text x="618" y="118" font-size="13.5" font-weight="700" fill="#143d38">Actual Update</text>
+  <text x="618" y="140" font-size="11.5" fill="#44423c">临近作业区复核环境，</text>
+  <text x="618" y="158" font-size="11.5" fill="#44423c">变化时整体替换计划：</text>
+  <text x="618" y="176" font-size="11.5" fill="#44423c">最早/最晚进入浅区时刻</text>
+  <text x="618" y="198" font-size="10.5" fill="#8a877e">船据此管理航速卡时间窗；</text>
+  <text x="618" y="214" font-size="10.5" fill="#8a877e">引航员 PPU 显示同一份</text>
+
+  <!-- 底部呼应条 -->
+  <g font-size="11.5" fill="#44423c">
+    <rect x="40" y="374" width="780" height="34" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="40" y="374" width="6" height="34" rx="3" fill="#b5478c"/>
+    <text x="60" y="396">三种计划在术语表中正式枚举 · 数据源：高分辨率水深 + 水位/洋流/潮流/气象预报 + 船舶细节 → 每份计划都为特定船量身定制</text>
+  </g>
+</svg>
