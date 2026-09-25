@@ -1,0 +1,38 @@
+<p>前面几篇我们把<a href="s131-harbour.html">港口</a>、<a href="s123-marine-radio.html">无线电服务</a>、<a href="s401-inland.html">内河</a>的产品规范挨个拆过，渲染单产品这件事，路数你已经熟了：要素目录管&quot;是什么&quot;，绘制目录管&quot;怎么画&quot;。但真实船舶的 ECDIS 屏幕上从来不止一种数据——S-101 底图垫底，<a href="s102-grid.html">S-102 水深</a>和<a href="s104-waterlevel.html">S-104 水位</a>负责安全等深线与潮位改正，<a href="s111-surface-current.html">S-111 表层流</a>画箭头，S-124 弹航行警告，再叠上雷达回波、AIS 目标，还有船长手画的避险线。<strong>十几种数据源挤一块屏幕，谁压住谁、告警谁先响、谁算&quot;官方&quot;数据——总得有一份交通规则。</strong></p>
+<p>这份规则就是 S-98，全名 S-100 ECDIS and Interoperability Specification。本文依据 S-98 Ed 2.0.0（2025 年 10 月，IHO 通报 41/2025 发布）——文档史里这版的批注是 &quot;First operational Edition&quot;，首个可操作版。拆完你会发现一个有意思的事实：它的核心卖点&quot;互操作目录&quot;，在这个首操版里<strong>其实还没启用</strong>。</p>
+<h2>「官方」不是声明出来的，是签名出来的</h2>
+<p>先说最容易被低估的一节：数据身份。</p>
+<p>S-98 要求，任何进 ECDIS 的数据——不管官方非官方——<strong>都必须带数字签名</strong>。而&quot;官方&quot;这顶帽子，不由生产者自封，由签名证书里的一个字段决定：X.509 证书的 ST（State or Province）字段，在 IHO 数据保护方案里被征用来存角色码。<code>DATA_PRODUCER</code> 是按 SOLAS 公约生产 live 航行数据的官方水道测量机构；<code>DATA_AGGREGATOR</code> 是 RENC 这类代为分发签名的聚合方；<code>SCHEME_ADMINISTRATOR</code> 是 IHO 自己——只有它签发的目录证书才有资格装进 ECDIS。其余一律按非官方处理。</p>
+<p>更有意思的是 CN（Common Name）字段：里面要填 MRN 形式的生产者编码，比如 <code>urn:mrn:iho:aa00:01810</code>——而且这个码必须和数据集本体、以及交换目录里 CATALOG.XML 的登记<strong>三方对得上</strong>。冒名签名在这套设计里没有生存空间。</p>
+<p>非官方数据的边界也有专门画法：单边线型 NONHODAT，斜线纹必须朝非官方一侧——S-98 特意提醒这是&quot;单边线&quot;，画反了方向，警告的含义就反了。这一套组合拳的本质是把&quot;什么是官方数据&quot;从文档声明下沉到了密码学验证，谁来做渲染器，都得先过签名这道闸。</p>
+<h2>九层优先级：屏幕上的秩序</h2>
+<p>然后是渲染器最关心的部分：优先级。IMO 性能标准把屏幕信息分成显示底图、标准显示、按需显示三档，而 S-98 把绘制顺序细化成<strong>九个优先层</strong>（第 9.2.1 节，从高到低）：</p>
+<ol><li>ECDIS 视觉告警与指示（如 caution、超比例尺提示）</li><li>官方点/线/面要素及其官方更新</li><li>改版通告、手动更新、航行警告</li><li>官方 caution（ENC 及其他警示注记）</li><li>官方填色区域</li><li><strong>官方按需数据</strong>——水位、表层流、富余水深都在这层</li><li>雷达与 AIS</li><li>船员手画点/线/面</li><li>船员填色区域</li></ol>
+<p>规则一句话：第 n+1 层的任何内容，<strong>不得遮挡</strong>第 n 层及更高层的信息。注意这个顺序的几个反直觉之处：雷达居然排在官方填色区<strong>之下</strong>（不然回波会糊死水深配色）；船员的手画永远垫在官方数据之上、但压不过雷达；而我们花了好几篇讲的 S-102/S-104/S-111，统统住在第 6 层&quot;按需&quot;——它们再重要，也是&quot;用户打开了才显示&quot;的增强层，底图永远是 S-101。另外 S-98 补了一句：这个列表不指定绘制顺序，只约束遮挡关系。</p>
+<p>层内先后靠绘制目录的 display plane 与 drawing priority 决定（这套机制<a href="s101-portrayal-rules.html">拆 Look-up 表那篇</a>讲过），雷达的上下关系由显示平面的 order 属性控制：负值平面画在雷达下，正值画在雷达上——这就是 S-101 规则里 <code>OverRADAR</code>/<code>UnderRADAR</code> 分支开关的规范出处。</p>
+<h2>数据分层：谁必须装，谁只许干一件事</h2>
+<p>第 6 章列了 ECDIS 主屏的必装清单，措辞全是 must：S-101（过渡期与 S-57 并存——文档管这叫&quot;双燃料&quot;，双标准同屏是一等公民场景）；S-102 <strong>只许干两件事</strong>：增强安全等深线（ESC）和水位改正（WLA）；S-104 只许干 WLA；S-111、S-124、S-129 可以开关；S-128 只用于更新状态报告和图形索引。ENC 层永久开启，没有&quot;关掉海图&quot;这个选项。</p>
+<p>Projection 一并管了：S-102/S-104 允许用 UTM/UPS 投影坐标交付，ECDIS 必须支持反算——转换公式就写在附录 H。</p>
+<p>这份清单还有个隐藏视角：S-122/S-123/S-125/S-127/S-131 和 WMO 的冰情、海况产品，都写在&quot;未来版本&quot;里。换句话说，我们前面拆的 S-131 港口、S-123 无线电，在 S-98 的现行文本里还是期货——产品规范一个个生效，互操作框架的收录名单在后面追。</p>
+<h2>核心卖点，还是期货</h2>
+<p>说到这里必须讲清 S-98 最微妙的一章。第 8 章开头说得明白：互操作目录（Interoperability Catalogue）是 S-100 Part 16 抽象概念的实现，一个描述&quot;多产品如何同屏使用与显示&quot;的元产品。<strong>但同一节紧接着承认：这个目录目前 IHO 还没发布，本版 ECDIS 对它没有实现要求，互操作处理在本版不启用（not operational）</strong>——原文两处原话：&quot;An interoperability catalogue is currently unpublished by IHO&quot;，&quot;such interoperability is not operational in this edition of S-98&quot;。</p>
+<p>目录的形态倒是设计好了，写在 Annex A：四层互操作（Level 1-4，对应 Part A-D），一层比一层复杂，2.0.0 版只完整定义了 1、2 两级——数据层在不同产品间交错（interleave）或替换（substitute）。覆盖产品是 S-101/102/104/111/129 五件套（S-123 们要逐案评估）。</p>
+<p>附件里还有两处&quot;编辑伤疤&quot;，恰好是工程状态的注脚：正文 Overview 里留着上一版的句子——&quot;Edition 1.1.0 specifies only Levels 1 and 2 in full&quot;，2.0.0 的文档里说着 1.1.0 的事；引用表里的产品规范版本停在 2023 年（S-101 Ed 1.1.0、S-102 Ed 2.2.0），比主文档的 2025 年 10 月慢了一整代。旗舰附件带着旧版的胎记出厂，不是苛评，是实锤——互操作这套东西仍在浇筑。</p>
+<p>那现阶段多产品同屏靠什么？靠的正是上面那些散布在正文里的硬规定：第 6 章的清单、第 9 章的优先级、第 12/13 章对每个产品的显示细则，外加附录 D 的 ESC/WLA 完整流程——<a href="s104-waterlevel.html">水位改正那套界面 must 清单</a>就出自那里。互操作目录发布之日，才是从&quot;逐对握手&quot;升级到&quot;统一调度&quot;之时。</p>
+<h2>几个渲染器会撞上的细节</h2>
+<p>最后收一批散装但扎手的实现细节，都出自正文：</p>
+<p><strong>共边虚线会变成实线。</strong> 相邻面要素共享一条边（比如两个并排的锚地），各自的绘制规则都会去描它——虚线图案双向各画一遍，叠加结果可能是一条实线。S-98 第 7.2.6 节给了错误/正确对照图。<a href="s101-portrayal-rules.html">DEPARE03 那篇</a>讲的共边判定，就是为了让共享边只画一次。</p>
+<p><strong>日期依赖要素。</strong> 季节性航标用 periodicDateRange、临时分道通航用 fixedDateRange 圈定生效期；船员可以自选&quot;查看日期&quot;做航线预演——想看下个月才生效的新分道，把日期拨过去就行。一旦显示日期不是今天，屏幕必须永久显示以 <strong>&quot;Display Not Real Time&quot;</strong> 开头的提示——和 S-104 水位改正的永久指示是同一套设计语言：凡是&quot;看到的不是现在&quot;，必须明说。</p>
+<p><strong>超比例尺要算数。</strong> 显示比例尺超过 optimumDisplayScale 就是 overscale，超限因子要实时计算并显示成 &quot;X1.3&quot;、&quot;X2&quot; 这样的字样（1 毫米误差在放大后跟着变 1.3 毫米、2 毫米）；用小比例尺数据硬填大比例尺窗口的&quot;严重超限&quot;区域，必须铺 OVERSC01 图案。optimumDisplayScale 跳档超过 3 级的地方要画比例尺边界线。</p>
+<p><strong>没有数据也要画出来。</strong> 无 ENC 覆盖的区域铺 NODATA03 底纹（NODTA 色），同时给出 &quot;No ENC Available&quot; 提示——&quot;这里没数据&quot;本身就是必须传达的信息。</p>
+<p><strong>安全等深线默认 30 米。</strong> 船员没设就取 30 m；所选值在数据里不存在时，自动退到更深的一条并告知——不许静默替换。</p>
+<p>这一批细节有个共同气质：<strong>全是 must</strong>。S-98 的正文大部分不谈架构，谈的是这些一条条可验收的小规定——型式认可审的就是它们。</p>
+<h2>小结</h2>
+<p>三句话收尾：<strong>S-98 管的是产品之间</strong>——它不定义数据、不定义绘制，定义的是十几种产品挤进同一块屏幕时的秩序；<strong>身份靠密码学</strong>——官方与否由证书字段和 MRN 三方核对决定，签名强制，无签名不进库；<strong>互操作是期货</strong>——首操版的框架立住了，但统一调度的目录还没发布，今天是逐对握手，明天才是合龙。</p>
+<p><img src="assets/fig-s98-layers.svg" alt="S-98 九层优先级：从告警到船员填色" loading="lazy"></p>
+<p>上一篇我们走到内河。标准家族里还有一类&quot;管标准的标准&quot;没讲——比如 S-128，把&quot;桌上还有哪些海图、各自更新到哪一版&quot;本身变成数据。这篇之后，也许该轮到它了。</p>
+<h2>参考资料</h2>
+<ul><li>IHO，《S-98 ECDIS and Interoperability Specification》，Main Document, Edition 2.0.0，2025 年 10 月（含 Appendix A–H）。</li><li>IHO，《S-98 Annex A: ECDIS Interoperability Specification》，Edition 2.0.0，2025 年 10 月。</li><li>IMO，MSC.530(106)/Rev.1（ECDIS 性能标准）、MSC.1/Circ.1609（导航设备用户界面设计准则）。</li><li>IHO，《S-100 Universal Hydrographic Data Model》Ed 5.2.x：Part 9/9a（绘制）、Part 16（互操作目录模型）、Part 16A（统一符号化）。</li></ul>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+
