@@ -8,6 +8,7 @@
 <p><strong>Product Mapping</strong>（产品映射）——&quot;传统产品与 S-100 产品之间的映射&quot;。这件事的意义藏在定义外面：从 S-57 到 S-101 的换代期，一张纸海图、一份老 ENC、一份新 ENC 可能描述同一片水域，目录得把它们对上号，<a href="s98-interop.html">S-98 说的双燃料同屏</a>才有的查。</p>
 <p><strong>Agency Responsible for Production</strong>（生产责任机构）、<strong>Update Number / Update Date</strong>（更新期号与日期）、<strong>Product Specification</strong>（产品所遵循的规范名）——这三件套就是更新状态报告的字段来源。还有 <strong>Original Product Number</strong>（&quot;被重新包装或以多种标识发行的产品&quot;的原始编号）——连一图多卖这种实务都有字段兜着。</p>
 <p>以及一个让人会心一笑的属性：<strong>Price of Nautical Product</strong>（航海产品的价格）。目录连价签都管——毕竟&quot;桌上有哪些图&quot;的下一个问题往往是&quot;去哪买、多少钱&quot;。</p>
+<p><img src="assets/fig-s128-catalogue.svg" alt="S-128 草稿目录：产品分解、报告字段与画法" loading="lazy"></p>
 <h2>画法：XSLT 家族再添一员，连纸产品都有自己的规则</h2>
 <p>绘制目录（PC 2.0.0 草稿）还是熟悉的配方——XSLT 声明式规则，<a href="s123-marine-radio.html">S-123 同款模板</a>。实读几条：</p>
 <p><strong>ElectronicProduct</strong>（面）：CHYLW 黄色虚线围边，填充同色、透明度 0.30，查看组 31000，压在雷达层之上，优先级 15。<strong>S100Service</strong>（面）：CHMGD 品红，同样的虚线、透明度和层级。<strong>PhysicalProduct</strong>——纸产品也有一条专属规则。</p>
