@@ -12,8 +12,15 @@
 <p>层内先后靠绘制目录的 display plane 与 drawing priority 决定（这套机制<a href="s101-portrayal-rules.html">拆 Look-up 表那篇</a>讲过），雷达的上下关系由显示平面的 order 属性控制：负值平面画在雷达下，正值画在雷达上——这就是 S-101 规则里 <code>OverRADAR</code>/<code>UnderRADAR</code> 分支开关的规范出处。</p>
 <h2>数据分层：谁必须装，谁只许干一件事</h2>
 <p>第 6 章列了 ECDIS 主屏的必装清单，措辞全是 must：S-101（过渡期与 S-57 并存——文档管这叫&quot;双燃料&quot;，双标准同屏是一等公民场景）；S-102 <strong>只许干两件事</strong>：增强安全等深线（ESC）和水位改正（WLA）；S-104 只许干 WLA；S-111、S-124、S-129 可以开关；S-128 只用于更新状态报告和图形索引。ENC 层永久开启，没有&quot;关掉海图&quot;这个选项。</p>
+<p>双燃料怎么个&quot;燃&quot;法，第 18 章给了画面级的规定：同一个海图窗口，<strong>可以一半是 S-57、一半是 S-101</strong>——S-57 那半边按 S-57/S-52 的老规矩画，S-101 这半边按 S-101 和本规范来，接缝处的无缝绘制算法写在附录 E。但有条红线值得单独念一遍：<strong>ESC 和 WLA 只许叠加在 S-101 海图上</strong>——S-100 的非 ENC 产品压在 S-57 图上时，不得与底图交互或修改底图。换句话说，水深、水位这些增强层与老标准的数据不兼容，过渡期里它们是 S-101 的专属特权。</p>
 <p>Projection 一并管了：S-102/S-104 允许用 UTM/UPS 投影坐标交付，ECDIS 必须支持反算——转换公式就写在附录 H。</p>
 <p>这份清单还有个隐藏视角：S-122/S-123/S-125/S-127/S-131 和 WMO 的冰情、海况产品，都写在&quot;未来版本&quot;里。换句话说，我们前面拆的 S-131 港口、S-123 无线电，在 S-98 的现行文本里还是期货——产品规范一个个生效，互操作框架的收录名单在后面追。</p>
+<h2>附录 D：ESC 与 WLA 的完整算法</h2>
+<p>S-98 的附录 D 是全文工程密度最高的部分——<a href="s102-grid.html">S-102 的增强安全等深线</a>和 <a href="s104-waterlevel.html">S-104 的水位改正</a>到底怎么算，全在这。两个细节先立个靶：</p>
+<p><strong>没有 ESC 的世界有多糙？</strong> 附录开场就自我批判：传统 ECDIS 里用户设了安全等深线值，如果数据里恰好没有这条值的等深线，系统默认退到&quot;下一条更深&quot;的——<strong>可能比用户设的值深出 10 米以上</strong>。ESC 就是为了治这个：直接从 S-102 水深格网、按用户设定的值实时构造等深线。</p>
+<p><strong>ESC 的算法朴素得可爱。</strong> S-102 启用后，先&quot;抑制&quot;掉一批 S-101 要素的绘制——水深区、疏浚区、等深线，连带安全等深线、浅水图案、CATZOC 图案、疏浚深度文本、等深线标注，全部让位。然后对格网做判边：一条公共边，两侧格点的水深值<strong>一个在安全值这边、一个在那边</strong>，这条边就是等深线的一部分；数据集边界上的边，值小于等于安全值即入选。选出来的边连成安全等深线，其围出的安全/不安全水域用于告警判定。这和 <a href="s101-portrayal-rules.html">DEPARE03 那篇</a>讲的共边判定是同一族算法——标准里最好的部分，从来都是这种朴素几何。</p>
+<p>WLA 那半边，第 1.5 节式的界面 must 清单之外还有几条硬的：<strong>默认关闭</strong>，必须用户主动开；三种模式（当前或指定时刻、指定时段、按航线时刻表逐段推算）；一旦开启，安全等深线、水深分色、安全水深、孤立危险物判定<strong>全部必须用调整后的水深</strong>——不许只换颜色图层不重算；拾取报告（cursor pick）必须同时给出调整前和调整后的水深。ESC 的覆盖边界必须用 DEPWL 色标围线画出——附录连这个颜色的三套色板 CIE xyL 坐标都给了。</p>
+<p>还有一句值得玩味的自我声明，就写在附录 D 开头：<strong>&quot;本附录内容目前尚未与 S-100 Ed 5.2.0 Part 9 的现有绘制机制集成&quot;</strong>——在集成完成前，附录 D 就是这些特性的规范性出处，用的术语都可能和 S-100 本体不一致。旗舰规范里塞着一块自认&quot;还没合进主干&quot;的补丁，工程状态一望便知。</p>
 <h2>核心卖点，还是期货</h2>
 <p>说到这里必须讲清 S-98 最微妙的一章。第 8 章开头说得明白：互操作目录（Interoperability Catalogue）是 S-100 Part 16 抽象概念的实现，一个描述&quot;多产品如何同屏使用与显示&quot;的元产品。<strong>但同一节紧接着承认：这个目录目前 IHO 还没发布，本版 ECDIS 对它没有实现要求，互操作处理在本版不启用（not operational）</strong>——原文两处原话：&quot;An interoperability catalogue is currently unpublished by IHO&quot;，&quot;such interoperability is not operational in this edition of S-98&quot;。</p>
 <p>目录的形态倒是设计好了，写在 Annex A：四层互操作（Level 1-4，对应 Part A-D），一层比一层复杂，2.0.0 版只完整定义了 1、2 两级——数据层在不同产品间交错（interleave）或替换（substitute）。覆盖产品是 S-101/102/104/111/129 五件套（S-123 们要逐案评估）。</p>
@@ -26,11 +33,16 @@
 <p><strong>超比例尺要算数。</strong> 显示比例尺超过 optimumDisplayScale 就是 overscale，超限因子要实时计算并显示成 &quot;X1.3&quot;、&quot;X2&quot; 这样的字样（1 毫米误差在放大后跟着变 1.3 毫米、2 毫米）；用小比例尺数据硬填大比例尺窗口的&quot;严重超限&quot;区域，必须铺 OVERSC01 图案。optimumDisplayScale 跳档超过 3 级的地方要画比例尺边界线。</p>
 <p><strong>没有数据也要画出来。</strong> 无 ENC 覆盖的区域铺 NODATA03 底纹（NODTA 色），同时给出 &quot;No ENC Available&quot; 提示——&quot;这里没数据&quot;本身就是必须传达的信息。</p>
 <p><strong>安全等深线默认 30 米。</strong> 船员没设就取 30 m；所选值在数据里不存在时，自动退到更深的一条并告知——不许静默替换。</p>
+<p><strong>告警命中要取并集。</strong> 航线或船位同时戳中多个危险物时，第 16.1 节的规定是把所有命中的空间对象<strong>取并集一并高亮</strong>，不许只报一个；同一对象同时触发告警（alarm/alert）和指示（indication）时，先画告警高亮、再画指示高亮——渲染顺序都替你想好了。</p>
+<p><strong>重叠是大事，也是常态。</strong> 相邻生产国交界处，ENC 允许至多 5 米的重叠缓冲带凑合拼接；超过 5 米的重叠，ECDIS 必须只显示其中一份数据，并给出永久的 &quot;overlap&quot; 指示。其他产品的重叠用按需提示 &quot;Overlap in ??? data&quot;；唯一的例外是用于 WLA 的 S-102/S-104——改水深的数据不能含糊，必须单选一份加永久指示。至于不同产品的覆盖缝隙，规范豁达地写了&quot;可以预期出现，无需指示&quot;。</p>
+<p><strong>目录要能装多版本。</strong> ECDIS 必须支持持久安装同一产品规范的多版要素目录与绘制目录，版本清单随用户查询。版本号三段式各有语义：Edition 是大变（新构造、新数据类型），Revision 是实质语义变化，Clarification 只除歧义改错字——这套语义连 &quot;Clarification&quot; 这个名字都在暗示 IHO 的发布节奏。</p>
+<p><strong>格网符号要抽稀。</strong> S-102/S-104/S-111 的格网点用离散符号显示时，缩小视图会让符号密度爆炸，第 13.1 节规定必须抽稀（附录 G 给了推荐算法，厂商也可自研）。编码格式也卡死：S-102/S-104 只支持 DCF2（规则格网）一种，S-111 宽松些，DCF2/DCF3 都行。</p>
+<p><strong>时间对不上就不显示。</strong> 第 13.2 节把&quot;显示时刻&quot;与数据时间戳的匹配规则写成了硬逻辑：单条时刻记录（比如实时水位），只有显示时刻晚于时间戳、且差值小于判别间隔（例如 5 分钟）才显示；多条记录取&quot;最近且紧邻其前&quot;的一条；显示时刻早于首条记录——不显示。凡是&quot;看到的不是现在&quot;，必须明说。</p>
 <p>这一批细节有个共同气质：<strong>全是 must</strong>。S-98 的正文大部分不谈架构，谈的是这些一条条可验收的小规定——型式认可审的就是它们。</p>
 <h2>小结</h2>
 <p>三句话收尾：<strong>S-98 管的是产品之间</strong>——它不定义数据、不定义绘制，定义的是十几种产品挤进同一块屏幕时的秩序；<strong>身份靠密码学</strong>——官方与否由证书字段和 MRN 三方核对决定，签名强制，无签名不进库；<strong>互操作是期货</strong>——首操版的框架立住了，但统一调度的目录还没发布，今天是逐对握手，明天才是合龙。</p>
 <p><img src="assets/fig-s98-layers.svg" alt="S-98 九层优先级：从告警到船员填色" loading="lazy"></p>
-<p>上一篇我们走到内河。标准家族里还有一类&quot;管标准的标准&quot;没讲——比如 S-128，把&quot;桌上还有哪些海图、各自更新到哪一版&quot;本身变成数据。这篇之后，也许该轮到它了。</p>
+<p>下一篇把第 6 层&quot;按需&quot;的最后一件补齐——S-129 富余水深管理。它大概是这个家族里最特别的产品：别的产品描述海，它描述一个决定。</p>
 <h2>参考资料</h2>
 <ul><li>IHO，《S-98 ECDIS and Interoperability Specification》，Main Document, Edition 2.0.0，2025 年 10 月（含 Appendix A–H）。</li><li>IHO，《S-98 Annex A: ECDIS Interoperability Specification》，Edition 2.0.0，2025 年 10 月。</li><li>IMO，MSC.530(106)/Rev.1（ECDIS 性能标准）、MSC.1/Circ.1609（导航设备用户界面设计准则）。</li><li>IHO，《S-100 Universal Hydrographic Data Model》Ed 5.2.x：Part 9/9a（绘制）、Part 16（互操作目录模型）、Part 16A（统一符号化）。</li></ul>
 <hr>

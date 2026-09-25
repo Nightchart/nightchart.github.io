@@ -1,16 +1,19 @@
-<p>S-100 的产品谱系讲了<a href="https://nightchart.cn/s131-harbour.html">港口</a>、讲了无线电服务，这篇往另一个方向走：<strong>内河</strong>。S-401 是内河电子海图（Inland ENC）的产品规范，Ed 1.3.0——听起来冷门，实际上它可能是 S-100 家族里离国内从业者最近的一个：长江干线跑的船，装的内河 ECDIS 吃的就是这一套数据。</p>
-<p>样本照旧是真实分发件：S-401 要素目录 Ed 1.3.0，喂给<a href="https://nightchart.cn/fc.html">工具页的要素目录解析器</a>实测，解析出 <strong>178 个要素类型</strong>、7 个信息类型。fieldOfApplication 一栏写着 <strong>Inland Navigation</strong>（内河航运）。</p>
+<p>S-100 的产品谱系讲了<a href="s131-harbour.html">港口</a>、讲了无线电服务，这篇往另一个方向走：<strong>内河</strong>。S-401 是内河电子海图（Inland ENC）的产品规范，Ed 1.3.0——听起来冷门，实际上它可能是 S-100 家族里离国内从业者最近的一个：长江干线跑的船，装的内河 ECDIS 吃的就是这一套数据。</p>
+<p>样本照旧是真实分发件：S-401 要素目录 Ed 1.3.0，喂给<a href="fc.html">工具页的要素目录解析器</a>实测，解析出 <strong>178 个要素类型</strong>、7 个信息类型。fieldOfApplication 一栏写着 <strong>Inland Navigation</strong>（内河航运）。</p>
 <h2>体量：把 S-57 的家底搬进 S-100</h2>
 <p>178 个要素类型是什么概念？S-57 的对象类也是这个数量级。内河航运的图上要素本来就密：航标、桥区、船闸、渡口、码头、锚地、水下管线——一样不少，还多出不少海图上没有的东西。S-401 做的事，是把内河航运的家底整体搬进 S-100 的框架里，要素类型、属性绑定、关联关系全部按 S-100 FC 的格式重新登记。</p>
-<p>所以它和<a href="https://nightchart.cn/s131-harbour.html">S-131</a>是一对镜像：S-131 把港口场景装进一个小而精的产品（41 个要素类型），S-401 把整条内河装进一个大而全的产品（178 个要素类型）。<strong>场景化产品谱系的两端</strong>。</p>
+<p>所以它和<a href="s131-harbour.html">S-131</a>是一对镜像：S-131 把港口场景装进一个小而精的产品（41 个要素类型），S-401 把整条内河装进一个大而全的产品（178 个要素类型）。<strong>场景化产品谱系的两端</strong>。</p>
 <h2>内河特有物标：定义里全是生活</h2>
 <p>翻一遍 S-401 的要素类型，一批物标是海上规范里没有或弱化的，定义原文很有画面感：</p>
+<p><img src="assets/fig-s401-objects.svg" alt="S-401 内河物标定义卡：Dam · Checkpoint · BunkerStation · Fairway" loading="lazy"></p>
 <ul><li><strong>Dam（坝）</strong>：注意它的图元是 <strong>curve</strong>（线）——&quot;a barrier to check or confine anything in motion&quot;，拦水抬位形成水库的屏障。海图里没有&quot;坝&quot;这个图元需求，内河里它是航道边最硬的边界。</li><li><strong>Checkpoint（检查站）</strong>：&quot;An official location at which to register, declare and/or inspect goods and/or people&quot;——登记、申报、查验货和人的官方地点。内河海事管理的日常，被写成了一个点物标。</li><li><strong>BunkerStation（燃料补给站）</strong>：定义里明确列出加油、加水、加压载，<strong>或者获得电力供应</strong>——岸电设施顺手就进来了，和港口产品的演进同步。</li><li><strong>Daymark（日标牌）</strong>：白天视认背景里辅助识别助航标志的牌——内河航标的典型形态，海图符号体系基本不涉及。</li><li><strong>Fairway（航道）</strong>：面要素，定义写的是&quot;较大船舶的主通航通道所在，也是船舶通常遵循的航线&quot;——内河航道的核心概念，一条有官方认证的&quot;路&quot;。</li></ul>
-<p>还有 Gate（船闸闸门）、FerryRoute（轮渡航线）、Hulk（囤船）、Helipad（直升机坪）——每一个都能在内河航道上找到实物。要素目录的颗粒度，到这里已经细到&quot;你站在甲板上能指出来&quot;的程度。</p>
+<p>还有一个词在内河里必须掰开：<strong>Bridge</strong>。目录里它的官方定义给了两条——(1) 船上的驾驶台（navigating bridge），(2) 跨在水体上的桥。海上语境取前者，内河语境取后者，同一个词两片水域各取所需。而内河特有的&quot;天花板&quot;也都以自己的图元登记了：坝（Dam）是 <strong>curve</strong> 线物标，拦河堰（Barrage）在列，船闸的闸门（Gate）单独一个物标——这些是内河航行比海上多出来的一类刚性约束，桥区净空的限制全挂在它们身上。</p>
+<p>还有 FerryRoute（轮渡航线）、Hulk（囤船）、Helipad（直升机坪）——每一个都能在内河航道上找到实物。要素目录的颗粒度，到这里已经细到&quot;你站在甲板上能指出来&quot;的程度。</p>
 <h2>场景化产品的方法论</h2>
 <p>S-401 和 S-131、S-123 合起来看，S-100 产品谱系的打法已经清晰：<strong>通用框架（S-100 FC/PC 的格式）只有一套，每个场景配一份自己的目录和画法</strong>。框架的成本被所有产品摊薄，场景的成本集中在内容——这正是内河这种区域性极强的领域最需要的结构：长江的桥区净空、船闸调度、渡口管理，不需要等海图标准更新，自己登记自己的产品规范就行。</p>
-<p>工具实测：这份 Ed 1.3.0 的要素目录（约 2.5 MB 的 XML）直接拖进<a href="https://nightchart.cn/fc.html">要素目录解析器</a>就解析成表——178 个要素类型可搜索可过滤，S-57 别名对照也在。想提前感受内河 ECDIS 的数据结构，这是最快的一条路。</p>
-<p>十个在线工具的完整指南见<a href="https://nightchart.cn/toolkit-guide.html">上一篇</a>；港口场景的 S-131 则在<a href="https://nightchart.cn/s131-harbour.html">更早一篇</a>。</p>
+<p>工具实测：这份 Ed 1.3.0 的要素目录（约 2.5 MB 的 XML）直接拖进<a href="fc.html">要素目录解析器</a>就解析成表——178 个要素类型可搜索可过滤，S-57 别名对照也在。想提前感受内河 ECDIS 的数据结构，这是最快的一条路。</p>
+<p>十个在线工具的完整指南见<a href="toolkit-guide.html">上一篇</a>；港口场景的 S-131 则在<a href="s131-harbour.html">更早一篇</a>。</p>
+<p>下一篇换个视角：不看任何单个产品，看产品<strong>之间</strong>——S-98，ECDIS 屏幕上十几种数据源挤在一起时的交通规则。</p>
 <hr>
 <p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
 <hr>
