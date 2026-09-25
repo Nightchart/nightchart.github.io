@@ -4,7 +4,7 @@
 <p>浅水里，搁浅不是突然发生的。船开过浅区，船体会下沉、横倾，航速越快沉得越多（这就是 squat，蹲坐效应），所以&quot;水深减吃水&quot;这个静态账不算数，真正的余量是随时间、随航速变的动态量。水道当局会对管辖水域规定<strong>最小 UKC 要求</strong>，S-129 的术语表把这层意思写得很直白：不可航行区，就是&quot;富余水深低于安全限的区域&quot;。</p>
 <p>传统上这笔账由岸上的 UKCM 服务方替船东算，产出纸质或邮件的建议。S-129 Ed 2.0.0（2024 年 12 月）做的事，是把这套建议<strong>编码成 S-100 数据产品</strong>——按规范的定位，它是可以在 ECDIS 里叠加显示的&quot;航海出版物信息叠加层&quot;（NPIO）。业务的根子拴在 SOLAS 公约 V/34 条：船长有泊位到泊位做航行计划的义务，S-129 就是给&quot;过浅区&quot;这段计划提供数据形态的。</p>
 <h2>全家族最小的要素目录</h2>
-<p>样本照旧是真实分发件：S-129 FC Ed 1.4.0，喂给<a href="fc.html">要素目录解析器</a>实测——<strong>5 个要素类型、0 个信息类型、4 条要素关联</strong>。对比一下：<a href="s131-harbour.html">S-131 是 41+15</a>，S-401 有 178+7，S-129 是目前拆过的家族里最小的一个。小，但每个都咬着要害：</p>
+<p>样本照旧是真实分发件：S-129 FC Ed 1.4.0，喂给<a href="fc.html">要素目录解析器</a>实测——<strong>5 个要素类型、0 个信息类型、4 条要素关联</strong>。对比一下：<a href="s131-harbour.html">S-131 是 40+14</a>，S-401 有 178+6，S-129 是目前拆过的家族里最小的一个。小，但每个都咬着要害：</p>
 <p><strong>UnderKeelClearancePlan</strong>（计划）——根物标，9 个属性：生成时间、船舶 ID、最大吃水、来源航线名与版本、UKC 用途……一条计划就是&quot;为某条船的某次通行算出来的 UKC 方案&quot;。剩下 4 个物标全部通过 Composition 关联挂在它下面。</p>
 <p><strong>UnderKeelClearancePlanArea</strong>（计划区）——为这条船、这次通行算过 UKC 的水域范围。</p>
 <p><strong>UnderKeelClearanceNonNavigableArea</strong>（不可航行区）——官方定义只有一句：&quot;富余水深低于算得的安全限的区域&quot;。注意备注里那半句：<strong>这个区域有时间维</strong>——潮位一变，红区就长或缩。</p>
