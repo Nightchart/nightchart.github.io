@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#1f2d3d">S-128 草稿目录：把「桌上有哪些图」登记成物标</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">FC 2.0.0 草稿实测 · 152 个命名元素 · 连纸质海图和价签都有字段 · 绘制仍是 XSLT 家族</text>
+
+  <!-- 左：Navigational Product 分解 -->
+  <g>
+    <rect x="50" y="90" width="230" height="54" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="50" y="90" width="6" height="54" rx="3" fill="#0f8a6d"/>
+    <text x="70" y="112" font-size="13" font-weight="700" fill="#143d38">Navigational Product</text>
+    <text x="70" y="132" font-size="10.5" fill="#8a877e">以航行为主要目的的产品</text>
+
+    <path d="M165 144 v18" stroke="#8a877e" stroke-width="1.5"/>
+    <path d="M100 162 h130" stroke="#8a877e" stroke-width="1.5"/>
+    <path d="M100 162 v16 M230 162 v16" stroke="#8a877e" stroke-width="1.5"/>
+
+    <rect x="50" y="178" width="100" height="44" rx="8" fill="#e8f2ee" stroke="#0f8a6d"/>
+    <text x="100" y="198" font-size="11.5" font-weight="700" fill="#0b5347" text-anchor="middle">Electronic</text>
+    <text x="100" y="214" font-size="10" fill="#0b5347" text-anchor="middle">CHYLW 黄色虚线</text>
+
+    <rect x="180" y="178" width="100" height="44" rx="8" fill="#fbf3e4" stroke="#c87f3a"/>
+    <text x="230" y="198" font-size="11.5" font-weight="700" fill="#8a5a1f" text-anchor="middle">Physical</text>
+    <text x="230" y="214" font-size="10" fill="#8a5a1f" text-anchor="middle">打印在纸上的产品</text>
+  </g>
+
+  <!-- 中：字段卡 -->
+  <g>
+    <rect x="320" y="90" width="240" height="132" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="320" y="90" width="6" height="132" rx="3" fill="#2c5f8a"/>
+    <text x="340" y="114" font-size="13" font-weight="700" fill="#143d38">更新状态报告的字段来源</text>
+    <text x="340" y="138" font-size="11" fill="#44423c">Agency Responsible for Production</text>
+    <text x="340" y="156" font-size="11" fill="#44423c">Update Number / Update Date</text>
+    <text x="340" y="174" font-size="11" fill="#44423c">Product Specification（依据哪份规范）</text>
+    <text x="340" y="192" font-size="11" fill="#44423c">Original Product Number（一图多卖）</text>
+    <text x="340" y="210" font-size="10.5" fill="#8a877e">→ S-98 附录 C 的报告由这些字段撑起</text>
+  </g>
+
+  <g>
+    <rect x="320" y="238" width="240" height="110" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="320" y="238" width="6" height="110" rx="3" fill="#b5478c"/>
+    <text x="340" y="262" font-size="13" font-weight="700" fill="#143d38">还有两个意外字段</text>
+    <text x="340" y="286" font-size="11" fill="#44423c">Price of Nautical Product——价签</text>
+    <text x="340" y="304" font-size="11" fill="#44423c">Product Mapping——传统产品与</text>
+    <text x="340" y="322" font-size="11" fill="#44423c">S-100 产品的对号入座</text>
+    <text x="340" y="342" font-size="10.5" fill="#8a877e">换代期的账本归它记</text>
+  </g>
+
+  <!-- 右：画法 -->
+  <g>
+    <rect x="600" y="90" width="220" height="120" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="600" y="90" width="6" height="120" rx="3" fill="#c0392b"/>
+    <text x="620" y="114" font-size="13" font-weight="700" fill="#143d38">草稿 PC 画法实读</text>
+    <rect x="620" y="126" width="180" height="18" fill="#f9e79f" opacity="0.55"/>
+    <text x="626" y="139" font-size="10" fill="#7d6608">ElectronicProduct · CHYLW</text>
+    <rect x="620" y="150" width="180" height="18" fill="#e39bd0" opacity="0.45"/>
+    <text x="626" y="163" font-size="10" fill="#6c3483">S100Service · CHMGD</text>
+    <text x="620" y="190" font-size="10.5" fill="#8a877e">透明 0.30 · 压雷达层 · 优先级 15</text>
+
+    <rect x="600" y="228" width="220" height="120" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="600" y="228" width="6" height="120" rx="3" fill="#555a63"/>
+    <text x="620" y="252" font-size="13" font-weight="700" fill="#143d38">第四个官方疤</text>
+    <text x="620" y="276" font-size="11" fill="#44423c">开发仓 PC 目录下的压缩包：</text>
+    <text x="620" y="298" font-size="12" fill="#b5478c" font-family="Consolas, monospace">xlst.zip</text>
+    <text x="620" y="320" font-size="10.5" fill="#8a877e">少个 t · GitHub 上所有人可见 ·</text>
+    <text x="620" y="336" font-size="10.5" fill="#8a877e">issue 列表开着却没人提</text>
+  </g>
+
+  <!-- 底条 -->
+  <g font-size="11.5" fill="#44423c">
+    <rect x="40" y="374" width="780" height="34" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="40" y="374" width="6" height="34" rx="3" fill="#0f8a6d"/>
+    <text x="60" y="396">Ed 2.0.0 仍在打磨（NIPWG 公开开发）· 本文全部实探带草案标签 · 正式发布后值得再对一遍</text>
+  </g>
+</svg>
