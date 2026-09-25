@@ -2,9 +2,11 @@
 <p>素材依旧是真实分发件：S-123 的 Portrayal 包（87 个 XML、657 个 SVG、26 个 XSLT 规则、8 个调色板 CSS，连 4 个字体文件都随包分发），全部喂给<a href="pc.html">工具页的 PC 解析器</a>实测通过。这篇讲三个东西：它的物标面有多&quot;软&quot;、它的 XSLT 规则怎么组织、以及官方包里两个有意思的细节。</p>
 <h2>物标面：把电磁波画成多边形</h2>
 <p>S-57 时代，VHF 岸台、NAVTEX 播发这些信息住在航标表和无线电信号表（ALL）里——<strong>表格形态，人查的</strong>。S-123 把它们升格成空间物标：</p>
-<ul><li><strong>RadioStation / RadioServiceArea</strong>：无线电台和它的服务区——服务区是个多边形，覆盖边界就是几何</li><li><strong>GMDSSArea</strong>：全球海上安全通信系统的海区划分——A1 是岸台 VHF 覆盖圈，往外 A2/A3/A4 逐级过渡，直到远海只剩卫星覆盖，四个等级一圈圈套出去</li><li><strong>NavtexStationArea</strong>：NAVTEX 播发站的覆盖区</li><li><strong>InmarsatOceanRegionArea</strong>：Inmarsat 卫星的洋区</li><li><strong>WeatherForecastWarningArea / NavigationalMeteorologicalArea / ForecastAreaAggregate</strong>：气象预报与警报区</li><li><strong>FuzzyAreaAggregate / IndeterminateZone</strong>：模糊聚合区与不确定区——服务覆盖边界本来就有渐变和不确定性，规范直接给了表达它的物标</li></ul>
-<p><img src="https://i-blog.csdnimg.cn/direct/b3b511d244b742f782c3f099cf96593f.png" alt="GMDSS 海区与 S-123 物标的对应" loading="lazy"></p>
-<p>这套物标面的共同点：<strong>几何画的是&quot;服务能力的边界&quot;，不是自然物</strong>。信号覆盖、播发范围、预报分区，边界随台站开关、功率调整、气象过程动态变化。这也是为什么 S-123 的图示表达大量依赖文字注记。拿海警站的规则原文看：</p>
+<ul><li><strong>RadioStation / RadioServiceArea</strong>：无线电台和它的服务区——服务区是个多边形，覆盖边界就是几何</li><li><strong>GMDSSArea</strong>：全球海上安全通信系统的海区划分——A1 是岸台 VHF 覆盖圈，往外 A2/A3/A4 逐级过渡，直到远海只剩卫星覆盖，四个等级一圈圈套出去</li><li><strong>NavtexStationArea</strong>：NAVTEX 播发站的覆盖区</li><li><strong>InmarsatOceanRegionArea</strong>：Inmarsat 卫星的洋区</li><li><strong>WeatherForecastWarningArea / NavigationalMeteorologicalArea</strong>：气象预报与警报区</li><li><strong>ForecastAreaAggregate / FuzzyAreaAggregate / IndeterminateZone</strong>：预报聚合区、模糊聚合区与不确定区——服务覆盖的边界本来就有渐变和不确定性，规范直接给了表达它们的物标</li></ul>
+<p>FC 的体量不大：<strong>18 个要素类型加 13 个信息类型</strong>（其中两个是抽象底座——泛化根类型和模糊聚合区），但每一个都对应一类真实的海上服务能力。这份目录我也丢进了<a href="fc.html">要素目录解析器</a>实测，16 个非抽象要素类型直接解析成表。</p>
+<p><img src="assets/fig-s123-gmdss.svg" alt="GMDSS 海区与 S-123 物标的对应" loading="lazy"></p>
+<p>渲染层面还有个细节：GMDSS 区的填充规则里写着 <code>transparency=&quot;0.30&quot;</code>——服务区在海图上永远是<strong>半透明</strong>的，盖得住底色但不挡航行信息。边界的几何是确定的，它代表的服务能力却是概率性的，透明度就是这两者之间的诚实。</p>
+<p>这套物标面的共同点：<strong>几何画的是&quot;服务能力的边界&quot;，不是自然物</strong>。生产这些数据的也正是一线服务方——VTS 中心、海岸电台、水文气象机构，每家维护自己的覆盖与时刻，聚到一起就是全国的无线电服务图景。信号覆盖、播发范围、预报分区，边界随台站开关、功率调整、气象过程动态变化。这也是为什么 S-123 的图示表达大量依赖文字注记。拿海警站的规则原文看：</p>
 <pre><code class="language-xml">&lt;xsl:if test=&quot;communicationChannel!= ''&quot;&gt;
   &lt;textInstruction&gt;...Prod 频道号注记...&lt;/textInstruction&gt;
 &lt;/xsl:if&gt;</code></pre>
@@ -16,7 +18,7 @@
 <p>这个分层让&quot;改一个物标的画法&quot;和&quot;改全局字体&quot;是两个互不干扰的提交——对规则包的维护来说，工程结构和渲染逻辑同等重要。</p>
 <h2>官方包里的两个细节</h2>
 <p>拆包的快乐在于总有彩蛋。其一：Rules 目录里 <code>NavigationalMeteorologicalArea.xsl</code> 和 <code>NavigationalMeterorologicalArea.xsl</code> <strong>同时存在</strong>——一个是正确拼写，一个是少了个 o 的 typo 版本，同一物标的两份规则并排躺在官方分发件里。标准不是圣旨，是工程产物。其二：一个规则文件的文件名是韩语（&quot;规则 基本&quot;），多国协作的产品规范，工作语言痕迹就这样留在了分发件里。</p>
-<p>工具实测的完整数字再报一遍：S-123 包 87 个 XML、657 个 SVG、26 个 XSLT——11 个公共与辅助模板、12 个物标规则文件（覆盖 11 个物标，其中气象区的正误两个拼写版本并存）、2 个 <code>_COMMON</code> 变体，外加 1 个韩语文件名的文件，<a href="pc.html">PC 解析器</a>双引擎里的 XSLT 那条管道全通过，符号按调色板着色渲染。</p>
+<p>工具实测的完整数字再报一遍：S-123 包 87 个 XML、657 个 SVG、26 个 XSLT——6 个公共模板、14 个物标规则文件（覆盖 13 个物标，其中气象区的正误两个拼写版本并存）、3 个物标级 <code>_COMMON</code> 变体（Building / Landmark / DataCoverage）、2 个框架级 <code>_COMMON</code>，外加 1 个韩语文件名的文件，<a href="pc.html">PC 解析器</a>双引擎里的 XSLT 那条管道全通过，符号按调色板着色渲染。</p>
 <p>S-123 和 <a href="s124-navwarning.html">S-124</a> 合起来看，S-100 里&quot;信息类产品&quot;的两种形态就都见了：<strong>事件类</strong>（警告，突然出现要求被看见）和<strong>服务类</strong>（覆盖与能力，长期存在供查询）。渲染端的挑战不同——前者要抢注意力，后者要可检索。港口场景的 S-131 已在<a href="s131-harbour.html">上一篇</a>拆过；至此，事件、服务、场景三种信息产品的图示表达就都过了一遍。</p>
 <hr>
 <p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
