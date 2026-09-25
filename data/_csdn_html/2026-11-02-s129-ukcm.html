@@ -1,0 +1,31 @@
+<p><a href="s98-interop.html">S-98 的九层优先级</a>里，第 6 层&quot;官方按需数据&quot;住着四件产品：<a href="s102-grid.html">S-102 水深</a>、<a href="s104-waterlevel.html">S-104 水位</a>、<a href="s111-surface-current.html">S-111 表层流</a>，还有一个一直没讲——<strong>S-129，富余水深管理（Under Keel Clearance Management, UKCM）</strong>。补上它，按需四件套就写齐了。</p>
+<p>它也确实是四件里最特别的一个。<a href="s102-grid.html">水深</a>告诉你海底在哪，<a href="s104-waterlevel.html">水位</a>告诉你水面在哪——都是描述海的。S-129 不描述海：<strong>它描述一个决定</strong>——你这条船、走这条航线、在这个时间窗，龙骨底下还剩几米，以及这个数字是否越过了安全线。</p>
+<h2>UKC：船底下的保险丝</h2>
+<p>浅水里，搁浅不是突然发生的。船开过浅区，船体会下沉、横倾，航速越快沉得越多（这就是 squat，蹲坐效应），所以&quot;水深减吃水&quot;这个静态账不算数，真正的余量是随时间、随航速变的动态量。水道当局会对管辖水域规定<strong>最小 UKC 要求</strong>，S-129 的术语表把这层意思写得很直白：不可航行区，就是&quot;富余水深低于安全限的区域&quot;。</p>
+<p>传统上这笔账由岸上的 UKCM 服务方替船东算，产出纸质或邮件的建议。S-129 Ed 2.0.0（2024 年 12 月）做的事，是把这套建议<strong>编码成 S-100 数据产品</strong>——按规范的定位，它是可以在 ECDIS 里叠加显示的&quot;航海出版物信息叠加层&quot;（NPIO）。业务的根子拴在 SOLAS 公约 V/34 条：船长有泊位到泊位做航行计划的义务，S-129 就是给&quot;过浅区&quot;这段计划提供数据形态的。</p>
+<h2>全家族最小的要素目录</h2>
+<p>样本照旧是真实分发件：S-129 FC Ed 1.4.0，喂给<a href="fc.html">要素目录解析器</a>实测——<strong>5 个要素类型、0 个信息类型、4 条要素关联</strong>。对比一下：<a href="s131-harbour.html">S-131 是 41+15</a>，S-401 有 178+7，S-129 是目前拆过的家族里最小的一个。小，但每个都咬着要害：</p>
+<p><strong>UnderKeelClearancePlan</strong>（计划）——根物标，9 个属性：生成时间、船舶 ID、最大吃水、来源航线名与版本、UKC 用途……一条计划就是&quot;为某条船的某次通行算出来的 UKC 方案&quot;。剩下 4 个物标全部通过 Composition 关联挂在它下面。</p>
+<p><strong>UnderKeelClearancePlanArea</strong>（计划区）——为这条船、这次通行算过 UKC 的水域范围。</p>
+<p><strong>UnderKeelClearanceNonNavigableArea</strong>（不可航行区）——官方定义只有一句：&quot;富余水深低于算得的安全限的区域&quot;。注意备注里那半句：<strong>这个区域有时间维</strong>——潮位一变，红区就长或缩。</p>
+<p><strong>UnderKeelClearanceAlmostNonNavigableArea</strong>（接近不可航行区）——多了个属性 distanceAboveUKCLimit：离安全限还差多少的缓冲带。</p>
+<p><strong>UnderKeelClearanceControlPoint</strong>（控制点）——定义写得极其生动：&quot;Selected critical passage point or line&quot;（选定的关键通过点或线），带期望通过时间、期望通过航速——<strong>这是航路上的检查点：几点几分、几节，你必须在这出现在这</strong>。</p>
+<h2>一份计划的生命周期</h2>
+<p>规范第 1 章把业务流讲成了一段完整的故事。服务方按一串可能的到达时间预先算账，产出 <strong>Pre-plan</strong>——给指定吃水的船若干个可通行时间窗。船长选定一个窗口、报上船舶参数（稳性、吃水），服务方用船舶和水道专属的模型（预测与实况的潮、风、涌浪、潮流）算出 <strong>Actual Plan</strong>：一条穿过 UKCM 作业区的航线、若干控制点、以及红区和金区的清单。</p>
+<p>Actual Plan 可以共享给船东、管理公司、租家和港口代理——引航员预订、泊位预订都能用上。船快到作业区时，服务方复核环境条件，计划可能经 <strong>Actual Update</strong> 整体替换：里头带&quot;最早和最晚几点开始过浅区还能保住要求的 UKC&quot;，船据此管理航速去卡时间窗。进了作业区，Actual Update 上船载系统显示；引航员登船后，他的便携引航仪（PPU）上显示的是<strong>同一份计划</strong>——船和引航员看同一张图，这件事 S-129 是当成设计目标写的。</p>
+<h2>交通灯画法，和又一个官方彩蛋</h2>
+<p>画法层面，S-129 是 <a href="s123-marine-radio.html">S-123 之后</a>XSLT 规则家族的又一位成员——但规模小得多：<strong>整个绘制目录 6 条规则</strong>，外加 main 和 7 个公共模板。实读下来是一套干净的交通灯：</p>
+<table><thead><tr><th>规则</th><th>查看组</th><th>画法</th></tr></thead><tbody><tr><td>PlanArea</td><td>29010</td><td>计划区底色</td></tr><tr><td>AlmostNonNavigableArea</td><td>29020</td><td><strong>GOLDN</strong> 金色填充，透明度 0.5</td></tr><tr><td>NonNavigableArea</td><td>29030</td><td><strong>RED</strong> 红色填充，透明度 0.5，再铺 DIAMOND1P 菱形图案</td></tr><tr><td>ControlPoint</td><td>29050</td><td>UKCCONPT 符号，优先级 21</td></tr><tr><td>PlannedRoute</td><td>29060</td><td>PLRTE 色的计划线，优先级 12</td></tr><tr><td>InformationBox</td><td>29070</td><td>信息框，优先级 8</td></tr></tbody></table>
+<p>金色是缓冲，红色加菱形是判决，一条计划线穿过去，控制点是钉在航线上的闹钟。查看组 29010–29070 整段编号都是它的地盘。</p>
+<p>然后是彩蛋。NonNavigableArea.xsl 的两处 symbolFillTemplate 调用里，<code>viewingGroup</code> 这个参数<strong>各传了两次</strong>——先 29030 再 29040。XSLT 规范里，同一次调用的重复参数名是不允许的错误，谁解析这份文件谁就得当场做个决定。<a href="s123-marine-radio.html">S-123 包的双写 t</a>、S-401 的 Bridge 双定义、如今再加上 S-129 的重复参数——三张包三个疤，&quot;标准是工程产物&quot;这件事，在 IHO 的分发件里从来都不缺证据。</p>
+<h2>实战：挪威人把整条链跑通了</h2>
+<p>S-129 不是纸面标准，它有 143 页的实战报告。挪威 S-100 演示项目在 Tjeldsundet 海峡搞了一次<strong>商业航次</strong>的实战测试：ECC 生产 S-101（从 S-57 转换），挪威水道测量局产 S-102 和 S-111，OMC International 产 S-129——三家的数据经 PRIMAR 按 S-100 数据保护方案分发，最终在一个应用里同屏服役。<a href="s98-interop.html">S-98 说的</a>&quot;多产品挤一块屏幕&quot;，在挪威不是愿景，是跑过一次的流程。</p>
+<h2>小结</h2>
+<p>三句话：<strong>S-129 是一个&quot;决定&quot;的数据化</strong>——五物标、零信息类型的极简目录，把&quot;这条船此刻能不能过&quot;编码成了可分发的数据；<strong>它的画法是交通灯</strong>——金色缓冲、红色判决、控制点是钉在时间轴上的检查点；<strong>船和引航员看同一份计划</strong>——数据产品的价值不止于屏，在于把岸上服务、船、引航员对齐到同一份事实。</p>
+<p><img src="assets/fig-s129-ukcm.svg" alt="S-129 航线走廊：金色缓冲、红色判决、控制点" loading="lazy"></p>
+<p>至此，S-98 第 6 层的按需四件套全部拆完。S-100 的产品谱系里，航海这边的常客——底图、水深、水位、流、富余水深、警告、助航、港口、无线电、内河——这个系列也就基本点齐了。剩下的方向还有两个：管目录的 S-128，和管交通的 S-127。不急，一篇一篇来。</p>
+<h2>参考资料</h2>
+<ul><li>IHO，《S-129 Under Keel Clearance Management Product Specification》，Edition 2.0.0，2024 年 12 月。</li><li>IHO，S-129 Feature Catalogue Ed 1.4.0（2024-09-28）与 Portrayal Catalogue Ed 1.4.0（分发件实读）。</li><li>IHO，《Report on Operational Test of S-129 UKCM in Tjeldsundet, Norway》（S-100 Demonstrator Project）。</li><li>IHO，《S-98 ECDIS and Interoperability Specification》Ed 2.0.0：第 6 章（数据分层）、附录 D/G。</li></ul>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+

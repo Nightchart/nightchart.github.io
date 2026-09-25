@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="430" viewBox="0 0 860 430" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect x="0" y="0" width="860" height="430" rx="10" fill="#fdfdfb" stroke="#e6e4de"/>
+  <text x="40" y="42" font-size="19" font-weight="700" fill="#1f2d3d">S-129 航线走廊：一条计划线，两种判决区，一串控制点</text>
+  <text x="40" y="64" font-size="12" fill="#8a877e">RED 不可航行（低于安全限）· GOLDN 接近不可航行 · UKCCONPT 控制点带期望通过时刻 · 色块随潮位随时间变化</text>
+
+  <!-- 水域底 -->
+  <rect x="40" y="86" width="780" height="270" rx="8" fill="#eef4f6" stroke="#d8e2e6"/>
+  <!-- 岸线示意 -->
+  <path d="M40 96 C 140 130, 180 210, 150 356" fill="none" stroke="#c9d6cf" stroke-width="2"/>
+  <path d="M820 90 C 720 150, 760 260, 820 350" fill="none" stroke="#c9d6cf" stroke-width="2"/>
+  <text x="66" y="120" font-size="11" fill="#9aa8a2">岸</text>
+  <text x="770" y="120" font-size="11" fill="#9aa8a2">岸</text>
+
+  <!-- GOLDN 接近不可航行区 -->
+  <path d="M250 110 C 330 150, 340 260, 300 340 L 430 340 C 470 260, 450 150, 380 106 Z"
+        fill="#e8c76a" opacity="0.55"/>
+  <!-- RED 不可航行区 -->
+  <path d="M470 96 C 520 170, 520 280, 470 356 L 590 356 C 640 280, 640 170, 590 96 Z"
+        fill="#d84a3a" opacity="0.5"/>
+  <!-- 红区菱形图案 -->
+  <g fill="#a83226" opacity="0.8">
+    <path d="M520 140 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M552 150 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M536 190 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M568 210 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M524 240 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M556 280 l7 10 -7 10 -7 -10 Z"/>
+    <path d="M588 240 l7 10 -7 10 -7 -10 Z"/>
+  </g>
+
+  <!-- 计划航线 PlannedRoute -->
+  <path d="M90 300 C 200 260, 260 300, 340 250 C 420 205, 470 230, 530 190 C 610 140, 690 160, 790 130"
+        fill="none" stroke="#2c5f8a" stroke-width="3" stroke-dasharray="10 6"/>
+  <path d="M780 122 l16 6 -12 10 Z" fill="#2c5f8a"/>
+  <text x="118" y="252" font-size="11.5" fill="#2c5f8a" font-weight="700">PlannedRoute（PLRTE）</text>
+
+  <!-- 控制点 -->
+  <g>
+    <circle cx="340" cy="250" r="7" fill="#0f6d5f"/>
+    <circle cx="340" cy="250" r="12" fill="none" stroke="#0f6d5f" opacity="0.4"/>
+    <text x="300" y="234" font-size="11" fill="#0b5347" font-family="Consolas, monospace">UKCCONPT</text>
+    <text x="272" y="220" font-size="10.5" fill="#44423c">期望通过 14:32 · 6.2 kn</text>
+
+    <circle cx="530" cy="190" r="7" fill="#0f6d5f"/>
+    <circle cx="530" cy="190" r="12" fill="none" stroke="#0f6d5f" opacity="0.4"/>
+    <text x="548" y="180" font-size="10.5" fill="#44423c">期望通过 15:07 · 5.5 kn</text>
+  </g>
+
+  <!-- 区块标注 -->
+  <text x="286" y="330" font-size="11.5" fill="#8a6d1f" font-weight="700">AlmostNonNavigableArea · GOLDN</text>
+  <text x="492" y="342" font-size="11.5" fill="#8c2c20" font-weight="700">NonNavigableArea · RED + DIAMOND1P</text>
+
+  <!-- 底部时间轴说明 -->
+  <g font-size="11.5" fill="#44423c">
+    <rect x="40" y="374" width="780" height="34" rx="8" fill="#ffffff" stroke="#e0ddd4"/>
+    <rect x="40" y="374" width="6" height="34" rx="3" fill="#0f6d5f"/>
+    <text x="60" y="396">Actual Plan = 航线 + 控制点 + 红/金区清单 · Actual Update 可整体替换 · 船载系统与引航员 PPU 显示同一份</text>
+  </g>
+</svg>
