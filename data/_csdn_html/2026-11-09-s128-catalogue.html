@@ -1,0 +1,26 @@
+<p><a href="s98-interop.html">S-98 的必装清单</a>里每个产品都被派了活：S-101 画底图，S-102 管等深线，S-104 管水位。名单里还有一个最容易被略过的名字——<strong>S-128，Nautical Products Catalogue（航海产品目录）</strong>，派给它的活只有两件：更新状态报告（附录 C）和图形索引（12.4 节）。翻译成人话：<strong>它不提供任何航行信息，它只回答&quot;桌上有哪些图、各自更新到哪一版&quot;</strong>。</p>
+<p>听起来像后勤，实际上是刚需。ECDIS 要判断&quot;这份 ENC 是不是最新&quot;、要列出&quot;沿线还有哪些数据可用&quot;，背后都得有一份机器可读的产品清单撑着——哪个生产机构的哪条水道、哪个版本、第几期更新、什么时候发的。S-57 时代这份清单是纸面上的，S-128 把它变成了数据集。</p>
+<p>有意思的是，这篇拆的是一份<strong>还没发布的规范</strong>。IHO 的航海信息提供工作组（NIPWG）正在 GitHub 上公开打磨 S-128 Ed 2.0.0——主文档、要素目录、绘制目录、校验规则的源文件全在仓库里，33 个 issue 开着，评论表和影响研究文档就摆在根目录，README 顶部挂着标准提示：&quot;内容为草案，不一定生效，以 IHO 官网最终发布版本为准&quot;。看一个标准如何长出来，这是最近的一次机会。</p>
+<h2>草稿目录里都有什么</h2>
+<p>先把仓库里的要素目录（FC，标注 2.0.0）拖下来实测：152 个命名元素，其中简单属性 95 个、复杂属性 21 个——和 <a href="s129-ukcm.html">S-129 的 5 个要素类型</a>相比，这是一份属性密集型的目录。不奇怪：目录产品的业务对象是&quot;产品&quot;本身，描述它靠的是一堆字段而不是几何。</p>
+<p>物标面的几个关键角色，从定义原文就能看出目录的野心：</p>
+<p><strong>Navigational Product</strong>（航海产品）——&quot;以航行为主要目的的物理或电子产品&quot;。它往下分出 <strong>Electronic Product</strong>（电子航海产品）和 <strong>Physical Product</strong>（&quot;打印在纸上的产品&quot;）——<strong>纸质海图在 S-128 里也有一个物标</strong>。S-100 的目录不想只服务电子图，它想把桌面上那张纸也登记进去。</p>
+<p><strong>Product Mapping</strong>（产品映射）——&quot;传统产品与 S-100 产品之间的映射&quot;。这件事的意义藏在定义外面：从 S-57 到 S-101 的换代期，一张纸海图、一份老 ENC、一份新 ENC 可能描述同一片水域，目录得把它们对上号，<a href="s98-interop.html">S-98 说的双燃料同屏</a>才有的查。</p>
+<p><strong>Agency Responsible for Production</strong>（生产责任机构）、<strong>Update Number / Update Date</strong>（更新期号与日期）、<strong>Product Specification</strong>（产品所遵循的规范名）——这三件套就是更新状态报告的字段来源。还有 <strong>Original Product Number</strong>（&quot;被重新包装或以多种标识发行的产品&quot;的原始编号）——连一图多卖这种实务都有字段兜着。</p>
+<p>以及一个让人会心一笑的属性：<strong>Price of Nautical Product</strong>（航海产品的价格）。目录连价签都管——毕竟&quot;桌上有哪些图&quot;的下一个问题往往是&quot;去哪买、多少钱&quot;。</p>
+<h2>画法：XSLT 家族再添一员，连纸产品都有自己的规则</h2>
+<p>绘制目录（PC 2.0.0 草稿）还是熟悉的配方——XSLT 声明式规则，<a href="s123-marine-radio.html">S-123 同款模板</a>。实读几条：</p>
+<p><strong>ElectronicProduct</strong>（面）：CHYLW 黄色虚线围边，填充同色、透明度 0.30，查看组 31000，压在雷达层之上，优先级 15。<strong>S100Service</strong>（面）：CHMGD 品红，同样的虚线、透明度和层级。<strong>PhysicalProduct</strong>——纸产品也有一条专属规则。</p>
+<p>对照着看会发现这套配色的语义：目录内容叠加在海图上时，黄色标&quot;这是一份电子产品的覆盖范围&quot;，品红标&quot;这是一项 S-100 服务的覆盖范围&quot;——都是半透明的注记层，不抢底图的戏。和 <a href="s123-marine-radio.html">S-123 的 GMDSS 区域</a>那种&quot;服务覆盖&quot;画法一脉相承：<strong>看不见的东西，用半透明的色块标出边界</strong>。</p>
+<h2>第四个疤，藏在仓库里</h2>
+<p>这个系列的读者都知道我们的保留节目：在官方分发件里找工程疤痕。<a href="s123-marine-radio.html">S-123 的双写 t</a>、<a href="s129-ukcm.html">S-129 的重复参数</a>、S-401 的双定义——这次轮到 S-128，而且这个疤是<strong>活的</strong>：开发仓的 PC 目录下，那个装着 XSLT 规则的压缩包，文件名叫 <strong><code>xlst.zip</code></strong>。少个 t。它就摆在 GitHub 上，所有人可见，issue 列表开着却没人提。</p>
+<p>倒不是说这有什么了不得——谁还没在仓促里传错过一个压缩包。可爱的是它的象征意义：这个仓库就是标准的产房，<code>xlst.zip</code> 是产房地上还没扫的木屑。等 Ed 2.0.0 正式发布、压缩包改名、README 上的草案警告撤下，我们看到的就是一个&quot;从未出过错&quot;的成品。所以趁它没发布，把木屑拍下来。</p>
+<h2>小结</h2>
+<p>三句话：<strong>S-128 是目录的目录</strong>——不画海、不管水深，只把&quot;有哪些产品、各自多新、谁产的、多少钱&quot;变成机器可读的数据；<strong>它管纸也管电</strong>——纸质海图、传统产品与 S-100 产品的映射都在目录里，换代期的账本归它记；<strong>它还在长</strong>——Ed 2.0.0 公开打磨中，本文所有实探都带着草案标签，等正式发布，值得再回来对一遍。</p>
+<h2>参考资料</h2>
+<ul><li>IHO，S-128-Product-Specification-Development 开发仓库（github.com/iho-ohi），FC/PC 2.0.0 草稿文件实读，2026-09 快照。</li><li>IHO，《S-98 ECDIS and Interoperability Specification》Ed 2.0.0：附录 C（更新状态报告）、12.4 节（图形索引）、6.1.1 节（必装清单）。</li><li>IHO，《S-100 Universal Hydrographic Data Model》Ed 5.2.x：Part 17（发现元数据与交换目录）。</li></ul>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅。</p>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+
