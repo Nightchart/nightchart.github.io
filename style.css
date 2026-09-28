@@ -511,3 +511,5 @@ mark { background: rgba(217, 164, 16, 0.4); color: inherit; padding: 0 1px; bord
 .wechat-inline { display: flex; align-items: center; gap: 14px; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); color: var(--muted); font-size: 13.5px; }
 .wechat-inline img { width: 72px; height: 72px; border-radius: 6px; flex: none; display: block; }
 .post-body img[alt*="二维码"] { width: 200px; height: auto; }
+.support-line { margin-top: 28px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--code-bg); color: var(--muted); font-size: 13.5px; }
+.support-line a { color: #d8b74a; font-weight: 600; }
