@@ -357,6 +357,7 @@ ${p.html}
 ${prevNextHtml(p, articles)}
 ${relatedHtml(p, articles)}
 ${wechatPromoHtml()}
+<p class="support-line">♥ 这篇对你有用？<a href="https://afdian.com/a/nightchart" target="_blank" rel="noopener">在爱发电支持夜航海图</a>——请我喝杯咖啡，工具和文章都会继续更新。</p>
 <p class="back"><a href="index.html">← 返回目录</a></p>
 </article>
 ${viewsScript}
@@ -434,7 +435,7 @@ function indexPage(articles) {
     <p class="hero-kicker">Night Chart Log · 夜航海图</p>
     <h1>${esc(CFG.siteTitle)}</h1>
     <p class="hero-desc">${esc(CFG.description)}</p>
-    <p class="hero-stats"><span>${articles.length} 篇文章</span><span class="dot">·</span><span>${TOOLS.length} 个在线工具</span><span class="dot">·</span><span>每周更新</span><a class="hero-rss" href="rss.xml">RSS 订阅 →</a></p>
+    <p class="hero-stats"><span>${articles.length} 篇文章</span><span class="dot">·</span><span>${TOOLS.length} 个在线工具</span><span class="dot">·</span><span>每周更新</span><a class="hero-rss" href="rss.xml">RSS 订阅 →</a><a class="hero-rss" href="https://afdian.com/a/nightchart" target="_blank" rel="noopener">♥ 赞赏支持 →</a></p>
   </div>
   ${heroArt}
 </section>
