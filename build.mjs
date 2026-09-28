@@ -663,7 +663,12 @@ const articles = posts.filter((p) => !p.isPage && !p.draft)
 const pages = posts.filter((p) => p.isPage);
 const drafts = posts.filter((p) => p.draft);
 
-for (const p of posts) {
+// CI（GitHub Actions）上不生成草稿页：草稿只在本地预览，未经审稿不得出现在公网
+const isCI = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const genPosts = isCI ? posts.filter((p) => !p.draft) : posts;
+if (isCI) console.log('  CI 构建：跳过草稿页生成');
+
+for (const p of genPosts) {
   const content = p.isPage
     ? `<section class="page"><h1 class="post-title">${esc(p.title)}</h1><div class="post-body">${p.html}</div></section>`
     : articlePage(p, articles);
