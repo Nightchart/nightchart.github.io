@@ -4,7 +4,6 @@ slug: s101-portrayal-rules
 date: 2026-09-21
 description: 上一篇留的坑——S-101 图示表达目录里 215 个规则文件只有"引用"，公开分发件里没有逻辑。这篇拆开官方的 Lua 条件制图规则：属性换符号、几何换画法、雷达叠加换图层、共边判定安全等深线，以及 S-111/S-123 为什么改用 XSLT。
 tags: S-101, 图示表达, Lua, ECDIS, IHO
-draft: true
 ---
 
 上一篇[拆 PC 分发件](s101-portrayal-lookup.html)时留了个坑：目录里登记着 215 个规则文件的"引用"，但解开包只看到数据——符号怎么画有 XML，颜色怎么配有 colorProfile，**唯独没有"什么条件下画什么"的逻辑**。S-52 时代的 Look-up 表好歹是一张能读的表，S-101 把它变成了 215 个 Lua 文件——210 个物标规则，外加 5 个 `PortrayalAPI`、`S100Scripting` 之类的框架与公共文件。
