@@ -1,6 +1,6 @@
 <p>上一篇<a href="s101-portrayal-lookup.html">拆 PC 分发件</a>时留了个坑：目录里登记着 215 个规则文件的&quot;引用&quot;，但解开包只看到数据——符号怎么画有 XML，颜色怎么配有 colorProfile，<strong>唯独没有&quot;什么条件下画什么&quot;的逻辑</strong>。S-52 时代的 Look-up 表好歹是一张能读的表，S-101 把它变成了 215 个 Lua 文件——210 个物标规则，外加 5 个 <code>PortrayalAPI</code>、<code>S100Scripting</code> 之类的框架与公共文件。</p>
 <p>这些文件不在图示表达包里，而是以 CSP（Conditional Symbology Procedure，条件制图程序）源码的形式随产品规范发布——IHO 官网上各产品规范的 Portrayal 附件里就能下到。本文拆的这批，对应 <strong>S-101 Ed 2.0.0 配套的图示表达目录 v2.0.0</strong>——215 个 Lua 文件逐个实读，数目正好与目录登记对上。这件事的分量值得单独说一句：<strong>条件制图从&quot;给人读的文档&quot;变成了&quot;给机器跑的程序&quot;</strong>。S-52 PresLib 时代，PL 3.4 / PL 4.0 里的条件逻辑是伪代码，每家渲染器自己翻译成 C++——翻译过程就是实现分歧的温床。S-101 干脆把官方实现（Lua）连同文档一起发，你要做的不是&quot;照着文档写&quot;，而是&quot;把这段 Lua 嵌进去跑&quot;。</p>
-<p>这篇把其中的代表拆开看：一个最小的，一个最烧脑的，最后看一族不用 Lua 的。</p>
+<p>这篇挑三个代表拆开：最小的——锚泊船规则，四十来行当入门样本；最烧脑的——深度区和它的邻居们，管安全等深线怎么画；最后一族干脆不用 Lua——换 XSLT 引擎的规则。</p>
 <h2>最小的规则：锚泊船</h2>
 <p><code>AnchorBerth.lua</code> 全文 43 行，是理解 CSP 结构的好样本。核心判断只有两处：</p>
 <pre><code class="language-lua">local symbol = 'ACHBRT07'	-- default for categoryOfCargo != 7
@@ -25,7 +25,7 @@ else
 <p><code>contextParameters</code> 是<strong>船员设置</strong>，不是要素属性。雷达叠加开着，锚泊符号画在雷达图像上层；关着就画在下层。同一个物标，画面层级跟着用户参数走——这就是为什么渲染器没法把&quot;画在哪层&quot;写死，也是 CSP 签名里带 <code>contextParameters</code> 的原因。要素属性、几何类型、用户上下文，三股输入在这里汇合。</p>
 <p>最后一个小细节：要素带名字时，规则追加一条文本注记，且内容走模板——<code>EncodeString(GetFeatureName(feature, contextParameters), 'Nr %s')</code>。图上&quot;Nr 7&quot;这样的锚泊编号格式，是规则里定的，不是渲染器拼的。连一个前缀字符串的归属都被规范收走了。</p>
 <p>顺带看一眼指令协议本身：<code>AddInstructions</code> 吃一个分号分隔的字符串，<code>ViewingGroup:26220;DrawingPriority:15;DisplayPlane:UnderRadar</code>——分组、优先级、显示面，一条指令流。<strong>渲染器要做的只是实现这个指令集的解释器</strong>，规则怎么写它一概不关心。</p>
-<p><img src="assets/fig-s101-flow.svg" alt="条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释" loading="lazy"></p>
+<p><img src="https://i-blog.csdnimg.cn/direct/f539539c73944abd98e45067325b8840.png" alt="条件制图流水线：三股输入汇入规则，产出指令流，渲染器只做解释" loading="lazy"></p>
 <h2>最烧脑的规则：深度区和它的邻居们</h2>
 <p><code>DEPARE03.lua</code> 有 150 余行，处理的是海图上最要命的问题：<strong>安全等深线到底画在哪</strong>。</p>
 <p><a href="s52-portrayal.html">前文讲过</a>，安全等深线是船员按吃水设的参数，改一个数整张图的填色分布重算。&quot;重算&quot;在 S-101 里的实体就是这段 Lua：</p>
