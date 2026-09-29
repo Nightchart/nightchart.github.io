@@ -1,0 +1,27 @@
+<p><a href="s129-ukcm.html">拆 S-129 时</a>埋过一个伏笔：UKCM 计划的航线输入，规范点名说 S-421 航线交换格式（若可用）是首选。挪威 Tjeldsundet 实战里，驾驶员通过 PRIMAR 图目录买到的参考航线，走的也是这套格式。这篇就把正主请出来——<strong>S-421，Route Plan（计划航线）产品规范</strong>。</p>
+<p>先说它的身世，因为这在本系列里独一份：S-100 家族的产品规范大多由 IHO 牵头，S-421 不是——它走的是 <strong>IEC 63173</strong> 号（IEC TC 80 航海设备委员会主导），IHO 只负责一件事：给这个 IEC 标准分配了 S-100 家族的编号 <strong>S-421</strong>。框架是 IHO 的，产品是 IEC 的，编号两家共认——S-100 作为&quot;框架标准&quot;的开放性，在这里体现得最典型。</p>
+<p>而且它正在进行时。手头这份 Ed 2.0 是 <strong>CDV（委员会投票草案）</strong>，2026 年 8 月 21 日流发，<strong>11 月 13 日截票</strong>——写这篇的时候，各国委员会正在投票。稳定期标注 2030 年。家族里三种进行时我们都见过了：S-127 冻结八年、<a href="s128-catalogue.html">S-128</a> 公开打磨、S-421 正在投票。</p>
+<h2>六个要素类型，装下一条航线</h2>
+<p>Ed 2 的要素目录（20260604 版）用 ElementTree 全解析：<strong>6 个要素类型、7 个信息类型</strong>。比 <a href="s129-ukcm.html">S-129 的 5+0</a> 略胖，结构却更清晰——一条航线的三层骨架：</p>
+<p><strong>Route</strong>（航线）——根物标，整条计划航线的载体。</p>
+<p><strong>RouteWaypoints</strong>（航点容器）下挂一串 <strong>RouteWaypoint</strong>（航点）——你在电子海图上打的每一个转向点，都对应一个航点物标。</p>
+<p>相邻两个航点之间的连线，是 <strong>RouteWaypointLeg</strong>（航段）——航段的属性表是这条航线的灵魂，实测 24 个属性：对地/对水航速的上下限（SOG/STW Max/Min）、<strong>左右偏航走廊宽度</strong>（PortXTDL / StarboardXTDL，横 向偏航距离——航线不是一条线，是一条有宽度的通道）、安全等深线、安全水深、安全边际，甚至<strong>动态与静态 UKC</strong> 各占一格——每一段可以各不相同。</p>
+<p>最后是本篇最想强调的一层：<strong>RouteActionPoints</strong> 容器与 <strong>RouteActionPoint</strong>（动作点）——定义就是&quot;航线上需要采取行动的位置&quot;，实测属性带 <strong>Radius</strong>（触发半径）、<strong>TimetoAct</strong>（行动时刻）和 <strong>RequiredAction</strong>（必备行动）及其文字说明。是不是很眼熟？<a href="s129-ukcm.html">S-129 的 ControlPoint</a> 是它的近亲——同样是&quot;在什么地方该干什么&quot;，只不过 ControlPoint 长在 UKCM 计划里，ActionPoint 长在航线本身上。航线数据从&quot;一串坐标&quot;进化成&quot;一串带语义的指令&quot;，是这两个产品共同的底层进步。</p>
+<p>还有一套容易被忽略的信息类型：<strong>RouteSchedules</strong>——航线时刻表，分手工（Manual）、计算（Calculated）、推荐（Recommended）三种。<a href="s98-interop.html">S-98 附录 D</a> 里水位改正的第三种模式&quot;按航线时刻表逐段推算&quot;，消费的正是这套时刻表——航线数据在 S-100 里已经不只是几何，它带时刻、带行动、带安全参数，是可以被其他产品直接消费的语义载体。</p>
+<h2>三档测试数据，和一个编码选择</h2>
+<p>和 S-102/S-104 的 HDF5 不同，S-421 走 <strong>GML 编码</strong>（与 <a href="s129-ukcm.html">S-129 同门</a>——两者都是矢量产品，这是 S-100&quot;内容与编码分离&quot;的直接体现：矢量产品配 GML，格网产品配 HDF5）。</p>
+<p>官方测试数据分了三档，这个设计本身就值得说：<strong>GMIN</strong>（最小几何）、<strong>GBASIC</strong>（基础）、<strong>GFULL</strong>（完整）——渲染器和数据处理管线可以按自己的成熟度逐档适配，先跑通最小集，再吃完整集。随包分发的还有机器可读的 schema、要素目录、绘制目录和测试文件（Annex C 列了清单）——官方连&quot;怎么验自己写对了&quot;都打包好了。</p>
+<h2>从 RTZ 到 S-421：航线交换的十年</h2>
+<p>老一代的航线交换格式叫 <strong>RTZ</strong>（Route Exchange，XML 方言），在 ECDIS 之间传航线用了十年。S-421 Ed 1 本质上是 RTZ 的 S-100 化重制；Ed 2 则把它彻底拉进 S-100 的目录体系——要素目录、绘制目录、元数据、校验，全套按 S-100 FC/PC 的格式重新登记。</p>
+<p>为什么值得大动干戈？因为航线是<strong>跨系统流动最频繁的数据</strong>：船上的计划系统、ECDIS、公司岸基、引航员的 PPU、VTS，全都要读这条航线。它用谁的格式，谁就卡住了别人的脖子。S-100 化之后，航线和海图、水深、水位、UKCM 计划说同一种语言——<a href="s98-interop.html">S-98 画的那个多产品同屏的未来</a>，航线是最后一个会说通用语的成员。</p>
+<h2>小结</h2>
+<p>三句话：<strong>航线也是产品</strong>——S-421 用 6 个要素类型把&quot;从 A 到 B 怎么走&quot;编码成可交换、可渲染、可校验的数据；<strong>动作点是灵魂</strong>——航点管在哪转弯，航段管开多快，动作点管在何时何地做什么，三者合起来才是完整的&quot;计划&quot;；<strong>它是 IEC 与 IHO 的合著</strong>——框架开放、编号共享，S-100 的边界比 IHO 自己的产品线要宽。</p>
+<p><img src="assets/fig-s421-route.svg" alt="S-421 航线三层结构：航点、航段与动作点" loading="lazy"></p>
+<p>至此，这个系列的&quot;进行时&quot;三部曲凑齐了：冻结的 S-127、打磨中的 S-128、投票中的 S-421。产品谱系的主流拼图基本点完，接下来去哪——回工具，还是钻某一篇的深水区——留给读者和下一版的自己。</p>
+<h2>参考资料</h2>
+<ul><li>IEC，《IEC 63173-1 ED2：Maritime navigation and radiocommunication equipment and systems — S-421 Route Plan》，CDV，2026-08-21 流发（分发件与测试数据实读）。</li><li>IHO，《S-129 Under Keel Clearance Management Product Specification》Ed 2.0.0（航线输入与 ControlPoint 对照）。</li><li>IHO，S-100 Universal Hydrographic Data Model Ed 5.2.x：Part 10b（GML 编码）、Part 17（交换目录）。</li></ul>
+<hr>
+<p>我是夜航海图，做海图与地图渲染开发的工程师。博客「航图笔记」同步更新全部文章，欢迎 RSS 订阅；如果内容帮到了你，也欢迎在<a href="https://afdian.com/a/nightchart" target="_blank" rel="noopener">爱发电</a>请我喝杯咖啡。</p>
+<hr>
+<p>这个系列持续更新（S-100 全家族拆解中），<strong>关注博主不迷路</strong>；完整在线工具与最新文章见 <a href="https://nightchart.cn" target="_blank">nightchart.cn</a>。</p>
+
