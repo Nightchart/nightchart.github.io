@@ -1,8 +1,8 @@
 {
-  "_updated": "2026-10-02",
+  "_updated": "2026-10-05",
   "_note": "GoatCounter 会话去重访问数；带查询串的命中已并入对应基础路径",
   "/": 3,
-  "/ecdis-standards-roadmap.html": 1,
+  "/ecdis-standards-roadmap.html": 2,
   "/index.html": 4,
   "/tools.html": 3,
   "/objl.html": 3,
@@ -41,5 +41,13 @@
   "/pc.html?v=s131test": 1,
   "/index.html?v=vcheck": 1,
   "/attr.html?att=CATBRG": 1,
-  "/s101-portrayal-rules.html": 1
+  "/s101-portrayal-rules.html": 1,
+  "/objl.html?objl=SISTAT": 1,
+  "/objl.html?objl=RUNWAY": 1,
+  "/objl.html?objl=BCNSPP": 1,
+  "/objl.html?objl=SOUNDG": 1,
+  "/objl.html?objl=STSLNE": 1,
+  "/objl.html?objl=M_CSCL": 1,
+  "/objl.html?objl=BOYSPP": 1,
+  "/objl.html?objl=FORSTC": 1
 }
