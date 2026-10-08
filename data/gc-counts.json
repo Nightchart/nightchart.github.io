@@ -1,5 +1,5 @@
 {
-  "_updated": "2026-10-05",
+  "_updated": "2026-10-08",
   "_note": "GoatCounter 会话去重访问数；带查询串的命中已并入对应基础路径",
   "/": 3,
   "/ecdis-standards-roadmap.html": 2,
@@ -49,5 +49,21 @@
   "/objl.html?objl=STSLNE": 1,
   "/objl.html?objl=M_CSCL": 1,
   "/objl.html?objl=BOYSPP": 1,
-  "/objl.html?objl=FORSTC": 1
+  "/objl.html?objl=FORSTC": 1,
+  "/attr.html?att=CATNAV": 1,
+  "/attr.html?att=ORIENT": 1,
+  "/attr.html?att=COLOUR": 1,
+  "/attr.html?att=CAT_TS": 1,
+  "/attr.html?att=CATSIT": 1,
+  "/attr.html?att=CATTSS": 1,
+  "/attr.html?att=QUAPOS": 1,
+  "/attr.html?att=DUNITS": 1,
+  "/objl.html?objl=TS_TIS": 1,
+  "/objl.html?objl=CAUSWY": 1,
+  "/objl.html?objl=DYKCON": 1,
+  "/objl.html?objl=BERTHS": 1,
+  "/objl.html?objl=MIPARE": 1,
+  "/objl.html?objl=NAVLNE": 1,
+  "/objl.html?objl=HULKES": 1,
+  "/objl.html?objl=SLCONS": 1
 }
