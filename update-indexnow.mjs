@@ -14,13 +14,14 @@ const keyLocation = `${CFG.siteUrl}/${key}.txt`;
 const xml = fs.readFileSync(path.join(ROOT, 'publish', 'sitemap.xml'), 'utf8');
 const urlList = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 
-const r = await fetch('https://api.indexnow.org/submitindexnow', {
+const r = await fetch('https://api.indexnow.org/indexnow', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
   body: JSON.stringify({ host, key, keyLocation, urlList }),
 });
 console.log(`IndexNow 推送 ${urlList.length} 条 URL -> HTTP ${r.status}`);
-// 200/202 = 已受理；400/403/422 通常是密钥文件未部署或格式问题
+// 200/202 = 已受理；400/403/422 通常是密钥文件未部署或格式问题（注意：端点必须是 /indexnow——
+// /submitindexnow 不存在，其 Azure 边缘返回 400「服务不可用」页，曾致五连误诊，10-12 修复）
 if (r.status === 200 || r.status === 202) {
   const done = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'gc-counts.json'), 'utf8'));
   done._indexnow = new Date().toISOString().slice(0, 10);
