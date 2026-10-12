@@ -26,4 +26,7 @@ if (r.status === 200 || r.status === 202) {
   const done = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'gc-counts.json'), 'utf8'));
   done._indexnow = new Date().toISOString().slice(0, 10);
   fs.writeFileSync(path.join(ROOT, 'data', 'gc-counts.json'), JSON.stringify(done, null, 2) + '\n');
+} else {
+  // 打出响应体前 300 字符——五连 400 误诊两周半的教训：Azure 边缘错误页正文写着「服务不可用」
+  console.log(`非 2xx 响应体：${(await r.text()).slice(0, 300)}`);
 }
