@@ -11,6 +11,9 @@ S-124/
 sensitive-words.txt
 baidu_token.txt
 S-100/
-tools-dev/spec-text/
-tools-dev/_*
 dist-toolbox/
+tools-dev/
+data/_*
+_pids.txt
+s128_fc.xml
+*.zip
