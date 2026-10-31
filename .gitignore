@@ -17,3 +17,4 @@ data/_*
 _pids.txt
 s128_fc.xml
 *.zip
+.mimosa/
