@@ -1,13 +1,13 @@
 {
-  "_updated": "2026-11-10",
+  "_updated": "2026-11-13",
   "_note": "GoatCounter 会话去重访问数；带查询串的命中已并入对应基础路径",
-  "/": 2,
+  "/": 1,
   "/ecdis-standards-roadmap.html": 1,
-  "/index.html": 2,
+  "/index.html": 1,
   "/tools.html": 1,
   "/objl.html": 2,
   "/about.html": 1,
-  "/s52.html": 1,
+  "/s52.html": 3,
   "/attr.html": 2,
   "/s57-s101.html": 1,
   "/archive.html": 2,
@@ -30,7 +30,7 @@
   "/s104-waterlevel.html": 2,
   "/s101-dataset-anatomy.html": 2,
   "/s57-toolkit.html": 1,
-  "/s52-sim.html": 1,
+  "/s52-sim.html": 2,
   "/s101-portrayal-lookup.html": 1,
   "/s111-surface-current.html": 1,
   "/s102-grid.html": 1,
@@ -104,5 +104,6 @@
   "/objl.html?objl=CANALS": 1,
   "/objl.html?objl=MORFAC": 1,
   "/s401-inland.html": 1,
-  "/s129-ukcm.html": 2
+  "/s129-ukcm.html": 2,
+  "/attr.html?att=RECIND": 1
 }
